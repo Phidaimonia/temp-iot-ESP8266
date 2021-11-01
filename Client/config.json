@@ -1,0 +1,21 @@
+{
+    "mqtt": {
+        "broker": "127.0.0.1",
+        "port": 1883,
+        "user": "username",
+        "passwd": "password",
+        "temp_topic": "red/temp"
+    },
+    "wifi":{
+        "ssid": "wifi",          
+        "passwd": "password"
+    },
+    "update_period": 6,
+    "wifi_connection_timeout": 4,
+    "ds_pin": 12,
+    "min_temp": -30.0,
+    "max_temp": 30.0,
+    "temp_precision": 0.01,
+    "uuid": "xxxxxxxxxxxxxxxxxxx",
+    "max_queue_size": 16394
+}
