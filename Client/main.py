@@ -1,4 +1,4 @@
-from umqtt.simple import MQTTClient
+from umqtt.robust2 import MQTTClient
 from machine import Pin
 import ubinascii
 import machine
@@ -25,7 +25,7 @@ def measure_temp():
 ########################################################
 def broadcastData(data):
     print(data)     # 'Temperature: {}°C'.format(temp)
-    client.publish(cfg["mqtt"]["temp_topic"], json.dumps(data))
+    client.publish(cfg["mqtt"]["temp_topic"], json.dumps(data), retain=False, qos=0)
 
 ###########################################################
 
@@ -43,7 +43,10 @@ has_saved_data = False
 
 
 CLIENT_ID = ubinascii.hexlify(machine.unique_id())
-client = MQTTClient(CLIENT_ID, cfg["mqtt"]["broker"], cfg["mqtt"]["port"], cfg["mqtt"]["user"], cfg["mqtt"]["passwd"])
+client = MQTTClient(CLIENT_ID, cfg["mqtt"]["broker"], cfg["mqtt"]["port"], cfg["mqtt"]["user"], cfg["mqtt"]["passwd"], keepalive=0, ssl=False)
+
+#client.set_last_will(topic, msg, retain=False, qos=0)
+client.set_callback(on_receive)
 
 
 ######################################## Network
@@ -56,12 +59,15 @@ network.WLAN(network.AP_IF).active(False)
 if not wlan.isconnected():
     wlan.active(True)
     wlan.connect(cfg["wifi"]['ssid'],cfg["wifi"]['passwd'])
+	
+time.sleep(10)
 
 try:
     if wlan.isconnected(): 
         print("Connected to WIFI")
         #ntptime.settime()
-        #client.connect()
+        #client.connect(clean_session=True)
+		
     else: print("Not connected to WIFI")
 
 except: 
