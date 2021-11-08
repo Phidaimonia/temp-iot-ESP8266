@@ -1,9 +1,12 @@
 import tornado.httpserver
+import tornado.websocket
 import tornado.ioloop
+from tornado.web import Application as TornadoApplication
 import tornado.web
 import tornado.template as T
 import json
 import paho.mqtt.client as mqtt
+from tornado.ioloop import IOLoop
 
 CLIENT_ID = "broker_RED_team_346573"
 
@@ -17,6 +20,25 @@ class JSONHandler(tornado.web.RequestHandler):
         self.write(json.dumps(slovnik))
 
 
+class colorWSHandler(tornado.websocket.WebSocketHandler):
+    def open(self):
+        print("WebSocket opened")
+
+    def on_message(self, message):
+        print(u"You said: " + message)
+
+    def on_close(self):
+        print("WebSocket closed")
+
+    def initialize(self):
+        #self.application.ws_clients.append(self)
+        print('Init WS')
+
+
+
+
+
+
 def on_connect_MQTT(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
 
@@ -25,44 +47,44 @@ def on_connect_MQTT(client, userdata, flags, rc):
 
 def on_message_MQTT(client, userdata, msg):
     print(msg.topic+" "+str(msg.payload))
+    #write_message(str(msg.payload))
 
 
 
 
-config = open("config.json", "r")   # load parameters
-cfg = json.load(config)
-config.close()
+
+class WebWSApp(TornadoApplication):
+
+    def __init__(self):
+        self.ws_clients = []
+
+        self.tornado_handlers = [
+            (r'/', RootHandler),
+            (r'/json/', JSONHandler),
+            (r'/colors', colorWSHandler),
+            ('/(.*)', tornado.web.StaticFileHandler, {'path': './static'})
+        ]
+        self.tornado_settings = {
+            "debug": True,
+            "autoreload": True
+        }
+        TornadoApplication.__init__(self, self.tornado_handlers, **self.tornado_settings)
+
+    def send_ws_message(self, message):
+        for client in self.ws_clients:
+            iol.spawn_callback(client.write_message, message)
 
 
-client = mqtt.Client(CLIENT_ID)
-client.username_pw_set(cfg["mqtt"]["user"], cfg["mqtt"]["passwd"])
 
-
-client.on_connect = on_connect_MQTT
-client.on_message = on_message_MQTT
-
-client.connect(cfg["mqtt"]["broker"], cfg["mqtt"]["port"])
-
-
-
-application = tornado.web.Application(handlers=[
-    (r'/', RootHandler),
-    (r'/json/', JSONHandler),
-    (r'/json', JSONHandler),
-    ('/(.*)', tornado.web.StaticFileHandler, {'path': './static'})
-
-])
 
 if __name__ == '__main__':
     
     loader = T.Loader("./Static/HTML/")
     temp = loader.load("index.html")
 
-    slovnik = {"HTTP" : 80, 
-                "HTTPS" : 443}
-
-
-    http_server = tornado.httpserver.HTTPServer(application)
+    slovnik = {"item 1" : 123, 
+                "item 2" : 277}
+    
 
     # ssl_options={
     #    "certfile": "./letsencrypt/cert.pem",
@@ -71,7 +93,49 @@ if __name__ == '__main__':
     #}
 
 
-    http_server.listen(80)
-    tornado.ioloop.IOLoop.instance().start()
+    
+    config = open("config.json", "r")   # load parameters
+    cfg = json.load(config)
+    config.close()
+
+
+    client = mqtt.Client(CLIENT_ID)
+    #client.username_pw_set(cfg["mqtt"]["user"], cfg["mqtt"]["passwd"])
+
+
+    client.on_connect = on_connect_MQTT
+    client.on_message = on_message_MQTT
+
+    #client.connect(cfg["mqtt"]["broker"], cfg["mqtt"]["port"])
+
+    #client.loop_start()
+
+
+    ######################################################
+    """
+    httpApp = tornado.web.Application(handlers=[
+        (r'/', RootHandler),
+        (r'/json/', JSONHandler),
+        (r'/colors', colorWSHandler),
+        ('/(.*)', tornado.web.StaticFileHandler, {'path': './static'})
+
+    ])
+    """
+
+
+    #http_server = tornado.httpserver.HTTPServer(httpApp)
+    #http_server.listen(80)
+
+
+    #tornado.ioloop.IOLoop.instance().start()
+
+
+    app = WebWSApp()
+    app.listen(80)
+
+    iol = IOLoop.current()
+    iol.start()
+
+    print('Webserver: Initialized. Listening on 80')
 
 
