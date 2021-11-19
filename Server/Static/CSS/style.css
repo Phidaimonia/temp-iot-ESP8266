@@ -1,0 +1,48 @@
+  
+  #neverlink {
+    color: rgb(48, 121, 216);
+    position: absolute;
+  }
+  
+  
+  #myText {
+    color: rgb(48, 121, 216);
+    text-align: left;
+    font-family: verdana;
+    font-size: 28px;
+    position: absolute;
+    top:50px;
+    left:100px;
+  }
+
+
+  #dict {
+    color: rgb(48, 121, 216);
+    text-align: left;
+    font-family: verdana;
+    font-size: 28px;
+    position: absolute;
+    top:400px;
+    left:100px;
+  }
+  
+
+
+  #dogeImage {
+    text-align: center;
+    position: relative;
+    top: 100px;
+    left: 0px;
+    width: 350px;
+    height: 200px;
+    border-width: 5px;
+    border-color: aqua;
+    border-style: solid;
+  }
+
+
+  .center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
