@@ -22,7 +22,7 @@ class JSONHandler(tornado.web.RequestHandler):
 
 class colorWSHandler(tornado.websocket.WebSocketHandler):
     def open(self):
-        print("WebSocket opened")
+        print("WebSocket connection opened")
 
     def on_message(self, message):
         print(u"You said: " + message)
@@ -63,7 +63,7 @@ class WebWSApp(TornadoApplication):
         self.tornado_handlers = [
             (r'/', RootHandler),
             (r'/json/', JSONHandler),
-            (r'/colors', colorWSHandler),
+            (r'/data', colorWSHandler),
             ('/(.*)', tornado.web.StaticFileHandler, {'path': './static'})
         ]
         self.tornado_settings = {
