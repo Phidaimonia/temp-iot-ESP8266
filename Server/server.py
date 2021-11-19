@@ -20,7 +20,7 @@ class JSONHandler(tornado.web.RequestHandler):
         self.write(json.dumps(slovnik))
 
 
-class colorWSHandler(tornado.websocket.WebSocketHandler):
+class WSHandler(tornado.websocket.WebSocketHandler):
     def open(self):
         print("WebSocket connection opened")
 
@@ -63,7 +63,7 @@ class WebWSApp(TornadoApplication):
         self.tornado_handlers = [
             (r'/', RootHandler),
             (r'/json/', JSONHandler),
-            (r'/data', colorWSHandler),
+            (r'/data', WSHandler),
             ('/(.*)', tornado.web.StaticFileHandler, {'path': './static'})
         ]
         self.tornado_settings = {
