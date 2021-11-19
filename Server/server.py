@@ -31,7 +31,7 @@ class colorWSHandler(tornado.websocket.WebSocketHandler):
         print("WebSocket closed")
 
     def initialize(self):
-        #self.application.ws_clients.append(self)
+        self.application.ws_clients.append(self)
         print('Init WS')
 
 
@@ -47,6 +47,8 @@ def on_connect_MQTT(client, userdata, flags, rc):
 
 def on_message_MQTT(client, userdata, msg):
     print(msg.topic+" "+str(msg.payload))
+    app.send_ws_message(msg.topic+" "+str(msg.payload))
+
     #write_message(str(msg.payload))
 
 
@@ -100,15 +102,15 @@ if __name__ == '__main__':
 
 
     client = mqtt.Client(CLIENT_ID)
-    #client.username_pw_set(cfg["mqtt"]["user"], cfg["mqtt"]["passwd"])
+    client.username_pw_set(cfg["mqtt"]["user"], cfg["mqtt"]["passwd"])
 
 
     client.on_connect = on_connect_MQTT
     client.on_message = on_message_MQTT
 
-    #client.connect(cfg["mqtt"]["broker"], cfg["mqtt"]["port"])
+    client.connect(cfg["mqtt"]["broker"], cfg["mqtt"]["port"])
 
-    #client.loop_start()
+    client.loop_start()
 
 
     ######################################################
@@ -121,13 +123,6 @@ if __name__ == '__main__':
 
     ])
     """
-
-
-    #http_server = tornado.httpserver.HTTPServer(httpApp)
-    #http_server.listen(80)
-
-
-    #tornado.ioloop.IOLoop.instance().start()
 
 
     app = WebWSApp()
