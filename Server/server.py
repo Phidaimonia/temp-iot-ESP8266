@@ -8,7 +8,7 @@ import json
 import paho.mqtt.client as mqtt
 from tornado.ioloop import IOLoop
 
-CLIENT_ID = "broker_RED_team_346573"
+CLIENT_ID = "RED_team_346573"
 
 class RootHandler(tornado.web.RequestHandler):
     def get(self):
@@ -55,7 +55,7 @@ def on_message_MQTT(client, userdata, msg):
 
 
 
-class WebWSApp(TornadoApplication):
+class WebApp(TornadoApplication):
 
     def __init__(self):
         self.ws_clients = []
@@ -86,6 +86,10 @@ if __name__ == '__main__':
 
     slovnik = {"item 1" : 123, 
                 "item 2" : 277}
+
+    config = open("config.json", "r")   # load parameters
+    cfg = json.load(config)
+    config.close()
     
 
     # ssl_options={
@@ -95,10 +99,6 @@ if __name__ == '__main__':
     #}
 
 
-    
-    config = open("config.json", "r")   # load parameters
-    cfg = json.load(config)
-    config.close()
 
 
     client = mqtt.Client(CLIENT_ID)
@@ -109,7 +109,6 @@ if __name__ == '__main__':
     client.on_message = on_message_MQTT
 
     client.connect(cfg["mqtt"]["broker"], cfg["mqtt"]["port"])
-
     client.loop_start()
 
 
@@ -125,12 +124,13 @@ if __name__ == '__main__':
     """
 
 
-    app = WebWSApp()
+    app = WebApp()
     app.listen(80)
 
     iol = IOLoop.current()
+    print('Webserver: Initialized. Listening on 80')
     iol.start()
 
-    print('Webserver: Initialized. Listening on 80')
+
 
 
