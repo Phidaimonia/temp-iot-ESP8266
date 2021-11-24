@@ -1,9 +1,15 @@
-from umqtt.robust import MQTTClient
+import time
+print("1 minute until main starts")
+time.sleep(60)
+print("Started now")
+
+
+from robust2 import MQTTClient
 from machine import Pin
 import ubinascii
 import machine
 import ujson as json
-import time, ntptime
+import ntptime
 import onewire, ds18x20
 import network
 import os
@@ -12,6 +18,8 @@ import gc
 #import upip
 #sys.path.reverse()
 #upip.install("micropython-umqtt.simple2")
+
+globalCounter = 0
 
 
 
@@ -30,7 +38,10 @@ def measure_temp():
 
 ########################################################
 def broadcastData(data):
-    client.publish(cfg["mqtt"]["temp_topic"], json.dumps(data), retain=False, qos=0)
+    try:
+        client.publish(cfg["mqtt"]["temp_topic"], json.dumps(data), retain=False, qos=0)
+    except Exception as err:
+        raise err 
 
 ###########################################################
 
@@ -82,8 +93,9 @@ try:
 		
     else: print("Not connected to WIFI")
 
-except: 
-   print("Can't connect to the broker...") 
+except Exception as err: 
+   print("Can't connect...") 
+   print(err.msg) 
 
 
 ######################################### Sensor
@@ -93,6 +105,14 @@ roms = ds.scan()
 
 #########################################
 while True:
+    globalCounter += 1
+    if globalCounter % 360 == 0:
+        lastMeasuredTime = time.gmtime()[5]
+        ntptime.settime()
+        print("Time shifted {} after 360*6 seconds".format(time.gmtime()[5] - lastMeasuredTime))
+
+
+
     startTime = time.ticks_ms()
     m_temp = measure_temp()
     dataStr = {"team_name": cfg["team"], "created_on":getISOTime(), "temperature": m_temp}
@@ -104,36 +124,36 @@ while True:
         last_WLAN_state = wlan.status()
 
     if m_temp is not None:
-        try:
+        try:    
+                broadcastData(dataStr)
                 if has_saved_data:
                     print("Sending saved data...")
-                    dataFile = open("hist.txt", 'r')
-                    data = dataFile.readlines()
-                    dataFile.close()
+                    with open("hist.txt", 'r') as dataFile:
+                        savedCounter = 0
+                        for line in dataFile:
+                            broadcastData(line)
+                            savedCounter += 1
+                        dataFile.close()
+                        print(" Now there\'s {savedCounter} lines saved")
+                        
+                        os.remove("hist.txt")
+                        has_saved_data = False
+                        gc.collect()
 
-                    for line in data:
-                        broadcastData(line)
-                    
-                    broadcastData(dataStr)
-                    
-                    os.remove("hist.txt")
-                    has_saved_data = False
-                    gc.collect()
-                else:
-                    broadcastData(dataStr)
-        except: 
+        except Exception as err: 
             print("Can't send data, saving for later...") 
-            temp_history = open("hist.txt", "a")
-            temp_history.write(json.dumps(dataStr))
-            temp_history.write('\n')
-            temp_history.close()
+            print(err.msg)
 
-            has_saved_data = True
+            with open("hist.txt", "a") as temp_history:
+                temp_history.write(json.dumps(dataStr))
+                temp_history.write('\n')
+                temp_history.close()
+                has_saved_data = True
 
             ###
             #fileToRead = open("hist.txt", 'r')
             #print("Reading: ", fileToRead.readlines())
             #fileToRead.close()
 
-    print(time.ticks_ms() - startTime)
-    time.sleep_ms(cfg["update_period"] * 1000 - time.ticks_ms() + startTime)    
+    #print(time.ticks_ms() - startTime)
+    time.sleep_ms(min(cfg["update_period"] * 1000 - time.ticks_ms() + startTime, cfg["update_period"] * 1000))    

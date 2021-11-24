@@ -1,6 +1,7 @@
-import machine
 import time
+import os
 import sys
 
+sys.path.reverse()
 
-print("Boot complete: ", time.time())
+print("Boot complete in: ", time.time())
