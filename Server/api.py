@@ -5,6 +5,7 @@ from openapi_client.model.alert import Alert
 from openapi_client.model.login import Login
 from openapi_client.model.measurement import Measurement
 from openapi_client.model.sensors import Sensors
+import json
 
 class Api:
     def __init__(self, username, password, logger = print):
@@ -62,3 +63,4 @@ class Api:
             self.measurements_api.create_measurement(self.team_uuid, measurement)
         except openapi_client.ApiException as e:
             self.log("E: Exception when calling MeasurementsApi->create_measurement: " + str(e))
+            '{"team_name": "white", "created_on": "2021-11-27T12:23:05.336974", "temperature": 25.72}'
