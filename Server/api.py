@@ -61,6 +61,7 @@ class Api:
 
         try:
             self.measurements_api.create_measurement(self.team_uuid, measurement)
+            self.log("D: Successfully sent measurement: " + msg)
         except openapi_client.ApiException as e:
             self.log("E: Exception when calling MeasurementsApi->create_measurement: " + str(e))
 if __name__ == "__main__":
