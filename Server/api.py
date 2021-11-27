@@ -63,4 +63,6 @@ class Api:
             self.measurements_api.create_measurement(self.team_uuid, measurement)
         except openapi_client.ApiException as e:
             self.log("E: Exception when calling MeasurementsApi->create_measurement: " + str(e))
-            '{"team_name": "white", "created_on": "2021-11-27T12:23:05.336974", "temperature": 25.72}'
+if __name__ == "__main__":
+    api_client = Api("Orange", ">f@9C3p<")
+    api_client.write_message('{"team_name": "white", "created_on": "2021-11-27T12:25:05.336974", "temperature": 25.72}')
