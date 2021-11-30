@@ -1,10 +1,12 @@
 import time
-print("1 minute until main starts")
-time.sleep(60)
+#print("15 sec until main starts")
+#time.sleep(15)
 print("Started now")
 
+startTime = time.ticks_ms()
 
-from robust2 import MQTTClient
+
+from umqtt.simple import MQTTClient
 from machine import Pin
 import ubinascii
 import machine
@@ -13,17 +15,6 @@ import ntptime
 import onewire, ds18x20
 import network
 import os
-import gc
-
-#import upip
-#sys.path.reverse()
-#upip.install("micropython-umqtt.simple2")
-
-globalCounter = 0
-
-
-
-
 
 
 #######################################################
@@ -32,16 +23,46 @@ def measure_temp():
         ds.convert_temp()
         return round(ds.read_temp(roms[0]), cfg["temp_precision_places"])
     except:
-        return -124101.25  #none
+        raise 1
+
+
+def save_data(data):
+    try:
+        with open(historyFileName, "a") as temp_history:
+            temp_history.write(str(data))
+            temp_history.write('\n')
+            temp_history.close()
+    except Exception:
+        print("Can't save data, not enough memory?")
+
+
+def get_last_checkpoint():
+    try:
+        with open(variablesFileName, 'r') as f:
+            tm = f.readline()
+            f.close()
+        return int(tm)
+    except Exception:
+        return time.time() + cfg["update_period"] - (time.time() + cfg["update_period"]) % cfg["update_period"]
+
+
+def set_next_checkpoint(tm):
+    try:
+        with open(variablesFileName, 'w') as f:
+            f.write(str(tm))   
+            f.close()
+    except Exception:
+        print("Can't set next checkpoint, not enough memory?")
+
     
 
 
 ########################################################
 def broadcastData(data):
     try:
-        client.publish(cfg["mqtt"]["temp_topic"], json.dumps(data), retain=False, qos=0)
+        client.publish(cfg["mqtt"]["temp_topic"] + cfg["team"], json.dumps(data), retain=False, qos=1)
     except Exception as err:
-        raise err 
+        raise 2 
 
 ###########################################################
 
@@ -51,109 +72,91 @@ def getISOTime():
    
 ###########################################################
 
-
-
-
-
+# STATUS: 0 - no connection, 1 - connected to WIFI, 2 - sensor reading error
+status = 0
+variablesFileName = "vars.txt"
+historyFileName = "hist.txt"
 
 config = open("config.json", "r")
 cfg = json.load(config)
 config.close()
 
-last_WLAN_state = 0
-has_saved_data = False
-
-
 CLIENT_ID = ubinascii.hexlify(machine.unique_id())
 client = MQTTClient(CLIENT_ID, cfg["mqtt"]["broker"], cfg["mqtt"]["port"], cfg["mqtt"]["user"], cfg["mqtt"]["passwd"], keepalive=0, ssl=False)
 
-#client.set_last_will(topic, msg, retain=False, qos=0)
-#client.set_callback(on_receive)
-# 'Temperature: {}°C'.format(temp)
-
-
 ######################################## Network
-
 
 wlan = network.WLAN(network.STA_IF)
 network.WLAN(network.AP_IF).active(False)
 
+wlan.active(True)
+wlan.connect(cfg["wifi"]['ssid'],cfg["wifi"]['passwd'])
 
-if not wlan.isconnected():
-    wlan.active(True)
-    wlan.connect(cfg["wifi"]['ssid'],cfg["wifi"]['passwd'])
-	
-time.sleep(10)
+while wlan.status() == network.STAT_CONNECTING:
+    machine.idle()
 
-try:
-    if wlan.isconnected(): 
-        print("Connected to WIFI")
+print("WIFI status: {}".format(wlan.status()))
+
+if wlan.isconnected():
+    try:
         ntptime.settime()
-        client.connect(clean_session=True)
-		
-    else: print("Not connected to WIFI")
-
-except Exception as err: 
-   print("Can't connect...") 
-   print(err.msg) 
+        client.connect(clean_session=False)
+        status = 1
+    except Exception as err: 
+        print("WIFI connected but can't reach MQTT broker or NTP server") 
+        print("Exception number: {}".format(err)) 
+        status = 0
+else:
+    print("NOT connected to WIFI")
 
 
 ######################################### Sensor
 ds = ds18x20.DS18X20(onewire.OneWire(Pin(cfg["ds_pin"])))
 roms = ds.scan()
 
-
 #########################################
-while True:
-    globalCounter += 1
-    if globalCounter % 360 == 0:
-        lastMeasuredTime = time.gmtime()[5]
-        ntptime.settime()
-        print("Time shifted {} after 360*6 seconds".format(time.gmtime()[5] - lastMeasuredTime))
 
 
+next_stop = get_last_checkpoint() + cfg["update_period"]
+next_stop = min(next_stop, time.time(), time.time() + cfg["update_period"] - (time.time() + cfg["update_period"]) % cfg["update_period"])
 
-    startTime = time.ticks_ms()
-    m_temp = measure_temp()
-    dataStr = {"team_name": cfg["team"], "created_on":getISOTime(), "temperature": m_temp}
-    print(dataStr)   
-    
-    
-    if last_WLAN_state != wlan.status():
-        print("WLAN status changed from {} to {}".format(last_WLAN_state, wlan.status()))
-        last_WLAN_state = wlan.status()
+set_next_checkpoint(next_stop)
 
-    if m_temp is not None:
+
+m_temp = measure_temp()
+dataStr = {"team_name": cfg["team"], "created_on":getISOTime(), "temperature": m_temp}
+
+if m_temp is not None:
+    if status == 1:     # connected to broker
         try:    
-                broadcastData(dataStr)
-                if has_saved_data:
+            broadcastData(dataStr)
+            try:
+                with open(historyFileName, 'r') as dataFile:
+                    savedCounter = 0
+                    for line in dataFile:
+                        print(" SAVED: " + line)
+                        line = line.replace("'", "\"")
+                        broadcastData(json.loads(line))
+                        savedCounter += 1
+                    dataFile.close()
+                    print("     Now there\'s {} lines saved".format(savedCounter))
                     print("Sending saved data...")
-                    with open("hist.txt", 'r') as dataFile:
-                        savedCounter = 0
-                        for line in dataFile:
-                            broadcastData(line)
-                            savedCounter += 1
-                        dataFile.close()
-                        print(" Now there\'s {savedCounter} lines saved")
-                        
-                        os.remove("hist.txt")
-                        has_saved_data = False
-                        gc.collect()
+                            
+                    os.remove(historyFileName)
+            except Exception:
+                pass    # file doesn't exist -> no data to send
 
         except Exception as err: 
+            print("Exception number: {}".format(err))
             print("Can't send data, saving for later...") 
-            print(err.msg)
 
-            with open("hist.txt", "a") as temp_history:
-                temp_history.write(json.dumps(dataStr))
-                temp_history.write('\n')
-                temp_history.close()
-                has_saved_data = True
+    else: 
+        save_data(json.dumps(dataStr))
 
-            ###
-            #fileToRead = open("hist.txt", 'r')
-            #print("Reading: ", fileToRead.readlines())
-            #fileToRead.close()
 
-    #print(time.ticks_ms() - startTime)
-    time.sleep_ms(min(cfg["update_period"] * 1000 - time.ticks_ms() + startTime, cfg["update_period"] * 1000))    
+#print("Now is {}".format(time.time()))
+#print("Next stop is {}".format(next_stop))
+waitTime = max(next_stop - time.time(), 1)
+#print("Wait time is {}".format(waitTime))
+
+print("It took {} seconds".format((time.ticks_ms() - startTime) / 1000.0))
