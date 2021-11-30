@@ -54,6 +54,16 @@ def set_next_checkpoint(tm):
     except Exception:
         print("Can't set next checkpoint, not enough memory?")
 
+
+def file_exists(fname):
+    try:
+        with open(fname, 'r') as f:
+            f.close()
+        return True
+    except Exception:
+        return False
+
+
     
 
 
@@ -121,6 +131,12 @@ next_stop = get_last_checkpoint() + cfg["update_period"]
 next_stop = min(next_stop, time.time(), time.time() + cfg["update_period"] - (time.time() + cfg["update_period"]) % cfg["update_period"])
 
 set_next_checkpoint(next_stop)
+
+
+
+if (status != 0) and (time.time() < 999999): 
+    if file_exists(historyFileName):
+        os.remove(historyFileName)                  
 
 
 m_temp = measure_temp()
