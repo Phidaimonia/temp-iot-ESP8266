@@ -29,7 +29,7 @@ def measure_temp():
 def save_data(data):
     try:
         with open(historyFileName, "a") as temp_history:
-            temp_history.write(str(data))
+            temp_history.write(json.dumps(data))
             temp_history.write('\n')
             temp_history.close()
     except Exception:
@@ -72,7 +72,7 @@ def getISOTime():
    
 ###########################################################
 
-# STATUS: 0 - no connection, 1 - connected to WIFI, 2 - sensor reading error
+# STATUS: 0 - no connection, 1 - connected to WIFI
 status = 0
 variablesFileName = "vars.txt"
 historyFileName = "hist.txt"
@@ -124,23 +124,26 @@ set_next_checkpoint(next_stop)
 
 
 m_temp = measure_temp()
-dataStr = {"team_name": cfg["team"], "created_on":getISOTime(), "temperature": m_temp}
+dataDict = {"team_name": cfg["team"], "created_on":getISOTime(), "temperature": m_temp}
+
+#save_data(dataDict)
 
 if m_temp is not None:
     if status == 1:     # connected to broker
         try:    
-            broadcastData(dataStr)
+            broadcastData(dataDict)
             try:
                 with open(historyFileName, 'r') as dataFile:
                     savedCounter = 0
+                    print("Sending saved data...")
+
                     for line in dataFile:
-                        print(" SAVED: " + line)
                         line = line.replace("'", "\"")
                         broadcastData(json.loads(line))
                         savedCounter += 1
+
                     dataFile.close()
-                    print("     Now there\'s {} lines saved".format(savedCounter))
-                    print("Sending saved data...")
+                    print("     There\'s {} lines saved".format(savedCounter))
                             
                     os.remove(historyFileName)
             except Exception:
@@ -149,9 +152,14 @@ if m_temp is not None:
         except Exception as err: 
             print("Exception number: {}".format(err))
             print("Can't send data, saving for later...") 
+            save_data(dataDict)
 
     else: 
-        save_data(json.dumps(dataStr))
+        save_data(dataDict)
+else:
+    if status == 1:  
+        broadcastData({"team_name": cfg["team"], "created_on":getISOTime(), "message": "Sensor is broken..."})
+
 
 
 #print("Now is {}".format(time.time()))
