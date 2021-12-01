@@ -4,18 +4,15 @@
         "port": 1883,
         "user": "username",
         "passwd": "password",
-        "temp_topic": "red/temp"
+        "temp_topic": "room/"
     },
     "wifi":{
         "ssid": "wifi",          
-        "passwd": "password"
+        "passwd": "wifipass"
     },
-    "update_period": 6,
-    "wifi_connection_timeout": 4,
+    "update_period": 60,
+    "wifi_connection_timeout": 10,
     "ds_pin": 12,
-    "min_temp": -30.0,
-    "max_temp": 30.0,
-    "temp_precision": 0.01,
-    "uuid": "xxxxxxxxxxxxxxxxxxx",
-    "max_queue_size": 16394
+    "temp_precision_places": 2,
+    "team": "red"
 }

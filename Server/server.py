@@ -17,7 +17,7 @@ import logging
 tornado.log.enable_pretty_logging()
 app_log = logging.getLogger("tornado.application")
 
-CLIENT_ID = "RED_team_346513"
+CLIENT_ID = "RED_team_3213"
 
 class RootHandler(tornado.web.RequestHandler):
     def get(self):

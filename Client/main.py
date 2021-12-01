@@ -1,4 +1,4 @@
-import machine, os, ubinascii, ntptime, network, onewire, ds18x20, time, esp
+import machine, os, ubinascii, ntptime, network, onewire, ds18x20, time
 from umqtt.simple import MQTTClient
 from machine import Pin, RTC, Timer
 import ujson as json
@@ -10,14 +10,13 @@ def measure_temp():
         ds.convert_temp()
         return round(ds.read_temp(roms[0]), cfg["temp_precision_places"])
     except:
-        raise 1
+        return None
 
 
 def save_data(data):
     try:
         with open(historyFileName, "a") as temp_history:
-            temp_history.write(json.dumps(data))
-            temp_history.write('\n')
+            temp_history.write(data + "\n")
     except Exception:
         os.remove(historyFileName)
         print("Can't save data, not enough memory?")
@@ -29,9 +28,8 @@ def get_last_checkpoint():
             tm = f.readline()
             f.close()
         return int(tm)
-    except Exception:
-        return 5
-
+    except Exception as err:
+        return err
 
 def file_exists(fname):
     try:
@@ -42,16 +40,12 @@ def file_exists(fname):
         return False
 
 
-
-
-########################################################
 def broadcastData(data):
     try:
-        client.publish(cfg["mqtt"]["temp_topic"] + cfg["team"], json.dumps(data), retain=False, qos=1)
+        client.publish(cfg["mqtt"]["temp_topic"] + cfg["team"], data, retain=False, qos=1)
     except Exception as err:
-        raise 2 
+        raise err
 
-###########################################################
 
 def getISOTime():
     t = time.gmtime()
@@ -125,28 +119,19 @@ while 1:
         #adjustDatetime
 
     m_temp = measure_temp()
-    dataDict = {"team_name": cfg["team"], "created_on":getISOTime(), "temperature": m_temp}
+    dataStr = json.dumps({"team_name": cfg["team"], "created_on":getISOTime(), "temperature": m_temp})
 
     if m_temp is not None:
         if connected:
             try:    
-                broadcastData(dataDict)
+                broadcastData(dataStr)
                 try:
                     with open(historyFileName, 'r') as dataFile:
                         print("     Sending saved data...")
                         validData = True
 
                         for line in dataFile:
-                            try:
-                                parsedJson = json.loads(line.replace("'", "\""))
-                            except Exception:
-                                validData = False
-
-                            if not validData:
-                                print("Saved data is corrupted, deleting...")
-                                break
-
-                            broadcastData(parsedJson)
+                            broadcastData(line.replace("\n", ""))
 
                         dataFile.close()
                         os.remove(historyFileName)
@@ -156,9 +141,9 @@ while 1:
             except Exception as err: 
                 print("Exception number: {}".format(err))
                 print("Can't send data, saving for later...") 
-                save_data(dataDict)
+                save_data(dataStr)
         else: 
-            save_data(dataDict)
+            save_data(dataStr)
     else:
         if connected:  
             broadcastData({"team_name": cfg["team"], "created_on":getISOTime(), "message": "Sensor is broken..."})
@@ -168,5 +153,8 @@ while 1:
     print("Wait time is {}".format(waitTime))
     print("It took {} seconds".format((time.ticks_ms() - startTime) / 1000.0))
     justBooted = False
+
+    if not connected:
+        wlan.active(False)
 
     machine.lightsleep(waitTime * 1000)
