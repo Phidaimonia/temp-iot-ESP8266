@@ -46,10 +46,20 @@ def on_connect_MQTT(client, userdata, flags, rc):
 
 
 def on_message_MQTT(client, userdata, msg):
-    print(msg.topic+" "+str(msg.payload))
-    app.send_ws_message(msg.topic+" "+str(msg.payload))
+    msg_str = msg.payload.decode('utf-8')
+    print(msg.topic+" "+msg_str)
+    try:
+        message = json.loads(msg_str)
+    except:
+        print("E: Error when parsing message")
+        return
+    if not message["team_name"] == msg.topic[4:]:
+        print("E: Team name '{}' and topic '{}' don't match.".format(message["team_name"], msg.topic))
+        return
 
-    #write_message(str(msg.payload))
+    app.send_ws_message(msg_str)
+
+    #write_message(msg_str)
 
 
 
