@@ -28,6 +28,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         print(u"You said: " + message)
 
     def on_close(self):
+        self.application.ws_clients.remove(self)
         print("WebSocket closed")
 
     def initialize(self):
