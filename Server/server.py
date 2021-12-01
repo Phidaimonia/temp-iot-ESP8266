@@ -1,6 +1,7 @@
 import tornado.httpserver
 import tornado.websocket
 import tornado.ioloop
+from tornado.ioloop import IOLoop
 from tornado.web import Application as TornadoApplication
 import tornado.web
 from urllib.request import urlopen
@@ -8,16 +9,21 @@ import datetime as dt
 import tornado.template as T
 import json
 import paho.mqtt.client as mqtt
-from tornado.ioloop import IOLoop
+import random
+#import db
+
+
 #Uncomment aftert training# from recognize_handler import RecognizeImageHandler
 
 import tornado.log
 import logging
 
 tornado.log.enable_pretty_logging()
+
 app_log = logging.getLogger("tornado.application")
 
-CLIENT_ID = "RED_team_3213"
+
+CLIENT_ID = "RED_team_" + str(random.randint(10000000, 999999999999))
 
 class RootHandler(tornado.web.RequestHandler):
     def get(self):
@@ -30,7 +36,13 @@ class JSONHandler(tornado.web.RequestHandler):
 
 
 class WSHandler(tornado.websocket.WebSocketHandler):
+    def initialize(self):
+        self.application.ws_clients.append(self)
+        app_log.debug("Init WS")
+        print('Init WS')
+
     def open(self):
+        self.set_nodelay(True)
         print("WebSocket connection opened")
 
     def on_message(self, message):
@@ -40,9 +52,6 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         self.application.ws_clients.remove(self)
         print("WebSocket closed")
 
-    def initialize(self):
-        self.application.ws_clients.append(self)
-        print('Init WS')
 
 
 class ReceiveImageHandler(tornado.web.RequestHandler):
@@ -147,19 +156,6 @@ if __name__ == '__main__':
 
     client.connect(cfg["mqtt"]["broker"], cfg["mqtt"]["port"])
     client.loop_start()
-
-
-    ######################################################
-    """
-    httpApp = tornado.web.Application(handlers=[
-        (r'/', RootHandler),
-        (r'/json/', JSONHandler),
-        (r'/colors', colorWSHandler),
-        ('/(.*)', tornado.web.StaticFileHandler, {'path': './static'})
-
-    ])
-    """
-
 
     app = WebApp()
     app.listen(80)

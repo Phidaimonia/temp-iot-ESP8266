@@ -1,19 +1,54 @@
+<!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vizualizace</title>
     <link rel="stylesheet" href="css/style.css">
-    <script src="js/script.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+	<script src="js/script.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", onLoad);
     </script>
 </head>
 
-<a id="neverlink" href="https://www.youtube.com/watch?v={{ myvalue }}">Hello World</a>
+
+<body>
+    <section class="header">
+        <nav>
+            <a href="index.html"><img src="images/logo.png"></a>
+            <div class="nav-links" id="navLinks">
+                <i class="fa fa-times" onclick="hideMenu()"></i>
+                <ul>
+                    <li><a href="">HOME</a></li>
+                    <li><a href="">ABOUT</a></li>
+                    <li><a href="">CONTACT US</a></li>
+                    <li><a href="https://www.aimtecglobal.com/">ABOUT AIMTEC</a></li>
+                </ul>
+            </div>
+            <i class="fa fa-bars" onclick="showMenu()"></i>
+        </nav>
+        <div class="text-box">
+            <h1>Vizualizace teploty senzorů</h1>
+            <p>Vizualizace výsledného měření teploty studentů ZČU pro firmu Aimtec </p>
+            <a href="login/index.html" class="hero-btn">Log in</a>
+        </div>
+
+    </section>
+    <!---------JavaScript for toggle Menu-------->
+    <script>
+        var navLinks = document.getElementById("navLinks");
+        function showMenu(){
+            navLinks.style.right ="0";
+        }
+        function hideMenu(){
+            navLinks.style.right ="-300px";
+        }
+    </script>
+</body>
 
 
-
-<h1 id="myText">Worlds best title.</h1>
-<h1 id="dict">Loading...</h1>
-
-<img class="center" src="images/doge.jpeg" id="dogeImage">
-
+ 
 </html>
