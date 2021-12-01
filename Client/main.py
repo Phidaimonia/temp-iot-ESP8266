@@ -122,9 +122,7 @@ while 1:
     dataStr = json.dumps({"team_name": cfg["team"], "created_on":getISOTime(), "temperature": m_temp})
 
     if m_temp is not None:
-        if connected:
-            try:    
-                broadcastData(dataStr)
+        if connected: 
                 try:
                     with open(historyFileName, 'r') as dataFile:
                         print("     Sending saved data...")
@@ -135,13 +133,13 @@ while 1:
 
                         dataFile.close()
                         os.remove(historyFileName)
-                except Exception:
-                    pass 
-
-            except Exception as err: 
-                print("Exception number: {}".format(err))
-                print("Can't send data, saving for later...") 
-                save_data(dataStr)
+                    broadcastData(dataStr)
+                except OSError as err:
+                    print("No saved data to send...") 
+                except MQTTException as err: 
+                    print("Exception number: {}".format(err))
+                    print("Can't send data, saving for later...") 
+                    save_data(dataStr)
         else: 
             save_data(dataStr)
     else:
