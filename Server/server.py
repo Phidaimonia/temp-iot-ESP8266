@@ -6,6 +6,7 @@ from tornado.web import Application as TornadoApplication
 import tornado.web
 from urllib.request import urlopen
 import datetime as dt
+import pytz
 import tornado.template as T
 import json
 import paho.mqtt.client as mqtt
@@ -21,6 +22,17 @@ import logging
 tornado.log.enable_pretty_logging()
 app_log = logging.getLogger("tornado.application")
 CLIENT_ID = "RED_team_" + str(random.randint(10000000, 999999999999))
+
+team_list = ["red", "blue", "black", "pink", "green"]
+
+
+test_message = json.loads('{"team_name": "red", "created_on": "2021-12-01T19:05:01.000000", "temperature": 18.75}')
+print(test_message)
+
+if ("team_name" in test_message) and ("created_on" in test_message) and ("temperature" in test_message):
+    print("ok")
+else:
+    print("not ok")
 
 
 
@@ -48,10 +60,50 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     def on_message(self, message):
         print(u"You said: " + message)
 
+        try:
+            requestData = json.loads(message)
+        except:
+            print("Bad request... " + message)
+            self.write_message("Bad request... ")
+            return
+        if ("dt_from" in requestData) and ("dt_to" in requestData) and ("cookie" in requestData):
+            dt_from = pytz.utc.localize(dt.datetime.fromisoformat(requestData["dt_from"]))
+            dt_to = pytz.utc.localize(dt.datetime.fromisoformat(requestData["dt_to"]))
+
+            data = database.read_messages(dt_from, dt_to, team_list)
+            for measurement in data:
+                self.write_message(measurement)
+
+            self.write_message("This is better than data...")
+
     def on_close(self):
         self.application.ws_clients.remove(self)
         print("WebSocket closed")
 
+
+
+def on_connect_MQTT(client, userdata, flags, rc):
+    print("Connected with result code "+str(rc))
+
+    client.subscribe(cfg["mqtt"]["listen_topic"])
+
+
+def on_message_MQTT(client, userdata, msg):
+    msg_str = msg.payload.decode('utf-8')
+    print(msg.topic+" "+msg_str)
+    try:
+        data = json.loads(msg_str)
+    except:
+        print("E: Error when parsing message")
+        return
+    if ("team_name" in data) and ("created_on" in data) and ("temperature" in data):
+        if not data["team_name"] == msg.topic[4:]:
+            print("E: Team name '{}' and topic '{}' don't match.".format(data["team_name"], msg.topic))
+            return
+        app.send_ws_message(msg_str)
+        app_log.info(database.write_message(msg_str))
+
+    
 
 
 class ReceiveImageHandler(tornado.web.RequestHandler):
@@ -70,31 +122,6 @@ class ReceiveImageHandler(tornado.web.RequestHandler):
         # Write an image to the file
         with open(f"images/img-{dt.datetime.now().strftime('%Y%m%d-%H%M%S')}.png", "wb") as fw:
             fw.write(image_data)
-
-
-
-def on_connect_MQTT(client, userdata, flags, rc):
-    print("Connected with result code "+str(rc))
-
-    client.subscribe(cfg["mqtt"]["listen_topic"])
-
-
-def on_message_MQTT(client, userdata, msg):
-    msg_str = msg.payload.decode('utf-8')
-    print(msg.topic+" "+msg_str)
-    try:
-        message = json.loads(msg_str)
-    except:
-        print("E: Error when parsing message")
-        return
-    if not message["team_name"] == msg.topic[4:]:
-        print("E: Team name '{}' and topic '{}' don't match.".format(message["team_name"], msg.topic))
-        return
-
-    app.send_ws_message(msg_str)
-
-    #write_message(msg_str)
-
 
 
 
@@ -137,7 +164,11 @@ if __name__ == '__main__':
     cfg = json.load(config)
     config.close()
 
-    database = DB()
+    
+    try:
+        database = DB()
+    except Exception as err:
+        raise err
     
 
     # ssl_options={

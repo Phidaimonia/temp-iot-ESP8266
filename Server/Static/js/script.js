@@ -6,24 +6,25 @@ function onSocketOpen() {
 function onSocketMessage(message) {
   
     console.log("JSON data received:", message)
-    msg = JSON.parse(message.data)
+    //msg = JSON.parse(message.data)
 }
 
 function onSocketClose() {
     console.log("WS Close")
 }
 
-function sendToServer() {
+function requestData() {
     var params = {
-        topic: "tempServer/broker1",
-        temperatures: ["123.4"]
+        "dt_from": "2021-12-01T12:58:01.000000",  // in UTC
+        "dt_to": "2022-02-01T12:58:01.000000", 
+        "cookie": "4jgk6s9d3dj57j4kgs3"
     }
     ws.send(JSON.stringify(params))
 }
 
 function onLoad() {
 	console.log("Ahoj world")
-    document.getElementById('dict').innerText = loadJsonHandler()
+    //document.getElementById('dict').innerText = loadJsonHandler()
 
     ws = new WebSocket("ws://" + window.location.host + '/data')     
     ws.onopen = onSocketOpen
