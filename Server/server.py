@@ -127,7 +127,7 @@ class WebApp(TornadoApplication):
 
 if __name__ == '__main__':
     
-    loader = T.Loader("./Static/HTML/")
+    loader = T.Loader("./Static/")
     temp = loader.load("index.html")
 
     slovnik = {"item 1" : 123, 
