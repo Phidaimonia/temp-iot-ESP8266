@@ -8,7 +8,7 @@ import json
 import paho.mqtt.client as mqtt
 from tornado.ioloop import IOLoop
 
-CLIENT_ID = "RED_team_346513"
+CLIENT_ID = "RED_team_3213"
 
 class RootHandler(tornado.web.RequestHandler):
     def get(self):
