@@ -3,10 +3,19 @@ import tornado.websocket
 import tornado.ioloop
 from tornado.web import Application as TornadoApplication
 import tornado.web
+from urllib.request import urlopen
+import datetime as dt
 import tornado.template as T
 import json
 import paho.mqtt.client as mqtt
 from tornado.ioloop import IOLoop
+#Uncomment aftert training# from recognize_handler import RecognizeImageHandler
+
+import tornado.log
+import logging
+
+tornado.log.enable_pretty_logging()
+app_log = logging.getLogger("tornado.application")
 
 CLIENT_ID = "RED_team_346513"
 
@@ -36,7 +45,22 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         print('Init WS')
 
 
+class ReceiveImageHandler(tornado.web.RequestHandler):
+    def post(self):
+        # Convert from binary data to string
+        received_data = self.request.body.decode()
 
+        assert received_data.startswith("data:image/png"), "Only data:image/png URL supported"
+
+        # Parse data:// URL
+        with urlopen(received_data) as response:
+            image_data = response.read()
+
+        app_log.info("Received image: %d bytes", len(image_data))
+
+        # Write an image to the file
+        with open(f"images/img-{dt.datetime.now().strftime('%Y%m%d-%H%M%S')}.png", "wb") as fw:
+            fw.write(image_data)
 
 
 
@@ -73,6 +97,8 @@ class WebApp(TornadoApplication):
 
         self.tornado_handlers = [
             (r'/', RootHandler),
+            (r"/receive_image", ReceiveImageHandler),
+            #Uncomment aftert training# (r"/recognize", RecognizeImageHandler),
             (r'/json/', JSONHandler),
             (r'/data', WSHandler),
             ('/(.*)', tornado.web.StaticFileHandler, {'path': './static'})
