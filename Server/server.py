@@ -1,3 +1,4 @@
+import tornado
 import tornado.httpserver
 import tornado.websocket
 import tornado.ioloop
@@ -26,17 +27,6 @@ CLIENT_ID = "RED_team_" + str(random.randint(10000000, 999999999999))
 team_list = ["red", "blue", "black", "pink", "green"]
 
 
-test_message = json.loads('{"team_name": "red", "created_on": "2021-12-01T19:05:01.000000", "temperature": 18.75}')
-print(test_message)
-
-if ("team_name" in test_message) and ("created_on" in test_message) and ("temperature" in test_message):
-    print("ok")
-else:
-    print("not ok")
-
-
-
-
 class RootHandler(tornado.web.RequestHandler):
     def get(self):
         self.write(temp.generate(myvalue="dQw4w9WgXcQ"))
@@ -51,19 +41,18 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     def initialize(self):
         self.application.ws_clients.append(self)
         app_log.debug("Init WS")
-        print('Init WS')
 
     def open(self):
         self.set_nodelay(True)
-        print("WebSocket connection opened")
+        app_log.debug("WebSocket connection opened")
 
     def on_message(self, message):
-        print(u"You said: " + message)
+        app_log.debug(u"You said: " + message)
 
         try:
             requestData = json.loads(message)
         except:
-            print("Bad request... " + message)
+            app_log.debug("Bad request... " + message)
             self.write_message("Bad request... ")
             return
         if ("dt_from" in requestData) and ("dt_to" in requestData) and ("cookie" in requestData):
@@ -74,16 +63,14 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             for measurement in data:
                 self.write_message(measurement)
 
-            self.write_message("This is better than data...")
-
     def on_close(self):
         self.application.ws_clients.remove(self)
-        print("WebSocket closed")
+        app_log.debug("WebSocket closed")
 
 
 
 def on_connect_MQTT(client, userdata, flags, rc):
-    print("Connected with result code "+str(rc))
+    app_log.debug("Connected with result code "+str(rc))
 
     client.subscribe(cfg["mqtt"]["listen_topic"])
 
@@ -94,14 +81,15 @@ def on_message_MQTT(client, userdata, msg):
     try:
         data = json.loads(msg_str)
     except:
-        print("E: Error when parsing message")
+        app_log.debug("E: Error when parsing message")
         return
     if ("team_name" in data) and ("created_on" in data) and ("temperature" in data):
         if not data["team_name"] == msg.topic[4:]:
             print("E: Team name '{}' and topic '{}' don't match.".format(data["team_name"], msg.topic))
             return
+        print(database.write_message(msg_str))
         app.send_ws_message(msg_str)
-        app_log.info(database.write_message(msg_str))
+        
 
     
 
@@ -120,7 +108,7 @@ class ReceiveImageHandler(tornado.web.RequestHandler):
         app_log.info("Received image: %d bytes", len(image_data))
 
         # Write an image to the file
-        with open(f"images/img-{dt.datetime.now().strftime('%Y%m%d-%H%M%S')}.png", "wb") as fw:
+        with open('images/img-{}.png'.format(dt.datetime.now().strftime('%Y%m%d-%H%M%S')), "wb") as fw:
             fw.write(image_data)
 
 
@@ -137,7 +125,7 @@ class WebApp(TornadoApplication):
             #Uncomment aftert training# (r"/recognize", RecognizeImageHandler),
             (r'/json/', JSONHandler),
             (r'/data', WSHandler),
-            ('/(.*)', tornado.web.StaticFileHandler, {'path': './static'})
+            (r'/(.*)', tornado.web.StaticFileHandler, {'path': './static'})
         ]
         self.tornado_settings = {
             "debug": True,
@@ -154,7 +142,7 @@ class WebApp(TornadoApplication):
 
 if __name__ == '__main__':
     
-    loader = T.Loader("./Static/")
+    loader = T.Loader("./static/")
     temp = loader.load("index.html")
 
     slovnik = {"item 1" : 123, 
@@ -171,11 +159,11 @@ if __name__ == '__main__':
         raise err
     
 
-    # ssl_options={
-    #    "certfile": "./letsencrypt/cert.pem",
-    #    "keyfile": "./letsencrypt/key.pem",
-    #    "ca_certs": "./letsencrypt/fullchain.pem",
-    #}
+    ssl_options={
+        "certfile": "./letsencrypt/cert.pem",
+        "keyfile": "./letsencrypt/key.pem",
+        "ca_certs": "./letsencrypt/fullchain.pem",
+    }
 
 
 
@@ -191,10 +179,13 @@ if __name__ == '__main__':
     client.loop_start()
 
     app = WebApp()
-    app.listen(80)
+    
+
+    http_server = tornado.httpserver.HTTPServer(app, ssl_options=ssl_options)
+    http_server.listen(443)
 
     iol = IOLoop.current()
-    print('Webserver: Initialized. Listening on 80')
+    print('Webserver: Initialized...')
     iol.start()
 
 

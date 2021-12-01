@@ -4,6 +4,25 @@ import datetime
 import time
 import pytz
 
+
+def fixISOformat(weakISO):
+    t = None
+    try:
+        t = datetime.datetime.fromisoformat(weakISO)
+    except Exception:
+        pass
+
+    if t is None:
+        try:
+            t = datetime.datetime.strptime(weakISO, "%Y-%m-%dT%H:%M:%S.%f")
+        except Exception as err:
+            raise err
+
+    return t
+
+
+
+
 class DB:
     """
     A class used to instantiate a DB connection and save messages into a table 'sensor_data'
@@ -66,8 +85,8 @@ class DB:
                                     (%s, (SELECT id from sensors WHERE team=%s), %s);"""
         try:
             measurement = json.loads(msg)
-
-            measurement_time = pytz.utc.localize(datetime.datetime.fromisoformat(measurement["created_on"])) # expecting UTC time
+ 
+            measurement_time = pytz.utc.localize(fixISOformat(measurement["created_on"])) # expecting UTC time
             team = measurement["team_name"]
             temperature = measurement["temperature"]
             data = (measurement_time, team, temperature)
@@ -89,7 +108,7 @@ class DB:
             try:
                 self.cursor.execute(INSERT, data)
                 self.conn.commit()
-                self.log("D: Successfully saved the message: {0}".format(msg))
+                #self.log("D: Successfully saved the message: {0}".format(msg))
                 return 1
             except psycopg2.OperationalError as err:
                 self.log("E: Lost connection to DB. Trying to reconnect. Attempts left:" + str(2-i))
