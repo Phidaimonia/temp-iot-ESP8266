@@ -10,7 +10,7 @@ import tornado.template as T
 import json
 import paho.mqtt.client as mqtt
 import random
-#import db
+from db import DB
 
 
 #Uncomment aftert training# from recognize_handler import RecognizeImageHandler
@@ -19,11 +19,11 @@ import tornado.log
 import logging
 
 tornado.log.enable_pretty_logging()
-
 app_log = logging.getLogger("tornado.application")
-
-
 CLIENT_ID = "RED_team_" + str(random.randint(10000000, 999999999999))
+
+
+
 
 class RootHandler(tornado.web.RequestHandler):
     def get(self):
@@ -136,6 +136,8 @@ if __name__ == '__main__':
     config = open("config.json", "r")   # load parameters
     cfg = json.load(config)
     config.close()
+
+    database = DB()
     
 
     # ssl_options={
