@@ -5,7 +5,8 @@ function onSocketOpen() {
 
 function onSocketMessage(message) {
   
-    console.log("JSON data received:", message)    
+    console.log("JSON data received:", message)
+    msg = JSON.parse(message.data)
 }
 
 function onSocketClose() {
