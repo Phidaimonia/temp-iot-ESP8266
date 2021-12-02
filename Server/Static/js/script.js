@@ -1,4 +1,4 @@
-
+(function() {
 function onSocketOpen() {
     console.log("WS Open")
 }
@@ -15,9 +15,17 @@ function onSocketClose() {
 
 function requestData() {
     var params = {
+        "request_type": "temperature_data",
         "dt_from": "2021-12-01T12:58:01.000000",  // in UTC
         "dt_to": "2022-02-01T12:58:01.000000", 
         "cookie": "4jgk6s9d3dj57j4kgs3"
+    }
+    ws.send(JSON.stringify(params))
+}
+
+function requestSensorStatus() {
+    var params = {
+        "request_type": "sensor_status"
     }
     ws.send(JSON.stringify(params))
 }
@@ -42,3 +50,6 @@ function loadJsonHandler() {
 
     return  xmlhttp.responseText;
 }
+
+window.addEventListener('load', onLoad, false);
+})();

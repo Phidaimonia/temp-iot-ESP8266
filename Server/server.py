@@ -6,7 +6,7 @@ from tornado.ioloop import IOLoop
 from tornado.web import Application as TornadoApplication
 import tornado.web
 from urllib.request import urlopen
-import datetime as dt
+import datetime as dt, time
 import pytz
 import tornado.template as T
 import json
@@ -37,20 +37,51 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
     def on_message(self, message):
         app_log.debug(u"You said: " + message)
-
+        
         try:
             requestData = json.loads(message)
         except:
-            app_log.debug("Bad request... " + message)
+            app_log.debug("Bad request " + message)
             self.write_message("Bad request")
             return
-        if ("dt_from" in requestData) and ("dt_to" in requestData) and ("cookie" in requestData):
-            dt_from = pytz.utc.localize(dt.datetime.fromisoformat(requestData["dt_from"]))
-            dt_to = pytz.utc.localize(dt.datetime.fromisoformat(requestData["dt_to"]))
 
-            data = database.read_messages(dt_from, dt_to, team_list)
-            for measurement in data:
-                self.write_message(measurement)
+        if "request_type" not in requestData:
+            app_log.debug("Request type missing " + message)
+            self.write_message("request_type missing")
+            return
+
+        if requestData["request_type"] == "temperature_data":
+            if db_connected:
+                if ("dt_from" in requestData) and ("dt_to" in requestData) and ("cookie" in requestData):
+                
+                    dt_from = pytz.utc.localize(dt.datetime.fromisoformat(requestData["dt_from"]))
+                    dt_to = pytz.utc.localize(dt.datetime.fromisoformat(requestData["dt_to"]))
+
+                    data = database.read_messages(dt_from, dt_to, team_list)
+                    for measurement in data:
+                        self.write_message(measurement)
+                else:
+                    app_log.debug("Bad request parameters " + message)
+                    self.write_message("Bad Bad request parameters")
+                    return
+            else:
+                self.write_message("Error: DB not connected...")
+
+
+        elif requestData["request_type"] == "sensor_status":
+            for t_team in sensor_status:
+                self.write_message(json.dumps({t_team:sensor_status[t_team]}))
+
+
+        elif requestData["request_type"] == "aimtec_status":
+            print("")
+        else:
+            app_log.debug("Bad request type " + message)
+            self.write_message("Bad request_type")
+            return
+
+    
+            
 
     def on_close(self):
         self.application.ws_clients.remove(self)
@@ -75,14 +106,16 @@ def on_message_MQTT(client, userdata, msg):
         app_log.debug("E: Error when parsing message")
         return
     if ("team_name" in data) and ("created_on" in data) and ("temperature" in data):
-        if not data["team_name"] == msg.topic.replace(mqtt_room_name, ""):
+        if not data["team_name"] == msg.topic.replace(mqtt_room_name + "/", ""):
             print("E: Team name '{}' and topic '{}' don't match.".format(data["team_name"], msg.topic))
             return
         if data["team_name"] not in team_list:
             print("E: Team name '{}' is not on the team list.".format(data["team_name"]))
             return
         
-        print(database.write_message(msg_str))
+        if db_connected:
+            print(database.write_message(msg_str))
+        sensor_status[data["team_name"]] = time.gmtime()
         app.send_ws_message(msg_str)
         
 
@@ -103,7 +136,7 @@ class ReceiveImageHandler(tornado.web.RequestHandler):
         app_log.info("Received image: %d bytes", len(image_data))
 
         # Write an image to the file
-        with open('images/img-{}.png'.format(dt.datetime.now().strftime('%Y%m%d-%H%M%S')), "wb") as fw:
+        with open('faceid/images/img-{}.png'.format(dt.datetime.now().strftime('%Y%m%d-%H%M%S')), "wb") as fw:
             fw.write(image_data)
 
 
@@ -146,21 +179,44 @@ if __name__ == '__main__':
     mqtt_room_name = cfg["mqtt"]["room_name"]
 
     team_list = ["red", "blue", "black", "pink", "green"]
+    sensor_status = {name:None for name in team_list}
 
-    
     loader = T.Loader("./static/")
     temp = loader.load("index.html")
 
 
-    aimtec = api.Api(cfg["aimtec"]["user"], cfg["aimtec"]["user"])
-    aimtec.write_message('{"team_name": "white", "created_on": "2021-11-27T12:25:05.336974", "temperature": 25.72}')
+    aimtec = None
+    for i in range(cfg["reconnect_tries"]):  
+        try:
+            aimtec = api.Api(cfg["aimtec"]["user"], cfg["aimtec"]["passwd"])
+            if aimtec is not None:
+                break
+        except Exception as err:
+            print("Aimtec connection error: {}".format(err))
+            print("Connection attempt {}...".format(i+1))
+            time.sleep(cfg["reconnect_timeout"])
 
 
-    
-    try:
-        database = DB()
-    except Exception as err:
-        raise err
+    aimtec_connected = aimtec is not None
+
+
+    if aimtec_connected:
+        aimtec.write_message('{"team_name": "white", "created_on": "2021-11-27T12:25:05.336974", "temperature": 25.72}')
+
+
+    database = None
+    for i in range(cfg["reconnect_tries"]):  
+        try:
+            database = DB()
+            if database is not None:
+                break
+        except Exception as err:
+            print("Database connection error: {}".format(err))
+            print("Connection attempt {}...".format(i+1))
+            time.sleep(2)       # cfg["reconnect_timeout"]
+
+
+    db_connected = database is not None
 
 
 
@@ -176,7 +232,7 @@ if __name__ == '__main__':
 
     app = WebApp()
     
-
+    
     ssl_options={
         "certfile": "./letsencrypt/cert.pem",
         "keyfile": "./letsencrypt/key.pem",

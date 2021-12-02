@@ -26,7 +26,7 @@ class Api:
         try:
             resp = self.authentication_api.login(Login(username = self.__username, password = self.__password))
         except openapi_client.ApiException as err:
-            self.log("E: Exception when calling AuthenticationApi->login: " + str(e))
+            self.log("E: Exception when calling AuthenticationApi->login: " + str(err))
             raise err
         self.team_uuid = resp.team_uuid
         self.log("D: Successfully connected to the API. Team_uuid is: " + self.team_uuid)
@@ -35,7 +35,7 @@ class Api:
         try:
             resp = self.sensors_api.read_all_sensors(self.team_uuid)
         except openapi_client.ApiException as err:
-            self.log("E: Exception when calling SensorsApi->read_all_sensors: " + str(e))
+            self.log("E: Exception when calling SensorsApi->read_all_sensors: " + str(err))
             raise err
         self.sensor = resp.value[0]
         self.log("D: Successfully received sensors from the API. Sensor_uuid is: " + self.sensor.sensor_uuid)
