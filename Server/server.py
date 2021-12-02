@@ -13,6 +13,7 @@ import json
 import paho.mqtt.client as mqtt
 import random
 import api
+import db
 from db import DB
 import tornado.log
 import logging
@@ -112,11 +113,20 @@ def on_message_MQTT(client, userdata, msg):
         if data["team_name"] not in team_list:
             print("E: Team name '{}' is not on the team list.".format(data["team_name"]))
             return
+        try:
+            data["created_on"] = pytz.utc.localize(db.fixISOformat(data["created_on"])).isoformat()            # correct isoformat
+        except Exception as err:   # ValueError
+            print("E: Can't parse time {}".format(data["created_on"]))
+            print(str(err))
+            return
+
+        final_msg = json.dumps(data)
         
+        #print("Final datapoint: " + final_msg)
         if db_connected:
-            print(database.write_message(msg_str))
-        sensor_status[data["team_name"]] = time.gmtime()
-        app.send_ws_message(msg_str)
+            print(database.write_message(final_msg))              # save to db
+        sensor_status[data["team_name"]] = time.gmtime()          # last online = now
+        app.send_ws_message(final_msg)                            # push to frontend
         
 
     
@@ -203,21 +213,26 @@ if __name__ == '__main__':
     if aimtec_connected:
         aimtec.write_message('{"team_name": "white", "created_on": "2021-11-27T12:25:05.336974", "temperature": 25.72}')
 
-
+    db_connected = False
     database = None
+    print("Connecting to DB...")
     for i in range(cfg["reconnect_tries"]):  
         try:
+            print("Connection attempt {}...".format(i+1))
             database = DB()
             if database is not None:
-                break
+                if database.connected:
+                    db_connected = True
+                    break
         except Exception as err:
-            print("Database connection error: {}".format(err))
-            print("Connection attempt {}...".format(i+1))
+            #print("Database connection error: {}".format(err))
             time.sleep(2)       # cfg["reconnect_timeout"]
 
 
-    db_connected = database is not None
-
+    if not db_connected:
+        print("Can't connect to DB, continuing...")
+    else:
+        print("Connected to DB")
 
 
     client = mqtt.Client(mqtt_client_id)
@@ -239,7 +254,7 @@ if __name__ == '__main__':
         "ca_certs": "./letsencrypt/fullchain.pem",
     }
 
-    http_server = tornado.httpserver.HTTPServer(app, ssl_options=ssl_options)
+    http_server = tornado.httpserver.HTTPServer(app)    # ssl_options=ssl_options
     http_server.listen(443)
 
     iol = IOLoop.current()

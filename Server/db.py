@@ -39,6 +39,7 @@ class DB:
     """
     def __init__(self, logger = print):
         self.log = logger
+        self.connected = False
         try:
             config = open("config_db.json", "r")   # load parameters
             self.cfg = json.load(config)
@@ -54,9 +55,13 @@ class DB:
         self.__connect()
 
     def __del__(self):
-        self.cursor.close()
-        self.conn.close()
-        self.log("D: Closed connection with the database.")
+        try:
+            self.cursor.close()
+            self.conn.close()
+        except:
+            pass
+        if self.connected:
+            self.log("D: Closed connection with the database.")
 
     def __connect(self):
         try:
@@ -66,6 +71,7 @@ class DB:
             return
         self.log("D: Successfully connected to the database.")
         self.cursor = self.conn.cursor()
+        self.connected = True
 
     def write_message(self, msg):
         """
