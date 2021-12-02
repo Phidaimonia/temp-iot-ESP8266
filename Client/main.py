@@ -107,10 +107,6 @@ while 1:
     ds = ds18x20.DS18X20(onewire.OneWire(Pin(cfg["ds_pin"])))
     roms = ds.scan()
 
-    next_stop = next_stop + cfg["update_period"]
-    next_stop = max(min(next_stop, time.time() + cfg["update_period"] - time.time() % cfg["update_period"]), time.time() + 10)
-
-
     if (not connected) and justBooted:   
         if file_exists(historyFileName):
             os.remove(historyFileName)   
@@ -136,7 +132,8 @@ while 1:
                     broadcastData(dataStr)
                 except OSError as err:
                     print("No saved data to send...") 
-                except MQTTException as err: 
+                    broadcastData(dataStr)
+                except umqtt.MQTTException as err: 
                     print("Exception number: {}".format(err))
                     print("Can't send data, saving for later...") 
                     save_data(dataStr)
@@ -145,6 +142,8 @@ while 1:
     else:
         if connected:  
             broadcastData({"team_name": cfg["team"], "created_on":getISOTime(), "message": "Sensor is broken..."})
+
+    next_stop = min(next_stop + cfg["update_period"], time.time() + cfg["update_period"] - time.time() % cfg["update_period"])
 
     waitTime = max(next_stop - time.time(), 10)
 
