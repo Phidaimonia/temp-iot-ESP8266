@@ -12,29 +12,18 @@ import tornado.template as T
 import json
 import paho.mqtt.client as mqtt
 import random
+import api
 from db import DB
-
-
-#Uncomment aftert training# from recognize_handler import RecognizeImageHandler
-
 import tornado.log
 import logging
 
-tornado.log.enable_pretty_logging()
-app_log = logging.getLogger("tornado.application")
-CLIENT_ID = "RED_team_" + str(random.randint(10000000, 999999999999))
+#Uncomment aftert training# from recognize_handler import RecognizeImageHandler
 
-team_list = ["red", "blue", "black", "pink", "green"]
 
 
 class RootHandler(tornado.web.RequestHandler):
     def get(self):
         self.write(temp.generate(myvalue="dQw4w9WgXcQ"))
-
-
-class JSONHandler(tornado.web.RequestHandler):
-    def get(self):
-        self.write(json.dumps(slovnik))
 
 
 class WSHandler(tornado.websocket.WebSocketHandler):
@@ -53,7 +42,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             requestData = json.loads(message)
         except:
             app_log.debug("Bad request... " + message)
-            self.write_message("Bad request... ")
+            self.write_message("Bad request")
             return
         if ("dt_from" in requestData) and ("dt_to" in requestData) and ("cookie" in requestData):
             dt_from = pytz.utc.localize(dt.datetime.fromisoformat(requestData["dt_from"]))
@@ -72,21 +61,27 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 def on_connect_MQTT(client, userdata, flags, rc):
     app_log.debug("Connected with result code "+str(rc))
 
-    client.subscribe(cfg["mqtt"]["listen_topic"])
+    client.subscribe(cfg["mqtt"]["room_name"] + "/" + cfg["mqtt"]["listen_topic"])
 
 
 def on_message_MQTT(client, userdata, msg):
     msg_str = msg.payload.decode('utf-8')
+
     print(msg.topic+" "+msg_str)
+    
     try:
         data = json.loads(msg_str)
     except:
         app_log.debug("E: Error when parsing message")
         return
     if ("team_name" in data) and ("created_on" in data) and ("temperature" in data):
-        if not data["team_name"] == msg.topic[4:]:
+        if not data["team_name"] == msg.topic.replace(mqtt_room_name, ""):
             print("E: Team name '{}' and topic '{}' don't match.".format(data["team_name"], msg.topic))
             return
+        if data["team_name"] not in team_list:
+            print("E: Team name '{}' is not on the team list.".format(data["team_name"]))
+            return
+        
         print(database.write_message(msg_str))
         app.send_ws_message(msg_str)
         
@@ -123,7 +118,6 @@ class WebApp(TornadoApplication):
             (r'/', RootHandler),
             (r"/receive_image", ReceiveImageHandler),
             #Uncomment aftert training# (r"/recognize", RecognizeImageHandler),
-            (r'/json/', JSONHandler),
             (r'/data', WSHandler),
             (r'/(.*)', tornado.web.StaticFileHandler, {'path': './static'})
         ]
@@ -142,33 +136,35 @@ class WebApp(TornadoApplication):
 
 if __name__ == '__main__':
     
-    loader = T.Loader("./static/")
-    temp = loader.load("index.html")
-
-    slovnik = {"item 1" : 123, 
-                "item 2" : 277}
-
     config = open("config.json", "r")   # load parameters
     cfg = json.load(config)
     config.close()
+
+    tornado.log.enable_pretty_logging()
+    app_log = logging.getLogger("tornado.application")
+    mqtt_client_id = "observer" + str(random.randint(10000000, 999999999999))
+    mqtt_room_name = cfg["mqtt"]["room_name"]
+
+    team_list = ["red", "blue", "black", "pink", "green"]
+
+    
+    loader = T.Loader("./static/")
+    temp = loader.load("index.html")
+
+
+    aimtec = api.Api(cfg["aimtec"]["user"], cfg["aimtec"]["user"])
+    aimtec.write_message('{"team_name": "white", "created_on": "2021-11-27T12:25:05.336974", "temperature": 25.72}')
+
 
     
     try:
         database = DB()
     except Exception as err:
         raise err
-    
-
-    ssl_options={
-        "certfile": "./letsencrypt/cert.pem",
-        "keyfile": "./letsencrypt/key.pem",
-        "ca_certs": "./letsencrypt/fullchain.pem",
-    }
 
 
 
-
-    client = mqtt.Client(CLIENT_ID)
+    client = mqtt.Client(mqtt_client_id)
     client.username_pw_set(cfg["mqtt"]["user"], cfg["mqtt"]["passwd"])
 
 
@@ -180,6 +176,12 @@ if __name__ == '__main__':
 
     app = WebApp()
     
+
+    ssl_options={
+        "certfile": "./letsencrypt/cert.pem",
+        "keyfile": "./letsencrypt/key.pem",
+        "ca_certs": "./letsencrypt/fullchain.pem",
+    }
 
     http_server = tornado.httpserver.HTTPServer(app, ssl_options=ssl_options)
     http_server.listen(443)

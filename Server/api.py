@@ -1,4 +1,4 @@
-import openapi_client
+import openapi_client as openapi_client
 from openapi_client.api import alerts_api, authentication_api, measurements_api, sensors_api
 from openapi_client.api_client import ApiClient
 from openapi_client.model.alert import Alert
