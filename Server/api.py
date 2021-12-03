@@ -5,7 +5,26 @@ from openapi_client.model.alert import Alert
 from openapi_client.model.login import Login
 from openapi_client.model.measurement import Measurement
 from openapi_client.model.sensors import Sensors
-import json
+import json, datetime
+
+
+def fuzzy_ISO_to_datetime(weakISO):
+    t = None
+    try:
+        t = datetime.datetime.fromisoformat(weakISO)
+    except Exception:
+        pass
+
+    if t is None:
+        t = datetime.datetime.strptime(weakISO, "%Y-%m-%dT%H:%M:%S.%f")
+
+    return t
+
+
+def fixISO(tm):
+    t = fuzzy_ISO_to_datetime(tm)
+    return "%04d-%02d-%02dT%02d:%02d:%09.6f" % (t.year, t.month, t.day, t.hour, t.minute, t.second)
+
 
 class Api:
     def __init__(self, username, password, logger = print):
@@ -17,9 +36,9 @@ class Api:
         self.authentication_api = authentication_api.AuthenticationApi(self.api_client)
         self.measurements_api = measurements_api.MeasurementsApi(self.api_client)
         self.sensors_api = sensors_api.SensorsApi(self.api_client)
+        self.connected = False
 
         self.login()
-
         self.sensors()
 
     def login(self):
@@ -36,13 +55,26 @@ class Api:
             resp = self.sensors_api.read_all_sensors(self.team_uuid)
         except openapi_client.ApiException as err:
             self.log("E: Exception when calling SensorsApi->read_all_sensors: " + str(err))
+            self.connected = False
             raise err
         self.sensor = resp.value[0]
-        self.log("D: Successfully received sensors from the API. Sensor_uuid is: " + self.sensor.sensor_uuid)
+
+        if not self.connected:
+            self.log("D: Successfully received sensors from the API. Sensor_uuid is: " + self.sensor.sensor_uuid)
+        self.connected = True
+
+    def is_online(self):
+        try:
+            self.sensors()
+        except Exception:
+            pass
+        return self.connected
 
     def write_message(self, msg):
         try:
             measurement_dict = json.loads(msg)
+
+            measurement_dict["created_on"] = fixISO(measurement_dict["created_on"])
 
             measurement = Measurement(
             created_on = measurement_dict["created_on"][0:-3]+"+00:00", # expecting UTC time
@@ -72,9 +104,10 @@ class Api:
         high_temperature = self.sensor.max_temperature
         low_temperature = self.sensor.min_temperature
 
-        if not msg is None:
+        if msg is not None:
             try:
                 measurement_dict = json.loads(msg)
+                measurement_dict["created_on"] = fixISO(measurement_dict["created_on"])
 
                 created_on = measurement_dict["created_on"][0:-3]+"+00:00" # expecting UTC time
                 temperature = measurement_dict["temperature"]
@@ -91,7 +124,7 @@ class Api:
         if created_on is None:
             created_on = datetime.datetime.now(datetime.timezone.utc).isoformat(timespec='milliseconds')
             
-        if not temperature is None:
+        if temperature is not None:
             alert = Alert(created_on, sensor_uuid, temperature, high_temperature, low_temperature)
         else:
             self.log("E: Error when creating alert. Check supplied parameters.")
@@ -107,4 +140,4 @@ class Api:
 
 if __name__ == "__main__":
     api_client = Api("Orange", ">f@9C3p<")
-    api_client.write_message('{"team_name": "white", "created_on": "2021-11-27T12:25:05.336974", "temperature": 25.72}')
+    api_client.write_message('{"team_name": "white", "created_on": "2021-11-8T4:25:5.33", "temperature": 25.72}')

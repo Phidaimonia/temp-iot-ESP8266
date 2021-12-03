@@ -24,7 +24,8 @@ import logging
 
 class RootHandler(tornado.web.RequestHandler):
     def get(self):
-        self.write(temp.generate(myvalue="dQw4w9WgXcQ"))
+        # get username by cookie
+        self.write(temp.generate(myvalue="dQw4w9WgXcQ"))        # using templates
 
 
 class WSHandler(tornado.websocket.WebSocketHandler):
@@ -40,44 +41,48 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         app_log.debug(u"You said: " + message)
         
         try:
-            requestData = json.loads(message)
+            requestData = json.loads(message)           # process requests from frontend
         except:
-            app_log.debug("Bad request " + message)
+            app_log.error("Bad request " + message)
             self.write_message("Bad request")
             return
 
         if "request_type" not in requestData:
-            app_log.debug("Request type missing " + message)
+            app_log.error("Request type missing " + message)
             self.write_message("request_type missing")
             return
 
-        if requestData["request_type"] == "temperature_data":
+        if requestData["request_type"] == "temperature_data":                           # get temperatures from->to
             if db_connected:
                 if ("dt_from" in requestData) and ("dt_to" in requestData) and ("cookie" in requestData):
                 
-                    dt_from = pytz.utc.localize(dt.datetime.fromisoformat(requestData["dt_from"]))
+                    dt_from = pytz.utc.localize(dt.datetime.fromisoformat(requestData["dt_from"]))              # all time operations in UTC
                     dt_to = pytz.utc.localize(dt.datetime.fromisoformat(requestData["dt_to"]))
 
-                    data = database.read_messages(dt_from, dt_to, team_list)
+                    data = database.read_messages(dt_from, dt_to, team_list)        # returns json
                     for measurement in data:
                         self.write_message(measurement)
                 else:
-                    app_log.debug("Bad request parameters " + message)
+                    app_log.error("Bad request parameters " + message)
                     self.write_message("Bad Bad request parameters")
                     return
             else:
                 self.write_message("Error: DB not connected...")
 
 
-        elif requestData["request_type"] == "sensor_status":
+        elif requestData["request_type"] == "sensor_status":                            # last online time
             for t_team in sensor_status:
-                self.write_message(json.dumps({t_team:sensor_status[t_team]}))
+                response = {"response_type":"sensor_status", "team_name":t_team, "last_seen":sensor_status[t_team]}
+                self.write_message(json.dumps(response))
 
 
-        elif requestData["request_type"] == "aimtec_status":
-            print("")
+        elif requestData["request_type"] == "aimtec_status":                            
+
+            response = {"response_type":"aimtec_status", "status":aimtec.is_online()}                   # aimtec
+            self.write_message(json.dumps(response))
+  
         else:
-            app_log.debug("Bad request type " + message)
+            app_log.error("Bad request type " + message)
             self.write_message("Bad request_type")
             return
 
@@ -99,34 +104,50 @@ def on_connect_MQTT(client, userdata, flags, rc):
 def on_message_MQTT(client, userdata, msg):
     msg_str = msg.payload.decode('utf-8')
 
-    print(msg.topic+" "+msg_str)
+    app_log.debug(msg.topic+" "+msg_str)
     
     try:
         data = json.loads(msg_str)
     except:
         app_log.debug("E: Error when parsing message")
         return
-    if ("team_name" in data) and ("created_on" in data) and ("temperature" in data):
-        if not data["team_name"] == msg.topic.replace(mqtt_room_name + "/", ""):
-            print("E: Team name '{}' and topic '{}' don't match.".format(data["team_name"], msg.topic))
+
+    if ("team_name" in data) and ("created_on" in data) and ("temperature" in data):                    # valid json
+        if not data["team_name"] == msg.topic.replace(mqtt_room_name + "/", ""):                        # topic == team
+            app_log.debug("E: Team name '{}' and topic '{}' don't match.".format(data["team_name"], msg.topic))
             return
-        if data["team_name"] not in team_list:
-            print("E: Team name '{}' is not on the team list.".format(data["team_name"]))
+
+        if data["team_name"] not in team_list:                                                          # team in teamlist
+            app_log.error("E: Team name '{}' is not on the team list.".format(data["team_name"]))
             return
+
         try:
-            data["created_on"] = pytz.utc.localize(db.fixISOformat(data["created_on"])).isoformat()            # correct isoformat
+            temp = float(data["temperature"])                                                           # temperature is float
+        except Exception as err:   
+            app_log.error("E: Can't parse temperature {}".format(data["temperature"]))
+            app_log.error(str(err))
+            return
+
+        try:
+            data["created_on"] = pytz.utc.localize(db.fuzzy_ISO_to_datetime(data["created_on"])).isoformat()         # correct isoformat
         except Exception as err:   # ValueError
-            print("E: Can't parse time {}".format(data["created_on"]))
-            print(str(err))
+            app_log.error("E: Can't parse time {}".format(data["created_on"]))
+            app_log.error(str(err))
             return
 
         final_msg = json.dumps(data)
         
         #print("Final datapoint: " + final_msg)
         if db_connected:
-            print(database.write_message(final_msg))              # save to db
+            app_log.debug(database.write_message(msg_str))                # save to db
+
         sensor_status[data["team_name"]] = time.gmtime()          # last online = now
         app.send_ws_message(final_msg)                            # push to frontend
+
+        #if aimtec_connected and data["team_name"] == cfg["team"]:   # send our team's data to Aimtec
+            #aimtec.write_message(msg_str)
+            #if(data["temperature"] > aimtec.sensor.max_temperature or data["temperature"] < aimtec.sensor.min_temperature):
+            #    app_log.debug("ALERT SENT: " + msg_str + " " + str(aimtec.send_alert(msg_str)))
         
 
     
@@ -160,7 +181,7 @@ class WebApp(TornadoApplication):
         self.tornado_handlers = [
             (r'/', RootHandler),
             (r"/receive_image", ReceiveImageHandler),
-            #Uncomment aftert training# (r"/recognize", RecognizeImageHandler),
+            #Uncomment after training# (r"/recognize", RecognizeImageHandler),
             (r'/data', WSHandler),
             (r'/(.*)', tornado.web.StaticFileHandler, {'path': './static'})
         ]
@@ -185,6 +206,7 @@ if __name__ == '__main__':
 
     tornado.log.enable_pretty_logging()
     app_log = logging.getLogger("tornado.application")
+    app_log.setLevel(logging.DEBUG)
     mqtt_client_id = "observer" + str(random.randint(10000000, 999999999999))
     mqtt_room_name = cfg["mqtt"]["room_name"]
 
@@ -196,43 +218,39 @@ if __name__ == '__main__':
 
 
     aimtec = None
+    aimtec_connected = False
     for i in range(cfg["reconnect_tries"]):  
         try:
             aimtec = api.Api(cfg["aimtec"]["user"], cfg["aimtec"]["passwd"])
             if aimtec is not None:
-                break
+                if aimtec.connected:
+                    aimtec_connected = True
+                    break
         except Exception as err:
-            print("Aimtec connection error: {}".format(err))
-            print("Connection attempt {}...".format(i+1))
+            app_log.error("Aimtec connection error: {}".format(err))
+            app_log.error("Connection attempt {}...".format(i+1))
             time.sleep(cfg["reconnect_timeout"])
-
-
-    aimtec_connected = aimtec is not None
-
-
-    if aimtec_connected:
-        aimtec.write_message('{"team_name": "white", "created_on": "2021-11-27T12:25:05.336974", "temperature": 25.72}')
 
     db_connected = False
     database = None
-    print("Connecting to DB...")
+    app_log.debug("Connecting to DB...")
     for i in range(cfg["reconnect_tries"]):  
         try:
-            print("Connection attempt {}...".format(i+1))
+            app_log.debug("Connection attempt {}...".format(i+1))
             database = DB()
             if database is not None:
-                if database.connected:
+                if database.connected == True:
                     db_connected = True
                     break
         except Exception as err:
-            #print("Database connection error: {}".format(err))
+            app_log.error("Database connection error: {}".format(err))
             time.sleep(2)       # cfg["reconnect_timeout"]
 
 
     if not db_connected:
-        print("Can't connect to DB, continuing...")
+        app_log.error("Can't connect to DB, continuing...")
     else:
-        print("Connected to DB")
+        app_log.debug("Connected to DB")
 
 
     client = mqtt.Client(mqtt_client_id)
@@ -242,8 +260,12 @@ if __name__ == '__main__':
     client.on_connect = on_connect_MQTT
     client.on_message = on_message_MQTT
 
-    client.connect(cfg["mqtt"]["broker"], cfg["mqtt"]["port"])
-    client.loop_start()
+    try:
+        client.connect(cfg["mqtt"]["broker"], cfg["mqtt"]["port"])
+        client.loop_start()
+    except Exception:
+        app_log.critical("Can't connect to MQTT broker")
+        pass
 
     app = WebApp()
     
@@ -254,7 +276,7 @@ if __name__ == '__main__':
         "ca_certs": "./letsencrypt/fullchain.pem",
     }
 
-    http_server = tornado.httpserver.HTTPServer(app)    # ssl_options=ssl_options
+    http_server = tornado.httpserver.HTTPServer(app, ssl_options=ssl_options)    # ssl_options=ssl_options
     http_server.listen(443)
 
     iol = IOLoop.current()

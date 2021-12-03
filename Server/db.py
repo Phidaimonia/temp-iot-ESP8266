@@ -5,7 +5,7 @@ import time
 import pytz
 
 
-def fixISOformat(weakISO):
+def fuzzy_ISO_to_datetime(weakISO):
     t = None
     try:
         t = datetime.datetime.fromisoformat(weakISO)
@@ -13,14 +13,9 @@ def fixISOformat(weakISO):
         pass
 
     if t is None:
-        try:
-            t = datetime.datetime.strptime(weakISO, "%Y-%m-%dT%H:%M:%S.%f")
-        except Exception as err:
-            raise err
+        t = datetime.datetime.strptime(weakISO, "%Y-%m-%dT%H:%M:%S.%f")
 
     return t
-
-
 
 
 class DB:
@@ -92,7 +87,7 @@ class DB:
         try:
             measurement = json.loads(msg)
  
-            measurement_time = pytz.utc.localize(fixISOformat(measurement["created_on"])) # expecting UTC time
+            measurement_time = pytz.utc.localize(fuzzy_ISO_to_datetime(measurement["created_on"])) # expecting UTC time
             team = measurement["team_name"]
             temperature = measurement["temperature"]
             data = (measurement_time, team, temperature)
@@ -174,12 +169,16 @@ class DB:
         return None
 
 if __name__ == '__main__':
-    db = DB()
+    #db = DB()
     # for d in range(1, 15):
     #    for h in range (24):
     #        message = json.dumps({'team_name': 'pink', 'created_on': '2020-03-{0:02d}T{1:02d}:26:05.336974'.format(d, h), 'temperature': 25.72})
     #        db.write_message(message)
 
-    data = db.read_messages(pytz.utc.localize(datetime.datetime(2020, 3, 10)), pytz.utc.localize(datetime.datetime(2020, 3, 12)), ['red', 'pink'])
-    for m in data:
-        print(m)
+    #data = db.read_messages(pytz.utc.localize(datetime.datetime(2020, 3, 10)), pytz.utc.localize(datetime.datetime(2020, 3, 12)), ['red', 'pink'])
+    #for m in data:
+    #    print(m)
+
+    t = "2021-12-2T23:7:3.397000"
+    print(t)
+    print(aimtecTimeFormat(t))
