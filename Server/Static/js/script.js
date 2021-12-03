@@ -1,4 +1,3 @@
-(function() {
 function onSocketOpen() {
     console.log("WS Open")
 }
@@ -52,4 +51,3 @@ function loadJsonHandler() {
 }
 
 window.addEventListener('load', onLoad, false);
-})();
