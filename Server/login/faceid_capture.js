@@ -96,9 +96,9 @@
     xhr.onreadystatechange = function() {
       if (xhr.readyState === 4) {
           response = JSON.parse(xhr.response);
-
+          console.log(response)
           if('location' in response){
-            window.location.replace(this.response.location)
+            window.location.replace(response.location)
           }
           faces = response.faces;
           console.log(faces);
