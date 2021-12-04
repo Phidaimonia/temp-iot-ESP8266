@@ -21,7 +21,7 @@ import logging
 test_mode = True
 
 
-#Uncomment aftert training# from recognize_handler import RecognizeImageHandler
+from recognize_handler import RecognizeImageHandler
 
 class UserHandler(tornado.web.RequestHandler):
     async def get_current_user(self):
@@ -198,7 +198,7 @@ class WebApp(TornadoApplication):
             (r'/', RootHandler),
             (r'/login/(.*)', tornado.web.StaticFileHandler, {'path': './login'}),
             (r"/receive_image", ReceiveImageHandler),
-            #Uncomment after training# (r"/recognize", RecognizeImageHandler),
+            (r"/recognize", RecognizeImageHandler),
             (r'/data', WSHandler),
             (r'/(.*)', StaticUserHandler, {'path': './static'})
         ]
