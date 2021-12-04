@@ -89,7 +89,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                     self.try_send_message("Bad Bad request parameters")
                     return
             else:
-                self.try_send_message("Error: DB not connected...")
+                self.try_send_message("Error: DB not connected")
 
 
         elif requestData["request_type"] == "sensor_status":                            # last online time
@@ -226,8 +226,13 @@ class WebApp(TornadoApplication):
         TornadoApplication.__init__(self, self.tornado_handlers, **self.tornado_settings)
 
     def send_ws_message(self, message):
-        for client in self.ws_clients:
-            iol.spawn_callback(client.write_message, message)
+        try:
+            for client in self.ws_clients:
+                iol.spawn_callback(client.write_message, message)
+        except Exception as err:
+            app_log.error("E: Can't send WS message")
+            app_log.error(str(err))
+
 
 
 
