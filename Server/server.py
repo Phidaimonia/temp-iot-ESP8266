@@ -250,7 +250,7 @@ if __name__ == '__main__':
     team_list = ["red", "blue", "black", "pink", "green"]
     sensor_status = {name:None for name in team_list}
 
-    loader = T.Loader("./static/")
+    loader = T.Loader("./Static/")
     temp = loader.load("index.html")
 
 
