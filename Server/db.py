@@ -202,3 +202,7 @@ if __name__ == '__main__':
     #data = db.read_messages(pytz.utc.localize(datetime.datetime(2020, 3, 10)), pytz.utc.localize(datetime.datetime(2020, 3, 12)), ['red', 'pink'])
     #for m in data:
     #    print(m)
+
+    t = "2021-12-2T23:7:3.397000"
+    print(t)
+    print(aimtecTimeFormat(t))
