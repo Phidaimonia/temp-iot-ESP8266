@@ -84,6 +84,8 @@ var chartCapacity = 130  // v minutach
 var endDate = new Date();
 var startDate = new Date((Date.now() - chartCapacity * 60 * 1000 ))
 
+console.log(endDate.toISOString())
+
 
 
 //new Date().toISOString();
