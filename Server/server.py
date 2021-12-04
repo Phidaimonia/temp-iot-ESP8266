@@ -28,7 +28,7 @@ class UserHandler(tornado.web.RequestHandler):
         user_id = self.get_secure_cookie("session")
         if user_id is None or not db_connected: return None
 
-        return database.getUser(user_id)
+        return await database.getUser(user_id)
 
 class RootHandler(UserHandler):
     async def get(self):
@@ -80,8 +80,14 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             if db_connected:
                 if ("dt_from" in requestData) and ("dt_to" in requestData) and ("cookie" in requestData):
                 
-                    dt_from = pytz.utc.localize(dt.datetime.fromisoformat(requestData["dt_from"]))              # all time operations in UTC
-                    dt_to = pytz.utc.localize(dt.datetime.fromisoformat(requestData["dt_to"]))
+                    try:
+                        dt_from = pytz.utc.localize(dt.datetime.fromisoformat(requestData["dt_from"]))              # all time operations in UTC
+                        dt_to = pytz.utc.localize(dt.datetime.fromisoformat(requestData["dt_to"]))
+                    except Exception as err:
+                        app_log.error("Bad time format " + message)
+                        app_log.error(str(err))
+                        self.try_send_message({"error" : "Bad request"})
+                        return
 
                     data = database.read_messages(dt_from, dt_to, team_list)        # returns json
                     for measurement in data:

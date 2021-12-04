@@ -203,6 +203,4 @@ if __name__ == '__main__':
     #for m in data:
     #    print(m)
 
-    t = "2021-12-2T23:7:3.397000"
-    print(t)
-    print(aimtecTimeFormat(t))
+  
