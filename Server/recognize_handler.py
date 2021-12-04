@@ -97,7 +97,7 @@ class RecognizeImageHandler(tornado.web.RequestHandler):
         if len(faces) > 0:
             user = self.application.database.getUser(username = faces[0]["name"])
             if user is not None:
-                self.set_secure_cookie("session", user.user_id)
+                self.set_secure_cookie("session", str(user.user_id))
                 self.redirect("https://sulis48.zcu.cz/indexChart.html")
         self.write(js)
         print("Result JSON")
