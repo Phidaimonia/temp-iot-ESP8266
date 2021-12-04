@@ -24,11 +24,11 @@ test_mode = False
 from recognize_handler import RecognizeImageHandler
 
 class UserHandler(tornado.web.RequestHandler):
-    async def get_current_user(self):
+    def get_current_user(self):
         user_id = self.get_secure_cookie("session")
         if user_id is None or not db_connected: return None
 
-        return await database.getUser(user_id)
+        return 0   #database.getUser(user_id)    VOJTO FIXNI TO !!!!
 
 class RootHandler(UserHandler):
     async def get(self):
@@ -37,11 +37,12 @@ class RootHandler(UserHandler):
 
 
 class WSHandler(tornado.websocket.WebSocketHandler):
-    async def get_current_user(self):
+    def get_current_user(self):
         user_id = self.get_secure_cookie("session")
         if user_id is None or not db_connected: return None
 
-        return database.getUser(user_id)
+        return 0 #database.getUser(user_id)
+
     def initialize(self):
         self.application.ws_clients.append(self)
         app_log.debug("Init WS")
@@ -49,6 +50,8 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     def open(self):
         if not self.current_user:
             self.close()
+            return
+        
         self.set_nodelay(True)
         app_log.debug("WebSocket connection opened")
 
