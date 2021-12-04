@@ -24,22 +24,22 @@ test_mode = True
 #Uncomment aftert training# from recognize_handler import RecognizeImageHandler
 
 class UserHandler(tornado.web.RequestHandler):
-    def get_current_user(self):
+    async def get_current_user(self):
         user_id = self.get_secure_cookie("session")
         if user_id is None: return None
-        return database.getUser(user_id = user_id, username = None)
+        return await database.getUser(user_id = user_id, username = None)
 
 class RootHandler(UserHandler):
-    def get(self):
+    async def get(self):
         # get username by cookie
-        self.write(temp.generate(myvalue="dQw4w9WgXcQ"))        # using templates
+        await self.write(temp.generate(myvalue="dQw4w9WgXcQ"))        # using templates
 
 
 class WSHandler(tornado.websocket.WebSocketHandler):
-    def get_current_user(self):
+    async def get_current_user(self):
         user_id = self.get_secure_cookie("session")
         if user_id is None: return None
-        return database.getUser(user_id = user_id, username = None)
+        return await database.getUser(user_id = user_id, username = None)
 
     def initialize(self):
         self.application.ws_clients.append(self)
@@ -49,7 +49,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         self.set_nodelay(True)
         app_log.debug("WebSocket connection opened")
 
-    def on_message(self, message):
+    async def on_message(self, message):
         app_log.debug(u"You said: " + message)
         
         try:
@@ -71,7 +71,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                     dt_from = pytz.utc.localize(dt.datetime.fromisoformat(requestData["dt_from"]))              # all time operations in UTC
                     dt_to = pytz.utc.localize(dt.datetime.fromisoformat(requestData["dt_to"]))
 
-                    data = database.read_messages(dt_from, dt_to, team_list)        # returns json
+                    data = await database.read_messages(dt_from, dt_to, team_list)        # returns json
                     for measurement in data:
                         self.write_message(measurement)
                 else:
@@ -84,13 +84,13 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
         elif requestData["request_type"] == "sensor_status":                            # last online time
             for t_team in sensor_status:
-                response = {"response_type":"sensor_status", "team_name":t_team, "last_seen":sensor_status[t_team]}
+                response = await {"response_type":"sensor_status", "team_name":t_team, "last_seen":sensor_status[t_team]}
                 self.write_message(json.dumps(response))
 
 
         elif requestData["request_type"] == "aimtec_status":                            
 
-            response = {"response_type":"aimtec_status", "status":aimtec.is_online()}                   # aimtec
+            response = await {"response_type":"aimtec_status", "status":aimtec.is_online()}                   # aimtec
             self.write_message(json.dumps(response))
   
         else:
