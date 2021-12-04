@@ -108,12 +108,12 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             self.try_send_message("Bad request_type")
             return
 
-    
-            
-
     def on_close(self):
         self.application.ws_clients.remove(self)
         app_log.debug("WebSocket closed")
+
+
+
 
 class StaticUserHandler(UserHandler, tornado.web.StaticFileHandler):
     pass
@@ -179,20 +179,25 @@ def on_message_MQTT(client, userdata, msg):
 
 class ReceiveImageHandler(tornado.web.RequestHandler):
     def post(self):
-        # Convert from binary data to string
-        received_data = self.request.body.decode()
+        try:
+            # Convert from binary data to string
+            received_data = self.request.body.decode()
 
-        assert received_data.startswith("data:image/png"), "Only data:image/png URL supported"
+            assert received_data.startswith("data:image/png"), "Only data:image/png URL supported"
 
-        # Parse data:// URL
-        with urlopen(received_data) as response:
-            image_data = response.read()
+            # Parse data:// URL
+            with urlopen(received_data) as response:
+                image_data = response.read()
 
-        app_log.info("Received image: %d bytes", len(image_data))
+            app_log.info("Received image: %d bytes", len(image_data))
 
-        # Write an image to the file
-        with open('faceid/images/img-{}.png'.format(dt.datetime.now().strftime('%Y%m%d-%H%M%S')), "wb") as fw:
-            fw.write(image_data)
+            # Write an image to the file
+            with open('faceid/images/img-{}.png'.format(dt.datetime.now().strftime('%Y%m%d-%H%M%S')), "wb") as fw:
+                fw.write(image_data)
+        except Exception as err:
+            app_log.error("E: Can't parse image")
+            app_log.error(str(err))
+
 
 
 
