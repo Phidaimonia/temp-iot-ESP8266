@@ -49,6 +49,8 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     def open(self):
         if not self.current_user:
             self.close()
+            return
+        
         self.set_nodelay(True)
         app_log.debug("WebSocket connection opened")
 
