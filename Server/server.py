@@ -194,7 +194,7 @@ class WebApp(TornadoApplication):
 
         self.tornado_handlers = [
             (r'/', RootHandler),
-            (r'/login/(,*)', tornado.web.StaticFileHandler, {'path': './login'}),
+            (r'/login/(.*)', tornado.web.StaticFileHandler, {'path': './login'}),
             (r"/receive_image", ReceiveImageHandler),
             #Uncomment after training# (r"/recognize", RecognizeImageHandler),
             (r'/data', WSHandler),
