@@ -202,5 +202,3 @@ if __name__ == '__main__':
     #data = db.read_messages(pytz.utc.localize(datetime.datetime(2020, 3, 10)), pytz.utc.localize(datetime.datetime(2020, 3, 12)), ['red', 'pink'])
     #for m in data:
     #    print(m)
-
-  
