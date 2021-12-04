@@ -55,7 +55,7 @@ function onLoad() {
 	console.log("Ahoj world")
     //document.getElementById('dict').innerText = loadJsonHandler()
 
-    ws = new WebSocket("ws://" + window.location.host + '/data')
+    ws = new WebSocket("wss://" + window.location.host + '/data')
     //ws = new WebSocket('wss://sulis48.zcu.cz/data')     
     ws.onopen = onSocketOpen
     ws.onmessage = onSocketMessage
