@@ -94,12 +94,12 @@
     xhr.open("POST", "/recognize", true);
 
     xhr.onreadystatechange = function() {
-      if (xhr.status == 302){
-        window.location.replace(xhr.getResponseHeader("Location"))
-      }
       if (xhr.readyState === 4) {
           response = JSON.parse(xhr.response);
 
+          if('location' in response){
+            window.location.replace(this.response.location)
+          }
           faces = response.faces;
           console.log(faces);
 
