@@ -169,7 +169,7 @@ def on_message_MQTT(client, userdata, msg):
             app_log.debug(database.write_message(msg_str))                # save to db
 
         sensor_status[data["team_name"]] = time.gmtime()          # last online = now
-        app.send_ws_message(final_msg)                            # push to frontend
+        app.try_send_message(final_msg)                            # push to frontend
 
         if not test_mode:
             if aimtec_connected and data["team_name"] == cfg["team"]:   # send our team's data to Aimtec
