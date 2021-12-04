@@ -42,12 +42,13 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         if user_id is None or not db_connected: return None
 
         return database.getUser(user_id)
-
     def initialize(self):
         self.application.ws_clients.append(self)
         app_log.debug("Init WS")
 
     def open(self):
+        if not self.current_user:
+            self.close()
         self.set_nodelay(True)
         app_log.debug("WebSocket connection opened")
 
@@ -117,7 +118,9 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
 
 class StaticUserHandler(UserHandler, tornado.web.StaticFileHandler):
-    pass
+    @tornado.web.authenticated
+    def prepare(self):
+        pass
 
 def on_connect_MQTT(client, userdata, flags, rc):
     app_log.debug("Connected with result code "+str(rc))
