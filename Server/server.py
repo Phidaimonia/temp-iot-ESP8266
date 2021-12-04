@@ -18,7 +18,7 @@ from db import DB
 import tornado.log
 import logging
 
-test_mode = False
+test_mode = True
 
 
 from recognize_handler import RecognizeImageHandler
@@ -28,7 +28,7 @@ class UserHandler(tornado.web.RequestHandler):
         user_id = self.get_secure_cookie("session")
         if user_id is None or not db_connected: return None
 
-        return 0   #database.getUser(user_id)    VOJTO FIXNI TO !!!!
+        return database.getUser(user_id)
 
 class RootHandler(UserHandler):
     async def get(self):
@@ -41,8 +41,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         user_id = self.get_secure_cookie("session")
         if user_id is None or not db_connected: return None
 
-        return 0 #database.getUser(user_id)
-
+        return database.getUser(user_id)
     def initialize(self):
         self.application.ws_clients.append(self)
         app_log.debug("Init WS")
@@ -50,8 +49,6 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     def open(self):
         if not self.current_user:
             self.close()
-            return
-        
         self.set_nodelay(True)
         app_log.debug("WebSocket connection opened")
 
@@ -234,7 +231,7 @@ class WebApp(TornadoApplication):
             "debug": True,
             "autoreload": True,
             "cookie_secret": cookie_secret,
-            "login_url": "https://sulis48.zcu.cz/login/faceid.html"
+            "login_url": "/login"
         }
         TornadoApplication.__init__(self, self.tornado_handlers, **self.tornado_settings)
 
