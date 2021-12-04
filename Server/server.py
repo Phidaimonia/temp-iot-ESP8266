@@ -230,13 +230,13 @@ class WebApp(TornadoApplication):
         TornadoApplication.__init__(self, self.tornado_handlers, **self.tornado_settings)
 
     def send_ws_message(self, message):
-        try:
             for client in self.ws_clients:
-                iol.spawn_callback(client.write_message, message)
-        except Exception as err:
-            self.application.ws_clients.remove(self)
-            app_log.error("E: Can't send WS message")
-            app_log.error(str(err))
+                try:
+                    iol.spawn_callback(client.write_message, message)
+                except Exception as err:
+                    self.ws_clients.remove(client)
+                    app_log.error("E: Can't send WS message")
+                    app_log.error(str(err))
 
 
 
