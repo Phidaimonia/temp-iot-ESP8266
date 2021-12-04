@@ -27,7 +27,8 @@ class UserHandler(tornado.web.RequestHandler):
     async def get_current_user(self):
         user_id = self.get_secure_cookie("session")
         if user_id is None: return None
-        return await database.getUser(user_id = user_id, username = None)
+
+        return await database.getUser(user_id)
 
 class RootHandler(UserHandler):
     async def get(self):
@@ -39,7 +40,8 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     async def get_current_user(self):
         user_id = self.get_secure_cookie("session")
         if user_id is None: return None
-        return await database.getUser(user_id = user_id, username = None)
+
+        return await database.getUser(user_id)
 
     def initialize(self):
         self.application.ws_clients.append(self)
@@ -194,7 +196,7 @@ class WebApp(TornadoApplication):
 
         self.tornado_handlers = [
             (r'/', RootHandler),
-            (r'/login/(,*)', tornado.web.StaticFileHandler, {'path': './login'}),
+            (r'/login/(.*)', tornado.web.StaticFileHandler, {'path': './login'}),
             (r"/receive_image", ReceiveImageHandler),
             #Uncomment after training# (r"/recognize", RecognizeImageHandler),
             (r'/data', WSHandler),
