@@ -4,6 +4,8 @@ import datetime
 import time
 import pytz
 
+from user import User
+
 
 def fuzzy_ISO_to_datetime(weakISO):
     t = None
@@ -122,6 +124,28 @@ class DB:
                 break
             break
         return 0
+
+    def getUser(self, user_id = None, username = None):
+        SELECT = """SELECT u.id, u.username, u.role FROM
+                        users as u
+                        WHERE u.id = %s OR u.username = %s"""
+
+        for i in range(3): #tries to reconnect 2 times
+            try:
+                self.cursor.execute(SELECT, [user_id, username])
+                self.conn.commit()
+                self.log("D: Successfully retrieved data")
+                user_data = self.cursor.fetchall()
+                if len(user_data) == 0: return None
+                user_id, username, role = user_data[0]
+                return User(user_id, username, role)
+            except psycopg2.OperationalError as err:
+                self.log("E: Problem with reading from the DB, might have had lost the connection to the DB. \n   Trying to reconnect. Attempts left:" + str(2-i))
+                self.__connect()
+                time.sleep(5)
+                continue
+            break
+        return None
 
     def read_messages(self, dt_from, dt_to, teams):
         """

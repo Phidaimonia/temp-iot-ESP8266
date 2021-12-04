@@ -22,7 +22,9 @@ import logging
 
 class UserHandler(tornado.web.RequestHandler):
     def get_current_user(self):
-        self.get_secure_cookie("session")
+        user_id = self.get_secure_cookie("session")
+        if user_id is None: return None
+        return database.getUser(user_id = user_id, username = None)
 
 class RootHandler(UserHandler):
     def get(self):
@@ -32,7 +34,9 @@ class RootHandler(UserHandler):
 
 class WSHandler(tornado.websocket.WebSocketHandler):
     def get_current_user(self):
-        pass
+        user_id = self.get_secure_cookie("session")
+        if user_id is None: return None
+        return database.getUser(user_id = user_id, username = None)
 
     def initialize(self):
         self.application.ws_clients.append(self)
@@ -195,7 +199,8 @@ class WebApp(TornadoApplication):
         self.tornado_settings = {
             "debug": True,
             "autoreload": True,
-            "cookie_secret": cookie_secret
+            "cookie_secret": cookie_secret,
+            "login_url": "/login"
         }
         TornadoApplication.__init__(self, self.tornado_handlers, **self.tornado_settings)
 
