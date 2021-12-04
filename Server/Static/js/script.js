@@ -4,11 +4,10 @@ function onSocketOpen() {
 
 function onSocketMessage(message) {
   
-    console.log("JSON data received:", message)
-    //msg = JSON.parse(message.data)
+    //console.log("JSON data received:", message)
 
     //----------------added-------------
-    var data = JSON.parse((message.data));
+    var data = JSON.parse(message.data);
     console.log(data);
     
     time = data.time;
