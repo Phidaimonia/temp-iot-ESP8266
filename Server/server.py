@@ -18,7 +18,7 @@ from db import DB
 import tornado.log
 import logging
 
-test_mode = True
+test_mode = False
 
 
 from recognize_handler import RecognizeImageHandler
