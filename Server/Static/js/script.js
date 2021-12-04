@@ -1,7 +1,7 @@
 
 function onSocketOpen() {
     console.log("WS Open");
-    requestData();
+    //requestData();
 }
 
 function onSocketMessage(message) {
