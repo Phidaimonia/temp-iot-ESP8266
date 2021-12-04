@@ -24,7 +24,7 @@ class UserHandler(tornado.web.RequestHandler):
     def get_current_user(self):
         user_id = self.get_secure_cookie("session")
         if user_id is None: return None
-        return database.getUser(user_id = user_id, username = None)
+        return database.getUser(user_id)
 
 class RootHandler(UserHandler):
     def get(self):
@@ -36,7 +36,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     def get_current_user(self):
         user_id = self.get_secure_cookie("session")
         if user_id is None: return None
-        return database.getUser(user_id = user_id, username = None)
+        return database.getUser(user_id)
 
     def initialize(self):
         self.application.ws_clients.append(self)
