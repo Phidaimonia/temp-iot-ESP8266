@@ -22,7 +22,7 @@ import logging
 
 class UserHandler(tornado.web.RequestHandler):
     def get_current_user(self):
-        pass
+        self.get_secure_cookie("session")
 
 class RootHandler(UserHandler):
     def get(self):
@@ -33,7 +33,7 @@ class RootHandler(UserHandler):
 class WSHandler(tornado.websocket.WebSocketHandler):
     def get_current_user(self):
         pass
-    
+
     def initialize(self):
         self.application.ws_clients.append(self)
         app_log.debug("Init WS")
@@ -181,7 +181,7 @@ class ReceiveImageHandler(tornado.web.RequestHandler):
 
 class WebApp(TornadoApplication):
 
-    def __init__(self):
+    def __init__(self, cookie_secret):
         self.ws_clients = []
 
         self.tornado_handlers = [
@@ -194,7 +194,8 @@ class WebApp(TornadoApplication):
         ]
         self.tornado_settings = {
             "debug": True,
-            "autoreload": True
+            "autoreload": True,
+            "cookie_secret": cookie_secret
         }
         TornadoApplication.__init__(self, self.tornado_handlers, **self.tornado_settings)
 
@@ -274,7 +275,7 @@ if __name__ == '__main__':
         app_log.critical("Can't connect to MQTT broker")
         pass
 
-    app = WebApp()
+    app = WebApp(bytes(cfg["cookie_secret"]))
     
     
     ssl_options={
