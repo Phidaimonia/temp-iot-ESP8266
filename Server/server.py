@@ -50,8 +50,6 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     def open(self):
         if not self.current_user:
             self.close()
-            return
-        
         self.set_nodelay(True)
         app_log.debug("WebSocket connection opened")
 
@@ -234,7 +232,7 @@ class WebApp(TornadoApplication):
             "debug": True,
             "autoreload": True,
             "cookie_secret": cookie_secret,
-            "login_url": "https://sulis48.zcu.cz/login/faceid.html"
+            "login_url": "/login"
         }
         TornadoApplication.__init__(self, self.tornado_handlers, **self.tornado_settings)
 
