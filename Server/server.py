@@ -28,7 +28,7 @@ class UserHandler(tornado.web.RequestHandler):
         user_id = self.get_secure_cookie("session")
         if user_id is None or not db_connected: return None
 
-        return database.getUser(user_id)
+        return await database.getUser(user_id)
 
 class RootHandler(UserHandler):
     async def get(self):
