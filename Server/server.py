@@ -18,6 +18,9 @@ from db import DB
 import tornado.log
 import logging
 
+test_mode = True
+
+
 #Uncomment aftert training# from recognize_handler import RecognizeImageHandler
 
 class UserHandler(tornado.web.RequestHandler):
@@ -154,10 +157,11 @@ def on_message_MQTT(client, userdata, msg):
         sensor_status[data["team_name"]] = time.gmtime()          # last online = now
         app.send_ws_message(final_msg)                            # push to frontend
 
-        #if aimtec_connected and data["team_name"] == cfg["team"]:   # send our team's data to Aimtec
-            #aimtec.write_message(msg_str)
-            #if(data["temperature"] > aimtec.sensor.max_temperature or data["temperature"] < aimtec.sensor.min_temperature):
-            #    app_log.debug("ALERT SENT: " + msg_str + " " + str(aimtec.send_alert(msg_str)))
+        if not test_mode:
+            if aimtec_connected and data["team_name"] == cfg["team"]:   # send our team's data to Aimtec
+                aimtec.write_message(msg_str)
+                if(data["temperature"] > aimtec.sensor.max_temperature or data["temperature"] < aimtec.sensor.min_temperature):
+                    app_log.debug("ALERT SENT: " + msg_str + " " + str(aimtec.send_alert(msg_str)))
         
 
     
@@ -190,7 +194,7 @@ class WebApp(TornadoApplication):
 
         self.tornado_handlers = [
             (r'/', RootHandler),
-            (r'/login/(,*)', tornado.web.StaticFileHandler, {'path': './login'})
+            (r'/login/(,*)', tornado.web.StaticFileHandler, {'path': './login'}),
             (r"/receive_image", ReceiveImageHandler),
             #Uncomment after training# (r"/recognize", RecognizeImageHandler),
             (r'/data', WSHandler),
@@ -216,6 +220,9 @@ if __name__ == '__main__':
     config = open("config.json", "r")   # load parameters
     cfg = json.load(config)
     config.close()
+
+    if test_mode:
+        print("TEST MODE ENABLED")
 
     tornado.log.enable_pretty_logging()
     app_log = logging.getLogger("tornado.application")
@@ -280,7 +287,7 @@ if __name__ == '__main__':
         app_log.critical("Can't connect to MQTT broker")
         pass
 
-    app = WebApp(bytes(cfg["cookie_secret"]))
+    app = WebApp(bytes(cfg["cookie_secret"].encode('utf-8')))
     
     
     ssl_options={
@@ -288,9 +295,15 @@ if __name__ == '__main__':
         "keyfile": "./letsencrypt/key.pem",
         "ca_certs": "./letsencrypt/fullchain.pem",
     }
+    if test_mode:
+        ssl_options = None
 
     http_server = tornado.httpserver.HTTPServer(app, ssl_options=ssl_options)    # ssl_options=ssl_options
-    http_server.listen(443)
+    if test_mode == True:
+        http_server.listen(80)
+    else:
+        http_server.listen(443)
+
 
     iol = IOLoop.current()
     print('Webserver: Initialized...')
