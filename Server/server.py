@@ -26,7 +26,7 @@ test_mode = True
 class UserHandler(tornado.web.RequestHandler):
     async def get_current_user(self):
         user_id = self.get_secure_cookie("session")
-        if user_id is None: return None
+        if user_id is None or not db_connected: return None
 
         return await database.getUser(user_id)
 
@@ -39,7 +39,7 @@ class RootHandler(UserHandler):
 class WSHandler(tornado.websocket.WebSocketHandler):
     async def get_current_user(self):
         user_id = self.get_secure_cookie("session")
-        if user_id is None: return None
+        if user_id is None or not db_connected: return None
 
         return await database.getUser(user_id)
 
