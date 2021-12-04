@@ -51,7 +51,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         self.set_nodelay(True)
         app_log.debug("WebSocket connection opened")
 
-    def try_end_message(self, content):
+    def try_send_message(self, content):
         try:
             self.write_message(content)
         except Exception as err:
@@ -66,12 +66,12 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             requestData = json.loads(message)           # process requests from frontend
         except:
             app_log.error("Bad request " + message)
-            self.try_end_message("Bad request")
+            self.try_send_message("Bad request")
             return
 
         if "request_type" not in requestData:
             app_log.error("Request type missing " + message)
-            self.try_end_message("request_type missing")
+            self.try_send_message("request_type missing")
             return
 
         if requestData["request_type"] == "temperature_data":                           # get temperatures from->to
@@ -83,29 +83,29 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
                     data = database.read_messages(dt_from, dt_to, team_list)        # returns json
                     for measurement in data:
-                        self.try_end_message(measurement)
+                        self.try_send_message(measurement)
                 else:
                     app_log.error("Bad request parameters " + message)
-                    self.try_end_message("Bad Bad request parameters")
+                    self.try_send_message("Bad Bad request parameters")
                     return
             else:
-                self.try_end_message("Error: DB not connected...")
+                self.try_send_message("Error: DB not connected...")
 
 
         elif requestData["request_type"] == "sensor_status":                            # last online time
             for t_team in sensor_status:
                 response = {"response_type":"sensor_status", "team_name":t_team, "last_seen":sensor_status[t_team]}
-                self.try_end_message(json.dumps(response))
+                self.try_send_message(json.dumps(response))
 
 
         elif requestData["request_type"] == "aimtec_status":                            
 
             response = await {"response_type":"aimtec_status", "status":aimtec.is_online()}                   # aimtec
-            self.try_end_message(json.dumps(response))
+            self.try_send_message(json.dumps(response))
   
         else:
             app_log.error("Bad request type " + message)
-            self.try_end_message("Bad request_type")
+            self.try_send_message("Bad request_type")
             return
 
     
