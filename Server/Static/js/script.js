@@ -97,17 +97,7 @@ var redChart = new Chart(redctx,{
         }
 
     }});
-    onLoad()
-
-function requestData() {
-    var params = {
-      "dt_from": "2021-12-01T12:58:01.000000",  // in UTC
-       "dt_to": "2022-02-01T12:58:01.000000", 
-         "cookie": "4jgk6s9d3dj57j4kgs3"
-      }
-      ws.send(JSON.stringify(params))
-   }
-  
+    onLoad()  
 
    // onmessage
    
