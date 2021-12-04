@@ -18,7 +18,7 @@ from db import DB
 import tornado.log
 import logging
 
-test_mode = True
+test_mode = False
 
 
 from recognize_handler import RecognizeImageHandler
@@ -28,12 +28,12 @@ class UserHandler(tornado.web.RequestHandler):
         user_id = self.get_secure_cookie("session")
         if user_id is None or not db_connected: return None
 
-        return await database.getUser(user_id)
+        return database.getUser(user_id)
 
 class RootHandler(UserHandler):
     async def get(self):
         # get username by cookie
-        await self.write(temp.generate(myvalue="dQw4w9WgXcQ"))        # using templates
+        self.write(temp.generate(myvalue="dQw4w9WgXcQ"))        # using templates
 
 
 class WSHandler(tornado.websocket.WebSocketHandler):
@@ -41,7 +41,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         user_id = self.get_secure_cookie("session")
         if user_id is None or not db_connected: return None
 
-        return await database.getUser(user_id)
+        return database.getUser(user_id)
 
     def initialize(self):
         self.application.ws_clients.append(self)
@@ -51,6 +51,14 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         self.set_nodelay(True)
         app_log.debug("WebSocket connection opened")
 
+    def try_end_message(self, content):
+        try:
+            self.write_message(content)
+        except Exception as err:
+            app_log.error("E: WS error: Can't send data")
+            app_log.error(str(err))
+
+
     async def on_message(self, message):
         app_log.debug(u"You said: " + message)
         
@@ -58,12 +66,12 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             requestData = json.loads(message)           # process requests from frontend
         except:
             app_log.error("Bad request " + message)
-            self.write_message("Bad request")
+            self.try_end_message("Bad request")
             return
 
         if "request_type" not in requestData:
             app_log.error("Request type missing " + message)
-            self.write_message("request_type missing")
+            self.try_end_message("request_type missing")
             return
 
         if requestData["request_type"] == "temperature_data":                           # get temperatures from->to
@@ -73,31 +81,31 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                     dt_from = pytz.utc.localize(dt.datetime.fromisoformat(requestData["dt_from"]))              # all time operations in UTC
                     dt_to = pytz.utc.localize(dt.datetime.fromisoformat(requestData["dt_to"]))
 
-                    data = await database.read_messages(dt_from, dt_to, team_list)        # returns json
+                    data = database.read_messages(dt_from, dt_to, team_list)        # returns json
                     for measurement in data:
-                        self.write_message(measurement)
+                        self.try_end_message(measurement)
                 else:
                     app_log.error("Bad request parameters " + message)
-                    self.write_message("Bad Bad request parameters")
+                    self.try_end_message("Bad Bad request parameters")
                     return
             else:
-                self.write_message("Error: DB not connected...")
+                self.try_end_message("Error: DB not connected...")
 
 
         elif requestData["request_type"] == "sensor_status":                            # last online time
             for t_team in sensor_status:
-                response = await {"response_type":"sensor_status", "team_name":t_team, "last_seen":sensor_status[t_team]}
-                self.write_message(json.dumps(response))
+                response = {"response_type":"sensor_status", "team_name":t_team, "last_seen":sensor_status[t_team]}
+                self.try_end_message(json.dumps(response))
 
 
         elif requestData["request_type"] == "aimtec_status":                            
 
             response = await {"response_type":"aimtec_status", "status":aimtec.is_online()}                   # aimtec
-            self.write_message(json.dumps(response))
+            self.try_end_message(json.dumps(response))
   
         else:
             app_log.error("Bad request type " + message)
-            self.write_message("Bad request_type")
+            self.try_end_message("Bad request_type")
             return
 
     
