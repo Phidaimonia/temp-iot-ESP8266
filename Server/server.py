@@ -215,7 +215,7 @@ class WebApp(TornadoApplication):
             (r"/receive_image", ReceiveImageHandler),
             (r"/recognize", RecognizeImageHandler),
             (r'/data', WSHandler),
-            (r'/(.*)', StaticUserHandler, {'path': './static'})
+            (r'/(.*)', StaticUserHandler, {'path': './Static'})
         ]
         self.tornado_settings = {
             "debug": True,
