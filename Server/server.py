@@ -37,7 +37,7 @@ class RootHandler(UserHandler):
 
 
 class WSHandler(tornado.websocket.WebSocketHandler):
-    async def get_current_user(self):
+    def get_current_user(self):
         user_id = self.get_secure_cookie("session")
         if user_id is None or not db_connected: return None
 
