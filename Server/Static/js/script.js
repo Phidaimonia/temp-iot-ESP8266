@@ -4,47 +4,25 @@ function onSocketOpen() {
 
 function onSocketMessage(message) {
   
-    //console.log("JSON data received:", message)
-
-    //----------------added-------------
     var data = JSON.parse(message.data);
-    console.log(data);
+    //console.log(data);
     
-    time = data.time;
-    temp = data.temp;
-    team = data.team; 
+    t = new Date(data.created_on);
+    temp = data.temperature;
+    team = data.team_name; 
     //
-    console.log(time);
-    console.log(temp);
-    console.log(team);
+    //console.log(time);
 
-    if(team=="red") {
-        red_data.labels = time;
-        red_data.datasets[0].data = temp;
+    //if(team=="red") {
+    if(true) {
+ 
+        redChart.data.labels.push(t.getHours() + ":" + t.getMinutes());
+        redChart.data.datasets.forEach((dataset) => {
+            dataset.data.push(temp);
+        });
         redChart.update();
     }
-    if(team=="black") {
-         black_data.labels = time;
-         black_data.datasets[0].data = temp;
-         blackChart.update();
-    }
-    if(team=="blue") {
-        blue_data.labels = time;
-        blue_data.datasets[0].data = temp;
-        blueChart.update();
-    }  
-    if(team=="green") {
-        green_data.labels = time;
-        green_data.datasets[0].data = temp;
-        greenChart.update();
-    }
-    if(team=="pink") {
-        pink_data.labels = time;
-        pink_data.datasets[0].data = temp;
-        pinkChart.update();
-    }
-    console.log("data successfully parsed.")
-    //------------------------------
+ 
 }
 
 function onSocketClose() {
@@ -90,31 +68,21 @@ function loadJsonHandler() {
     return  xmlhttp.responseText;
 }
 
-window.addEventListener('load', onLoad, false);
+//window.addEventListener('load', onLoad, false);
 
-//--------------------------------------------------------------------------
-var ctx = document.getElementById('canvas')
 
-const labels = ['1', '2', '3', '4', '5', '6'];         
-    var red_data = {labels: labels,datasets: [{label: 'Temperature red', backgroundColor: 'white', borderColor: 'red', borderWidth: 4, data: [null],}]};
+const x_data = [];  
+const y_data = [];
 
-    var black_data = {labels: labels,datasets: [{label: 'Temperature black', backgroundColor: 'white',borderColor: 'black', borderWidth: 4, data: [null],}]};
-
-    var blue_data = {labels: labels,datasets: [{label: 'Temperature blue', backgroundColor: 'white',borderColor: 'blue', borderWidth: 4, data: [null],}]};
-
-    var green_data = {labels: [null],datasets: [{label: 'Temperature green', backgroundColor: 'white', borderColor: 'green', borderWidth: 4, data: [null],}]};
-        
-    var pink_data = {labels: labels,datasets: [{label: 'Temperature pink', backgroundColor: 'white',borderColor: 'pink', borderWidth: 4, data: [null],}]};
-
-    var redctx = document.getElementById('canvasRed')
-    var blackctx = document.getElementById('canvasBlack')
-    var bluectx = document.getElementById('canvasBlue')
-    var greenctx = document.getElementById('canvasGreen')
-    var pinkctx = document.getElementById('canvasPink')
-
-    var redChart = new Chart(redctx,{
+var redctx = document.getElementById('canvasRed')
+var redChart = new Chart(redctx,{
     type: 'line',
-    data: {red_data
+    data: {labels: x_data,
+    datasets: [{label: 'Team Red',
+    data: y_data,
+    backgroundColor: 'transparent',
+    borderColor: 'red',
+    borderWidth: 4}]
 },
     options: {
         elements:{
@@ -124,60 +92,9 @@ const labels = ['1', '2', '3', '4', '5', '6'];
         }
 
     }});
-    
-    var blackChart = new Chart(blackctx,{
-        type: 'line',
-        data: {black_data       
-    },
-        options: {
-            elements:{
-                line:{
-                tension: 0,
-                }
-            }
-    
-    }});
-        
-    var blueChart = new Chart(bluectx,{
-            type: 'line',
-            data: {blue_data
-        },
-            options: {
-                elements:{
-                    line:{
-                    tension: 0,
-                    }
-                }
-        
-    }}); 
-            
-    var greenChart = new Chart(greenctx,{
-                type: 'line',
-                data: {green_data
-            },
-                options: {
-                    elements:{
-                        line:{
-                        tension: 0,
-                        }
-                    }
-            
-    }});
+    onLoad()
 
-    var pinkChart = new Chart(pinkctx,{
-                    type: 'line',
-                    data: {pink_data
-                },
-                    options: {
-                        elements:{
-                            line:{
-                            tension: 0,
-                            }
-                        }
-                
-    }});
-
-   function requestData() {
+function requestData() {
     var params = {
       "dt_from": "2021-12-01T12:58:01.000000",  // in UTC
        "dt_to": "2022-02-01T12:58:01.000000", 
