@@ -20,15 +20,20 @@ import logging
 
 #Uncomment aftert training# from recognize_handler import RecognizeImageHandler
 
+class UserHandler(tornado.web.RequestHandler):
+    def get_current_user(self):
+        pass
 
-
-class RootHandler(tornado.web.RequestHandler):
+class RootHandler(UserHandler):
     def get(self):
         # get username by cookie
         self.write(temp.generate(myvalue="dQw4w9WgXcQ"))        # using templates
 
 
 class WSHandler(tornado.websocket.WebSocketHandler):
+    def get_current_user(self):
+        pass
+    
     def initialize(self):
         self.application.ws_clients.append(self)
         app_log.debug("Init WS")
@@ -93,7 +98,8 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         self.application.ws_clients.remove(self)
         app_log.debug("WebSocket closed")
 
-
+class StaticUserHandler(UserHandler, tornado.web.StaticFileHandler):
+    pass
 
 def on_connect_MQTT(client, userdata, flags, rc):
     app_log.debug("Connected with result code "+str(rc))
@@ -180,10 +186,11 @@ class WebApp(TornadoApplication):
 
         self.tornado_handlers = [
             (r'/', RootHandler),
+            (r'/login/(,*)', tornado.web.StaticFileHandler, {'path': './login'})
             (r"/receive_image", ReceiveImageHandler),
             #Uncomment after training# (r"/recognize", RecognizeImageHandler),
             (r'/data', WSHandler),
-            (r'/(.*)', tornado.web.StaticFileHandler, {'path': './static'})
+            (r'/(.*)', StaticUserHandler, {'path': './static'})
         ]
         self.tornado_settings = {
             "debug": True,
