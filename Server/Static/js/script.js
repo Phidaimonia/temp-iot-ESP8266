@@ -4,8 +4,13 @@ function onSocketOpen() {
 
 function onSocketMessage(message) {
   
-    var data = JSON.parse(message.data);
-    //console.log(data);
+    try {
+        var data = JSON.parse(message.data);
+    } catch (error) {
+        console.error(error + " " + message.data);
+        return
+    }
+    
     
     t = new Date(data.created_on);
     temp = data.temperature;
@@ -50,7 +55,7 @@ function onLoad() {
 	console.log("Ahoj world")
     //document.getElementById('dict').innerText = loadJsonHandler()
 
-    ws = new WebSocket("wss://" + window.location.host + '/data')
+    ws = new WebSocket("ws://" + window.location.host + '/data')
     //ws = new WebSocket('wss://sulis48.zcu.cz/data')     
     ws.onopen = onSocketOpen
     ws.onmessage = onSocketMessage

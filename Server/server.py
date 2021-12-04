@@ -57,6 +57,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         except Exception as err:
             app_log.error("E: WS error: Can't send data")
             app_log.error(str(err))
+            self.application.ws_clients.remove(self)
 
 
     async def on_message(self, message):
@@ -66,12 +67,12 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             requestData = json.loads(message)           # process requests from frontend
         except:
             app_log.error("Bad request " + message)
-            self.try_send_message("Bad request")
+            self.try_send_message({"error" : "Bad request"})
             return
 
         if "request_type" not in requestData:
             app_log.error("Request type missing " + message)
-            self.try_send_message("request_type missing")
+            self.try_send_message({"error" : "request_type missing"})
             return
 
         if requestData["request_type"] == "temperature_data":                           # get temperatures from->to
@@ -86,10 +87,10 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                         self.try_send_message(measurement)
                 else:
                     app_log.error("Bad request parameters " + message)
-                    self.try_send_message("Bad Bad request parameters")
+                    self.try_send_message({"error" : "Bad request parameters"})
                     return
             else:
-                self.try_send_message("Error: DB not connected")
+                self.try_send_message({"error" : "DB not connected"})
 
 
         elif requestData["request_type"] == "sensor_status":                            # last online time
@@ -105,7 +106,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
   
         else:
             app_log.error("Bad request type " + message)
-            self.try_send_message("Bad request_type")
+            self.try_send_message({"error" : "Bad request_type"})
             return
 
     def on_close(self):
