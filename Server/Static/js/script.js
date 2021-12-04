@@ -41,8 +41,8 @@ function onSocketClose() {
 function requestData() {
     var params = {
         "request_type": "temperature_data",
-        "dt_from": startDate.toISOString(),  // in UTC
-        "dt_to": endDate.toISOString(), 
+        "dt_from": startDate.toISOString().slice(0, 19) + ".000000",  // in UTC
+        "dt_to": endDate.toISOString().slice(0, 19) + ".000000", 
         "cookie": "4jgk6s9d3dj57j4kgs3"
     }
     ws.send(JSON.stringify(params))
@@ -84,11 +84,7 @@ var chartCapacity = 130  // v minutach
 var endDate = new Date();
 var startDate = new Date((Date.now() - chartCapacity * 60 * 1000 ))
 
-console.log(endDate.toISOString())
-
-
-
-//new Date().toISOString();
+//console.log(endDate.toISOString().slice(0, 19) + ".000000")
 
 
 
