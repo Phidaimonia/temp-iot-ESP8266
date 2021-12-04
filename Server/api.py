@@ -63,7 +63,7 @@ class Api:
             self.log("D: Successfully received sensors from the API. Sensor_uuid is: " + self.sensor.sensor_uuid)
         self.connected = True
 
-    def is_online(self):
+    async def is_online(self):
         try:
             self.sensors()
         except Exception:
