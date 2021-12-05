@@ -42,10 +42,7 @@ function onSocketMessage(message) {
             console.log(team_names)
             return
         }
-
-        //&& data.team_name in team_names
-        console.log(data.team_name)
-        
+   
         nowDate = new Date()
         nowDate = nowDate.getTime() - nowDate.getSeconds() * 1000
 
@@ -60,7 +57,6 @@ function onSocketMessage(message) {
             dataset.data[t_index] = data.temperature;
         });
         charts[data.team_name].update(null);
-        console.log(charts[data.team_name])
     }
 
     if (data["response_type"] == "sensor_status")
@@ -132,20 +128,16 @@ charts = {}
 var endDate = new Date();
 var startDate = new Date((Date.now() - chartCapacity * 60 * 1000 ))
 
-console.log(team_names)
+var x_data = new Array(chartCapacity).fill(null)       // vytvori casovou skalu
+for(i = 0; i < chartCapacity; i++)
+{
+    new_min = (startDate.getMinutes() + i) % 60
+    new_hr =  (startDate.getHours() + Math.floor((startDate.getMinutes() + i) / 60)) % 24
+    x_data[i] = new_hr.toString().padStart(2, "0") + ":" + new_min.toString().padStart(2, "0")
+}
 
-team_names.forEach((tm_name) => {
+team_names.forEach((tm_name) => {                               // vytvori chart objekty
     var canv = document.getElementById("canvas_" + tm_name)
-
-    var x_data = new Array(chartCapacity).fill(null)
-    //var y_data = new Array(chartCapacity).fill(null)
-
-    for(i = 0; i < chartCapacity; i++)
-    {
-        new_min = (startDate.getMinutes() + i) % 60
-        new_hr =  (startDate.getHours() + Math.floor((startDate.getMinutes() + i) / 60)) % 24
-        x_data[i] = new_hr.toString().padStart(2, "0") + ":" + new_min.toString().padStart(2, "0")
-    }
 
     charts[tm_name] = new Chart(canv,{
     type: 'line',
@@ -168,8 +160,6 @@ team_names.forEach((tm_name) => {
 
     console.log(charts[tm_name])
 });
-
-console.log(team_names)
 
 ws = new WebSocket("wss://" + window.location.host + '/data')   
 ws.onopen = onSocketOpen
