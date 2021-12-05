@@ -4,10 +4,26 @@
 -ms-box-sizing: border-box;
 box-sizing: border-box;
 }
+*{
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+    color: rgb(12, 15, 12);
+    background-color: rgb(223, 213, 213);  
+  }
+.header {
+    min-height: 50vh; 
+    width: 100%;
+    background-image: linear-gradient(rgba(132, 140, 170, 0.7),rgba(116, 123, 153, 0.7)),url(image/pocasiBanner.jpg);
+    background-position: center;
+    background-size: cover;
+    position: relative;
+  
+  }
 body{
     font-family: sans-serif;
     font-size: 16px;
-    margin: 0;
+    margin: 0;  
     background: white;
     color: black;
     display: flex;
@@ -44,15 +60,15 @@ nav{
     width: 50px;
     border: 5px solid blue;
     padding: 10px;
-    margin: 20px;
+    margin: 0px;
     text-align: left;
     font-family: sans-serif;
     color: white;
     text-decoration: none;
     font-size: 13px;
-    position: relative;
-    top: 8px;
-    right: 16px;
+    position: absolute;
+    top: 0px;
+    right: 0px;
     background: brown;
 }
 #statusAimtec a{

@@ -69,7 +69,8 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         except Exception as err:
             app_log.error("E: WS error: Can't send data")
             app_log.error(str(err))
-            self.application.ws_clients.remove(self)
+            self.ws_clients.remove(self)
+            self.close()
 
 
     async def on_message(self, message):
@@ -117,18 +118,20 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         elif requestData["request_type"] == "sensor_status":                            # last online time
             for t_team in sensor_status:
                 response = {"response_type":"sensor_status", "team_name":t_team, "last_seen":sensor_status[t_team]}
+                app_log.debug(sensor_status[t_team])
+        
                 self.try_send_message(json.dumps(response))
 
 
         elif requestData["request_type"] == "aimtec_status":                            
-            response = await {"response_type":"aimtec_status", "status":aimtec.is_online()}                   # aimtec
+            response = {"response_type":"aimtec_status", "status":await aimtec.is_online()}                   # aimtec
             self.try_send_message(json.dumps(response))
 
         elif requestData["request_type"] == "get_username":                            
-            usrName = self.get_current_user()
-            if usrName is None:
-                usrName = "Guest"
-            response = await {"response_type":"get_username", "username":usrName}                   # aimtec
+            usr = self.get_current_user()
+            if usr is None:
+                usr = "Guest"
+            response = {"response_type":"get_username", "username":usr.username}              
             self.try_send_message(json.dumps(response))
   
         else:
@@ -195,7 +198,7 @@ def on_message_MQTT(client, userdata, msg):
         if db_connected:
             app_log.debug(database.write_message(msg_str))                # save to db
 
-        sensor_status[data["team_name"]] = time.gmtime()          # last online = now
+        sensor_status[data["team_name"]] = dt.date.fromtimestamp(time.gmtime()).isoformat()          # last online = now
         app.send_ws_message(final_msg)                            # push to frontend
 
         if not test_mode:

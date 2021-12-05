@@ -2,6 +2,9 @@
 function onSocketOpen() {
     console.log("WS Open");
     requestData();  // hned po pripojeni pozada o data
+    requestAimtecStatus();
+    requestSensorStatus();
+    getUsername();
 }
 
 function onSocketMessage(message) {
@@ -53,7 +56,7 @@ function onSocketMessage(message) {
         measureDate = new Date(data.created_on)
         measureDate = measureDate.getTime() - measureDate.getSeconds() * 1000  
 
-        diff = Math.floor((nowDate - measureDate) / timeframe)  // in mins
+        diff = Math.floor((nowDate - measureDate) / 60000)  // in mins
         var t_index = chartCapacity - diff - 1
         t_index = Math.min(Math.max(t_index, 0), chartCapacity - 1)
 
@@ -65,16 +68,22 @@ function onSocketMessage(message) {
 
     if (data["response_type"] == "sensor_status")
     {
-        if("team_name" in data && "last_seen" in data)
+        if("last_seen" in data)
         {
-            //
+            console.log(data.lastSeen)
+            lastSeenDate = new Date(data.lastSeen);
+            document.getElementById(data.team_name + 'Status').innerText = lastSeenDate;
+            //document.getElementById(data.team_name + 'Status').style.color = data["status"] ? "green" : "red"
         }
     }
 
     if (data["response_type"] == "aimtec_status")
     {
         if("status" in data)
-            document.getElementById('aimtecOnlineElement').innerText = data["status"]   // nastavi text, mozna predelej na barvu
+        {
+            document.getElementById('aimtecOnlineElement').innerText = data["status"] ? "Online" : "Offline"   // nastavi text, mozna predelej na barvu
+            document.getElementById('aimtecOnlineElement').style.color = data["status"] ? "green" : "red"
+        }
     }
 
     if (data["response_type"] == "get_username")
@@ -132,16 +141,15 @@ const team_names = ["red", "black", "green", "blue", "pink"]
 charts = {}
 
 var endDate = new Date();
-var startDate = new Date(Date.now() - chartCapacity * timeframe )
+var startDate = new Date((Date.now() - chartCapacity * 60 * 1000 ))
 
-var x_data = new Array(chartCapacity).fill(endDate)       // vytvori casovou skalu pro vsechny grafy
+var x_data = new Array(chartCapacity).fill(null)       // vytvori casovou skalu pro vsechny grafy
 for(i = 0; i < chartCapacity; i++)
 {
-    //new_min = (startDate.getMinutes() + i) % 60
-    //new_hr =  (startDate.getHours() + Math.floor((startDate.getMinutes() + i) / 60)) % 24
-    //x_data[i] = new_hr.toString().padStart(2, "0") + ":" + new_min.toString().padStart(2, "0")
+    new_min = (startDate.getMinutes() + i) % 60
+    new_hr =  (startDate.getHours() + Math.floor((startDate.getMinutes() + i) / 60)) % 24
+    x_data[i] = new_hr.toString().padStart(2, "0") + ":" + new_min.toString().padStart(2, "0")
 
-    x_data[i] = new Date(endDate.getTime() + (i-chartCapacity) * timeframe )
 }
 
 team_names.forEach((tm_name) => {                               // vytvori chart objekty
@@ -163,14 +171,11 @@ team_names.forEach((tm_name) => {                               // vytvori chart
         }, 
         scales: 
         {
-            x: { type: 'timeseries', }, 
-            time: { minUnit: 'minute', }
+            x: { type: 'timeseries', }
         }
 
     }});
 });
-
-time.minUnit
 
 ws = new WebSocket("wss://" + window.location.host + '/data')   
 ws.onopen = onSocketOpen
@@ -189,10 +194,7 @@ function updateChart() {
     for (i = 1; i < chartCapacity; i++) 
         charts[team_names[0]].data.labels[i-1] = charts[team_names[0]].data.labels[i]
         
-    //charts[team_names[0]].data.labels[chartCapacity-1] = d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0")
-    charts[team_names[0]].data.labels[chartCapacity-1] = new Date(charts[team_names[0]].data.labels[chartCapacity-2].getTime() + timeframe)
-    
-
+    charts[team_names[0]].data.labels[chartCapacity-1] = d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0")
 
     team_names.forEach((tm_name) => 
     {
