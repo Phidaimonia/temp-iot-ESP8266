@@ -150,7 +150,7 @@ function getUsername() {
 //window.addEventListener('load', onLoad, false);
 
 var chartCapacity = 80  // v bodech
-var timeframe = 600000   // interval mezi body v ms
+var timeframe = 3600000   // interval mezi body v ms
 var lastIntervalEdge = null;
 
 var currentIntervalMax = 999999
