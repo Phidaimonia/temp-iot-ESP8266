@@ -170,8 +170,6 @@ team_names.forEach((tm_name) => {                               // vytvori chart
     }});
 });
 
-time.minUnit
-
 ws = new WebSocket("wss://" + window.location.host + '/data')   
 ws.onopen = onSocketOpen
 ws.onmessage = onSocketMessage
