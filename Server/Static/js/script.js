@@ -158,6 +158,7 @@ function getUsername() {
 //window.addEventListener('load', onLoad, false);
 const team_names = ["red", "black", "green", "blue", "pink"]
 connected_to_server = false
+charts = {}
 
 
 function createCharts(chartWidth, tf)
@@ -167,11 +168,12 @@ function createCharts(chartWidth, tf)
     
     visible_chunk = chartCapacity * timeframe
 
+    if
     charts.forEach(c => {
         c.destroy()
     });
     charts = {}
-    
+
     lastIntervalEdge = null;
 
     startDate = new Date(Date.now() - visible_chunk )
