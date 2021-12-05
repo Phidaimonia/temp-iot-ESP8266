@@ -221,7 +221,8 @@ function createCharts(chartWidth, tf)
             scales: 
             {
                 x: { type: 'timeseries', }
-            }
+            }, 
+            animations: null
 
         }});
     });
