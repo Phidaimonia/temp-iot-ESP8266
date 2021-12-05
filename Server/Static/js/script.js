@@ -26,8 +26,11 @@ function onSocketMessage(message) {
         return
     }
 
-    if (data.response_type == "temperature_data" && data.team_name in team_names)
+    if (data.response_type == "temperature_data")
     {
+        //&& data.team_name in team_names
+        console.log(data.team_name)
+        
         nowDate = new Date()
         nowDate = nowDate.getTime() - nowDate.getSeconds() * 1000
 
@@ -38,10 +41,11 @@ function onSocketMessage(message) {
         var t_index = chartCapacity - diff - 1
         t_index = Math.min(Math.max(t_index, 0), chartCapacity - 1)
 
-        charts[data["team_name"]].data.datasets.forEach((dataset) => {
+        charts[data.team_name].data.datasets.forEach((dataset) => {
             dataset.data[t_index] = data.temperature;
         });
-        charts[data["team_name"]].update(null);
+        charts[data.team_name].update(null);
+        console.log(charts[data.team_name])
     }
 
     if (data["response_type"] == "sensor_status")
@@ -110,7 +114,7 @@ var startDate = new Date((Date.now() - chartCapacity * 60 * 1000 ))
 
 
 var x_data = new Array(chartCapacity).fill(null)
-var y_data = new Array(chartCapacity).fill(10)
+var y_data = new Array(chartCapacity).fill(null)
 
 for(i = 0; i < chartCapacity; i++)
 {
@@ -143,7 +147,6 @@ team_names.forEach((tm_name) => {
         }
 
     }});
-
 
     console.log(charts[tm_name])
 });
