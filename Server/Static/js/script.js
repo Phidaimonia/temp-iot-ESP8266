@@ -241,23 +241,6 @@ ws.onclose = onSocketClose
 function updateChart() {
     var d = new Date();
 
-    if(connected_to_server)
-    {
-        //requestAimtecStatus();
-        //requestSensorStatus();
-    }
-
-    ///////////////////////////////
-
-
-
-
-
-
-
-
-
-
     if(d.getTime() < lastIntervalEdge + timeframe)
         return
 
@@ -280,6 +263,12 @@ function updateChart() {
             dataset.data[chartCapacity-1] = null
     });
     charts[tm_name].update(null);});
+
+    if(connected_to_server)       // server status check
+    {
+        requestAimtecStatus();
+        requestSensorStatus();
+    }
   }
 
 d = new Date();
