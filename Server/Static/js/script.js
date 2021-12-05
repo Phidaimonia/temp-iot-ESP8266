@@ -227,7 +227,7 @@ ws.onmessage = onSocketMessage
 ws.onclose = onSocketClose
 
 
-function updateChart() {
+function updateCharts() {
     var d = new Date();
 
     if(connected_to_server)
