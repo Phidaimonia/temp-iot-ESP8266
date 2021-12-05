@@ -34,7 +34,7 @@ class UserHandler(tornado.web.RequestHandler):
 
 class RootHandler(tornado.web.RequestHandler):
     async def get(self):
-        self.write("Static/index.html")
+        self.render("Static/index.html")
 
 
 class WSHandler(tornado.websocket.WebSocketHandler):
