@@ -70,6 +70,7 @@ function onSocketMessage(message) {
     {
         if("last_seen" in data)
         {
+            console.log(data.lastSeen)
             lastSeenDate = new Date(data.lastSeen);
             document.getElementById(data.team_name + 'Status').innerText = lastSeenDate;
             //document.getElementById('aimtecOnlineElement').style.color = data["status"] ? "green" : "red"
