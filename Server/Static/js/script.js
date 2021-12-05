@@ -28,6 +28,12 @@ function onSocketMessage(message) {
 
     if (data.response_type == "temperature_data")
     {
+        if(!("team_name" in data))
+            return
+        
+        if(!(data.team_name in team_names))
+            return
+
         //&& data.team_name in team_names
         console.log(data.team_name)
         
@@ -109,25 +115,27 @@ function getUsername() {
 
 var chartCapacity = 320  // v minutach
 
-var endDate = new Date();
-var startDate = new Date((Date.now() - chartCapacity * 60 * 1000 ))
 
-
-var x_data = new Array(chartCapacity).fill(null)
-var y_data = new Array(chartCapacity).fill(null)
-
-for(i = 0; i < chartCapacity; i++)
-{
-    new_min = (startDate.getMinutes() + i) % 60
-    new_hr =  (startDate.getHours() + Math.floor((startDate.getMinutes() + i) / 60)) % 24
-    x_data[i] = new_hr.toString().padStart(2, "0") + ":" + new_min.toString().padStart(2, "0")
-}
 
 team_names = ["red", "black", "green", "blue", "pink"]
 charts = {}
 
+var endDate = new Date();
+var startDate = new Date((Date.now() - chartCapacity * 60 * 1000 ))
+
+
 team_names.forEach((tm_name) => {
     var canv = document.getElementById("canvas_" + tm_name)
+
+    x_data = new Array(chartCapacity).fill(null)
+    y_data = new Array(chartCapacity).fill(null)
+
+    for(i = 0; i < chartCapacity; i++)
+    {
+        new_min = (startDate.getMinutes() + i) % 60
+        new_hr =  (startDate.getHours() + Math.floor((startDate.getMinutes() + i) / 60)) % 24
+        x_data[i] = new_hr.toString().padStart(2, "0") + ":" + new_min.toString().padStart(2, "0")
+    }
 
     charts[tm_name] = new Chart(canv,{
     type: 'line',
