@@ -26,6 +26,8 @@ function onSocketMessage(message) {
         return
     }
 
+    console.log(data)
+
     if (data.response_type == "temperature_data")
     {
         if(!("team_name" in data))
