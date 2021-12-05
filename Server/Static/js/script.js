@@ -116,7 +116,7 @@ function onSocketMessage(message) {
 
     if (data["response_type"] == "get_username")
         if("username" in data)
-            document.getElementById('usernameElement').innerText = "Username: " + data["username"]     // Neprihlaseenej -> Guest
+            document.getElementById('usernameElement').innerText = "User: " + data["username"]     // Neprihlaseenej -> Guest
 
  
 }
