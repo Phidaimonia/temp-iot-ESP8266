@@ -77,8 +77,8 @@ function onSocketMessage(message) {
 
         //});
 
-        charts[data.team_name].data.datasets["Min temp"].Date[t_index] = data.temperature_min
-        charts[data.team_name].data.datasets["Max temp"].Date[t_index] = data.temperature_max
+        charts[data.team_name].data.datasets["Min temp"].data[t_index] = data.temperature_min
+        charts[data.team_name].data.datasets["Max temp"].data[t_index] = data.temperature_max
         charts[data.team_name].update(null);
     }
 
@@ -243,7 +243,7 @@ function updateChart() {
     currentIntervalMin = 999999
 
 
-    minutes_offline = Math.floor(Math.abs(lastSeenDate.getTime() - Date.now()) / 60000)
+    //minutes_offline = Math.floor(Math.abs(lastSeenDate.getTime() - Date.now()) / 60000)
 
     console.log("Shifting chart")
 
