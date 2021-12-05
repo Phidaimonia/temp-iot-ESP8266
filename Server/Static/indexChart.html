@@ -25,12 +25,6 @@
                     <ul><li><h3 id="usernameElement">Username: </h3></li></ul>
                     <ul><li><a>Aimtec: <innertext id="aimtecOnlineElement">Loading...</innertext></a></li></ul>
 
-                    <ul><li><h3>Sensors status: </h3></li></ul>
-                        <ul><li><a>Red: <innertext id="redStatus">Offline</innertext></a></li></ul>
-                        <ul><li><a>Black: <innertext id="blackStatus">Offline</innertext></a></li></ul>
-                        <ul><li><a>Blue status: <innertext id="blueStatus">Offline</innertext></a></li></ul>
-                        <ul><li><a>Green status: <innertext id="greenStatus">Offline</innertext></a></li></ul>
-                        <ul><li><a>Pink status: <innertext id="pinkStatus">Offline</innertext></a></li></ul>
                     <ul>
                         <li><button onclick="createCharts(80, 60000)" id="minuteTF">M1</a></li>
                         <li><button onclick="createCharts(80, 3600000)" id="hourTF">H1</a></li>
@@ -44,28 +38,40 @@
             <h1>Průběh hodnot jednotlivých senzorů</h1>
             </section>
 
+     
+                        
+                        
+                        
+                        
+                      
+
             <nav style = "border: 5px solid rgb(0, 0, 0); background-color: rgb(47, 45, 45)" id="StatusRedTeam">
             <h2 style = "border: 5px solid rgb(255, 0, 0)">Team Red</h2>
+            <ul><li><a>Red: <innertext id="redStatus">Offline</innertext></a></li></ul>
             </nav>
             <canvas id="canvas_red"></canvas>
 
             <nav style = "border: 5px solid rgb(0, 0, 0); background-color: rgb(47, 45, 45)" id="StatusBlackTeam">
             <h2 style = "border: 5px solid rgb(0, 0, 0)">Team Black</h2>
+            <ul><li><a>Black: <innertext id="blackStatus">Offline</innertext></a></li></ul>
             </nav>
             <canvas id="canvas_black"></canvas>
 
             <nav style = "border: 5px solid rgb(0, 0, 0); background-color: rgb(47, 45, 45);" id="StatusBlueTeam">
             <h2 style = "border: 5px solid rgb(25, 0, 255)179)">Team Blue</h2>
+            <ul><li><a>Blue status: <innertext id="blueStatus">Offline</innertext></a></li></ul>
             </nav>
             <canvas id="canvas_blue"></canvas>
 
             <nav style = "border: 5px solid rgb(0, 0, 0); background-color: rgb(47, 45, 45)" id="StatusGreenTeam">
             <h2 style = "border: 5px solid rgb(32, 255, 32)">Team Green</h2>
+            <ul><li><a>Green status: <innertext id="greenStatus">Offline</innertext></a></li></ul>
             </nav>
             <canvas id="canvas_green"></canvas>
 
             <nav style = "border: 5px solid rgb(0, 0, 0); background-color: rgb(47, 45, 45)" id="StatusPinkTeam">
             <h2 style = "border: 5px solid rgb(255, 0, 234)">Team Pink</h2>
+            <ul><li><a>Pink status: <innertext id="pinkStatus">Offline</innertext></a></li></ul>
             </nav>
             <canvas id="canvas_pink"></canvas>
         </div>
