@@ -13,6 +13,12 @@ function onSocketMessage(message) {
         return
     }
 
+    if ("response_type" in data)
+    {
+        console.log("Bad response from the server")
+        return
+    }
+
     console.log(data)
     //console.log(endDate.toString())  // local
     
@@ -65,6 +71,20 @@ function requestSensorStatus() {
     ws.send(JSON.stringify(params))
 }
 
+function requestAimtecStatus() {
+    var params = {
+        "request_type": "aimtec_status"
+    }
+    ws.send(JSON.stringify(params))
+}
+
+function getUsername() {
+    var params = {
+        "request_type": "get_username"
+    }
+    ws.send(JSON.stringify(params))
+}
+
 
 
 //window.addEventListener('load', onLoad, false);
@@ -73,8 +93,6 @@ var chartCapacity = 320  // v minutach
 
 var endDate = new Date();
 var startDate = new Date((Date.now() - chartCapacity * 60 * 1000 ))
-
-//console.log(endDate.toISOString().slice(0, 19) + ".000000")
 
 
 var x_data = new Array(chartCapacity).fill(null)
