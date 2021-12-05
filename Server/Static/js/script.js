@@ -157,11 +157,11 @@ function getUsername() {
 //window.addEventListener('load', onLoad, false);
 
 var chartCapacity = 80  // v bodech
-var timeframe = 3600000   // interval mezi body v ms
+var timeframe = 120000   // interval mezi body v ms
 var lastIntervalEdge = null;
 
-var currentIntervalMax = none
-var currentIntervalMin = none
+var currentIntervalMax = null
+var currentIntervalMin = null
 
 var visible_chunk = chartCapacity * timeframe
 var connected_to_server = false
@@ -251,8 +251,8 @@ function updateChart() {
 
     var intervalCenter = new Date(lastIntervalEdge + timeframe / 2)
 
-    currentIntervalMax = none
-    currentIntervalMin = none
+    currentIntervalMax = null
+    currentIntervalMin = null
 
     ///////////////////////////////
     for (i = 1; i < chartCapacity; i++) 
