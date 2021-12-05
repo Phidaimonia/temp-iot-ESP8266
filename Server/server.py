@@ -121,7 +121,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
 
         elif requestData["request_type"] == "aimtec_status":                            
-            response = {"response_type":"aimtec_status", "status":aimtec.is_online()}                   # aimtec
+            response = {"response_type":"aimtec_status", "status":await aimtec.is_online()}                   # aimtec
             self.try_send_message(json.dumps(response))
 
         elif requestData["request_type"] == "get_username":                            
