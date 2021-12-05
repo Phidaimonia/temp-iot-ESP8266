@@ -116,7 +116,7 @@ function onSocketMessage(message) {
 
     if (data["response_type"] == "get_username")
         if("username" in data)
-            document.getElementById('usernameElement').innerText = "User: " + data["username"]     // Neprihlaseenej -> Guest
+            document.getElementById('usernameElement').innerText = data["username"]     // Neprihlaseenej -> Guest
 
  
 }
@@ -171,9 +171,9 @@ function getShortDate(t)
 
 //window.addEventListener('load', onLoad, false);
 const team_names = ["red", "black", "green", "blue", "pink"]
-var connected_to_server = false
-var charts = {}
-var timeframe = 0
+connected_to_server = false
+charts = {}
+timeframe = 0
 
 
 function createCharts(chartWidth, tf)
@@ -200,6 +200,9 @@ function createCharts(chartWidth, tf)
     var x_data = new Array(chartCapacity).fill(null)       // vytvori casovou skalu pro vsechny grafy
     for(i = 0; i < chartCapacity; i++)
     {
+        //new_min = (startDate.getMinutes() + i) % 60
+        //new_hr =  (startDate.getHours() + Math.floor((startDate.getMinutes() + i) / 60)) % 24
+
         intervalStartDate = startDate.getTime() + i * timeframe
         tmpIntervalEdge = intervalStartDate - intervalStartDate % timeframe
         var intervalCenter = new Date(tmpIntervalEdge + timeframe / 2)
@@ -218,12 +221,12 @@ function createCharts(chartWidth, tf)
                     {label: "Min temp",
                 data: new Array(chartCapacity).fill(null),
                 backgroundColor: 'transparent',
-                borderColor: 'blue',
+                borderColor: 'white',
                 borderWidth: 4}, 
                     {label: "Max temp",
                 data: new Array(chartCapacity).fill(null),
                 backgroundColor: 'transparent',
-                borderColor: 'red',
+                borderColor: 'pink',
                 borderWidth: 4}] },
         options: { 
             responsive: true,
@@ -234,8 +237,7 @@ function createCharts(chartWidth, tf)
             scales: 
             {
                 x: { type: 'timeseries', }
-            }, 
-            animations: null
+            }
 
         }});
     });
@@ -244,7 +246,7 @@ function createCharts(chartWidth, tf)
 }
 
 
-createCharts(80, 1800000)
+createCharts(80, 120000)
 
 
 ws = new WebSocket("wss://" + window.location.host + '/data')   
@@ -255,6 +257,23 @@ ws.onclose = onSocketClose
 
 function updateChart() {
     var d = new Date();
+
+    if(connected_to_server)
+    {
+        //requestAimtecStatus();
+        //requestSensorStatus();
+    }
+
+    ///////////////////////////////
+
+
+
+
+
+
+
+
+
 
     if(d.getTime() < lastIntervalEdge + timeframe)
         return
@@ -278,12 +297,6 @@ function updateChart() {
             dataset.data[chartCapacity-1] = null
     });
     charts[tm_name].update(null);});
-
-    if(connected_to_server)       // server status check
-    {
-        requestAimtecStatus();
-        requestSensorStatus();
-    }
   }
 
 d = new Date();
