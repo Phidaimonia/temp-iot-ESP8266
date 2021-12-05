@@ -6,26 +6,44 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">   
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
-        <link rel="stylesheet" type="text/css" href="CSS/styleChart.css">
+        <link rel="stylesheet" type="text/css" href="css/styleChart.css">
         <title>Visual sensors measurements</title>
     </head>
 
     <body>
+        
         <div class="container">
+            
             <h1>Průběh hodnot jednotlivých senzorů</h1>
-            <h2>Red Team</h2>
-            <canvas id="canvas_red"></canvas>
-            <h2>Black Team</h2>
-            <canvas id="canvas_black"></canvas>
-            <h2>Blue Team</h2>
-            <canvas id="canvas_blue"></canvas>
-            <h2>Green Team</h2>
-            <canvas id="canvas_green"></canvas>
-            <h2>Pink Team</h2>
-            <canvas id="canvas_pink"></canvas>
+            <nav>
+                <a id="logout" href="https://sulis48.zcu/logout">Log out</a>
+            </nav>
+            <nav id="StatusAimtec">
+                <a>Aimtec Status: <innertext id="aimtecOnlineElement">Offline</innertext></a>
+                <a>User: <innertext id="aimtecOnlineElement">Guest</innertext> </a>
+            </nav>
+            <h2 style = "border: 5px solid red">Team Red</h2>
+            <a>Stav senzoru: <innertext id="redStatus">Offline</innertext></a>
+            <canvas id="canvasRed"></canvas>
+
+            <h2 style = "border: 5px solid black">Team Black </h2>
+            <a>Stav senzoru: <innertext id="blackStatus">Offline</innertext></a>
+            <canvas id="canvasBlack"></canvas>
+
+            <h2 style = "border: 5px solid blue">Team Blue </h2>
+            <a>Stav senzoru: </a><a id="blueStatus" ></a>
+            <canvas id="canvasBlue"></canvas>
+
+            <h2 style = "border: 5px solid green">Team Green </h2>
+            <a>Stav senzoru: <innertext id="greenStatus">Offline</innertext></a>
+            <canvas id="canvasGreen"></canvas>
+
+            <h2 style = "border: 5px solid pink">Team Pink </h2>
+            <a>Stav senzoru: <innertext id="pinkStatus">Offline</innertext></a>
+            <canvas id="canvasPink"></canvas>
         </div>
-        <script type="text/javascript" scr="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.6.1/chart.min.js"></script>  
-        <script src="js/script.js"></script>   
+        <script type="text/javascript" scr="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.6.1/chart.min.js"></script> 
+        <script src="js/script.js"></script>    
     </body>
 
     
