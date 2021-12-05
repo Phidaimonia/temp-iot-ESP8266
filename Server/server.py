@@ -80,6 +80,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             app_log.error("Request type missing " + message)
             self.try_send_message({"error" : "request_type missing"})
             return
+            
 
         if requestData["request_type"] == "temperature_data":                           # get temperatures from->to
             if db_connected:
@@ -113,8 +114,14 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
 
         elif requestData["request_type"] == "aimtec_status":                            
-
             response = await {"response_type":"aimtec_status", "status":aimtec.is_online()}                   # aimtec
+            self.try_send_message(json.dumps(response))
+
+        elif requestData["request_type"] == "get_username":                            
+            usrName = self.get_current_user()
+            if usrName is None:
+                usrName = "Guest"
+            response = await {"response_type":"get_username", "username":usrName}                   # aimtec
             self.try_send_message(json.dumps(response))
   
         else:
