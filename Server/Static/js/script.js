@@ -46,6 +46,9 @@ function onSocketMessage(message) {
         nowDate = new Date()
         nowDate = nowDate.getTime() - nowDate.getSeconds() * 1000
 
+        if(lastChartUpdateMin != nowDate.getMinutes())
+            updateChart()
+
         measureDate = new Date(data.created_on)
         measureDate = measureDate.getTime() - measureDate.getSeconds() * 1000 + 30000 // posuneme o 30s dopredu
 
@@ -119,6 +122,7 @@ function getUsername() {
 //window.addEventListener('load', onLoad, false);
 
 var chartCapacity = 80  // v minutach
+var lastChartUpdateMin = 0
 
 
 
@@ -168,6 +172,11 @@ ws.onclose = onSocketClose
 function updateChart() {
     var d = new Date();
 
+    if(lastChartUpdateMin == nowDate.getMinutes())
+        return
+
+    lastChartUpdateMin = nowDate.getMinutes()
+
     for (i = 1; i < chartCapacity; i++) 
         charts[team_names[0]].data.labels[i-1] = charts[team_names[0]].data.labels[i]
         
@@ -189,6 +198,7 @@ setTimeout(startUpdateTimer, (60 - d.getSeconds()) * 1000);  // time to until ne
 
 function startUpdateTimer(){
     d = new Date();
+    lastChartUpdateMin = d.getMinutes()
     setInterval(updateChart, Math.max(1, 60 - d.getSeconds() - 1) * 1000);        // kazdou minutu prida novy bod
     updateChart();
 }
