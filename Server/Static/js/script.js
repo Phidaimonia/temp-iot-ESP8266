@@ -171,12 +171,13 @@ function createCharts(chartWidth, tf)
     
     visible_chunk = chartCapacity * timeframe
 
-    for (const key of Object.keys(charts))
-    {
-        if(charts[key] != null)
-            charts[key].destroy()
-    }
-    charts = {}
+    if(charts != null)
+        for (const key of Object.keys(charts))
+        {
+            if(charts[key] != null)
+                charts[key].destroy()
+        }
+    //charts = {}
 
     lastIntervalEdge = null;
 
@@ -204,12 +205,12 @@ function createCharts(chartWidth, tf)
                     {label: "Min temp",
                 data: new Array(chartCapacity).fill(null),
                 backgroundColor: 'transparent',
-                borderColor: 'white',
+                borderColor: 'blue',
                 borderWidth: 4}, 
                     {label: "Max temp",
                 data: new Array(chartCapacity).fill(null),
                 backgroundColor: 'transparent',
-                borderColor: 'pink',
+                borderColor: 'red',
                 borderWidth: 4}] },
         options: { 
             responsive: true,
