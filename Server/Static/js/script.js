@@ -159,10 +159,13 @@ function getUsername() {
 const team_names = ["red", "black", "green", "blue", "pink"]
 connected_to_server = false
 charts = {}
+timeframe = 0
 
 
 function createCharts(chartWidth, tf)
 {
+    if(timeframe == tf)
+        return
     chartCapacity = chartWidth  // v bodech
     timeframe = tf   // interval mezi body v ms
     
