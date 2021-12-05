@@ -35,7 +35,8 @@ function onSocketMessage(message) {
             return
         }
         
-        if(!(data.team_name in team_names))
+        
+        if(!team_names.find(item => { return item === data.team_name } ))
         {
             console.log("Team: " + data.team_name + " is not on the team list")
             console.log(team_names)
@@ -125,7 +126,7 @@ var chartCapacity = 320  // v minutach
 
 
 
-team_names = ["red", "black", "green", "blue", "pink"]
+const team_names = ["red", "black", "green", "blue", "pink"]
 charts = {}
 
 var endDate = new Date();
