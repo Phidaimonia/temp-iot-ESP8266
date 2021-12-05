@@ -159,9 +159,9 @@ function getShortDate(t)
     if (timeframe >= 3600000)
         res = t.getDay().toString().padStart(2, "0") + "-"
     if (timeframe <= 86400000)
-        res = t.getHours().toString().padStart(2, "0")
+        res = res + t.getHours().toString().padStart(2, "0")
     if (timeframe < 3600000)
-        res = t.getMinutes().toString().padStart(2, "0")
+        res = ":" + t.getMinutes().toString().padStart(2, "0")
         
     return res
 
