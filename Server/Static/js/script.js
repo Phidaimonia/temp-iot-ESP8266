@@ -168,11 +168,15 @@ function createCharts(chartWidth, tf)
     
     visible_chunk = chartCapacity * timeframe
 
-    team_names.forEach((tm_name) => {  
-        if (tm_name != null)                          
-        charts[tm_name].destroy()
-    });
+    //team_names.forEach((tm_name) => {  
+    //    if (tm_name != null)                          
+    //    charts[tm_name].destroy()
+    //});
 
+    for (const key of Object.keys(charts))
+    {
+        charts[key].destroy()
+    }
     charts = {}
 
     lastIntervalEdge = null;
