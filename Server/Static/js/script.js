@@ -30,23 +30,18 @@ function onSocketMessage(message) {
     {
         nowDate = new Date()
         nowDate = nowDate.getTime() - nowDate.getSeconds() * 1000
+
         measureDate = new Date(data.created_on);
-    
         measureDate = measureDate.getTime() - measureDate.getSeconds() * 1000
 
-
         diff = Math.floor((nowDate - measureDate) / 60000)  // in mins
-        //console.log("Diff " + diff)
-
         var t_index = chartCapacity - diff - 1
         t_index = Math.min(Math.max(t_index, 0), chartCapacity - 1)
 
-        //console.log("Saving index " + t_index)    
-
-            charts[data["team_name"]].data.datasets.forEach((dataset) => {
-                dataset.data[t_index] = data.temperature;
-            });
-            charts[data["team_name"]].update(null);
+        charts[data["team_name"]].data.datasets.forEach((dataset) => {
+            dataset.data[t_index] = data.temperature;
+        });
+        charts[data["team_name"]].update(null);
     }
 
     if (data["response_type"] == "sensor_status")
@@ -129,8 +124,8 @@ charts = {}
 
 team_names.forEach((tm_name) => {
     var canv = document.getElementById("canvas_" + tm_name)
-    console.log(tm_name + " canv: " + canv)
-    var chart = new Chart(canv,{
+
+    charts[tm_name] = new Chart(canv,{
     type: 'line',
     data: {labels: x_data,
     datasets: [{label: "Team " + tm_name,
@@ -149,8 +144,8 @@ team_names.forEach((tm_name) => {
 
     }});
 
-    charts[tm_name] = chart
-    console.log(chart)
+
+    console.log(charts[tm_name])
 });
 
 
