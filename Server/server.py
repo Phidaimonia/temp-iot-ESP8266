@@ -229,6 +229,7 @@ class WebApp(TornadoApplication):
             (r'/', RootHandler),
             (r'/CSS/(.*)', tornado.web.StaticFileHandler, {'path': './Static/CSS'}),
             (r'/js/(.*)', tornado.web.StaticFileHandler, {'path': './Static/js'}),
+            (r'/images/(.*)', tornado.web.StaticFileHandler, {'path': './Static/images'}),
             (r'/login/(.*)', tornado.web.StaticFileHandler, {'path': './login'}),
             (r"/receive_image", ReceiveImageHandler),
             (r"/recognize", RecognizeImageHandler),
