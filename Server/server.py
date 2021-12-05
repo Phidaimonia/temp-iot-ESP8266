@@ -91,7 +91,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
         if requestData["request_type"] == "temperature_data":                           # get temperatures from->to
             if db_connected:
-                if ("dt_from" in requestData) and ("dt_to" in requestData):
+                if ("dt_from" in requestData) and ("dt_to" in requestData) and ("interval" in requestData):
                 
                     try:
                         dt_from = pytz.utc.localize(dt.datetime.fromisoformat(requestData["dt_from"]))              # all time operations in UTC
@@ -102,7 +102,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                         self.try_send_message({"error" : "Bad request"})
                         return
 
-                    data = database.read_messages(dt_from, dt_to, team_list)        # returns json
+                    data = database.read_min_max_messages(dt_from, dt_to, team_list, dt.timedelta(minutes=requestData["interval"]))        # returns json
                     for measurement in data:
                         measurement["created_on"] = pytz.utc.localize(db.fuzzy_ISO_to_datetime(measurement["created_on"])).isoformat()
                         measurement["response_type"] = "temperature_data"

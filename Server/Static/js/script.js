@@ -29,6 +29,8 @@ function onSocketMessage(message) {
         return
     }
 
+    console.log(data)
+
     if ("error" in data)
     {
         console.log("Error: " + data.error)
@@ -76,7 +78,6 @@ function onSocketMessage(message) {
     {
         if("last_seen" in data)
         {
-            console.log(data)
             lastSeenDate = new Date(data.last_seen);
             minutes_offline = Math.floor(Math.abs(lastSeenDate.getTime() - Date.now()) / 60000)
             
@@ -109,7 +110,8 @@ function requestData() {
     var params = {
         "request_type": "temperature_data",
         "dt_from": startDate.toISOString().slice(0, 19) + ".000000",  // in UTC
-        "dt_to": endDate.toISOString().slice(0, 19) + ".000000"
+        "dt_to": endDate.toISOString().slice(0, 19) + ".000000", 
+        "interval": 1
     }
     ws.send(JSON.stringify(params))
 }
@@ -141,9 +143,12 @@ function getUsername() {
 
 var chartCapacity = 80  // v bodech
 var timeframe = 60000   // interval mezi body v ms
+var lastIntervalEdge = null;
+
+var currentIntervalMax = 999999
+var currentIntervalMin = -999999
 
 var visible_chunk = chartCapacity * timeframe
-var lastChartUpdateMin = 0
 var connected_to_server = false
 
 
@@ -208,15 +213,59 @@ function updateChart() {
         requestSensorStatus();
     }
 
-    if(lastChartUpdateMin == d.getMinutes())
+    ///////////////////////////////
+
+
+
+
+
+
+
+
+
+
+    if(d.getTime() < lastIntervalEdge + timeframe)
         return
 
-    lastChartUpdateMin = d.getMinutes()
+    lastIntervalEdge = d.getTime() - d.getTime() % timeframe
 
+    var intervalCenter = new Date(lastIntervalEdge + timeframe / 2)
+
+    currentIntervalMax = -999999
+    currentIntervalMin = 999999
+
+
+    minutes_offline = Math.floor(Math.abs(lastSeenDate.getTime() - Date.now()) / 60000)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    ///////////////////////////////
     for (i = 1; i < chartCapacity; i++) 
         charts[team_names[0]].data.labels[i-1] = charts[team_names[0]].data.labels[i]
         
-    charts[team_names[0]].data.labels[chartCapacity-1] = d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0")
+    charts[team_names[0]].data.labels[chartCapacity-1] = intervalCenter.getHours().toString().padStart(2, "0") + ":" + intervalCenter.getMinutes().toString().padStart(2, "0")
 
     team_names.forEach((tm_name) => 
     {
