@@ -85,7 +85,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
         if requestData["request_type"] == "temperature_data":                           # get temperatures from->to
             if db_connected:
-                if ("dt_from" in requestData) and ("dt_to" in requestData) and ("cookie" in requestData):
+                if ("dt_from" in requestData) and ("dt_to" in requestData):
                 
                     try:
                         dt_from = pytz.utc.localize(dt.datetime.fromisoformat(requestData["dt_from"]))              # all time operations in UTC

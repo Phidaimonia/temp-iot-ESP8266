@@ -53,21 +53,20 @@ function requestData() {
     var params = {
         "request_type": "temperature_data",
         "dt_from": startDate.toISOString().slice(0, 19) + ".000000",  // in UTC
-        "dt_to": endDate.toISOString().slice(0, 19) + ".000000", 
-        "cookie": "4jgk6s9d3dj57j4kgs3"
+        "dt_to": endDate.toISOString().slice(0, 19) + ".000000"
     }
     ws.send(JSON.stringify(params))
 }
 
 function requestSensorStatus() {
     var params = {
-        "request_type": "sensor_status"
+        "request_type_test": "sensor_status"
     }
     ws.send(JSON.stringify(params))
 }
 
 function onLoad() {
-	console.log("Ahoj world")
+	console.log("Sript starts here")
 
     ws = new WebSocket("wss://" + window.location.host + '/data')   
     ws.onopen = onSocketOpen
@@ -76,19 +75,9 @@ function onLoad() {
 }
 
 
-function loadJsonHandler() {
-    if (window.XMLHttpRequest) {
-        xmlhttp = new XMLHttpRequest();
-    }
-    xmlhttp.open('GET', '/json/', false);
-    xmlhttp.send(null);
-
-    return  xmlhttp.responseText;
-}
-
 //window.addEventListener('load', onLoad, false);
 
-var chartCapacity = 720  // v minutach
+var chartCapacity = 320  // v minutach
 
 var endDate = new Date();
 var startDate = new Date((Date.now() - chartCapacity * 60 * 1000 ))
