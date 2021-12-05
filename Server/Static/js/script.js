@@ -78,7 +78,7 @@ function onSocketMessage(message) {
         //});
 
         charts[data.team_name].data.datasets[0].data[t_index] = data.temperature_min
-        charts[data.team_name].data.datasets[1].data[t_index] = data.temperature_max
+        charts[data.team_name].data.datasets[1].data[t_index] = data.temperature_max + 0.5
         charts[data.team_name].update(null);
     }
 
