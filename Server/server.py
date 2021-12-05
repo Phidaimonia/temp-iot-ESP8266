@@ -131,7 +131,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 usrName = "Guest"
             response = {"response_type":"get_username", "username":usrName}    
             app_log.error(response)              
-            self.try_send_message(json.dumps(response))
+            #self.try_send_message(json.dumps(response))
   
         else:
             app_log.error("Bad request type " + message)
