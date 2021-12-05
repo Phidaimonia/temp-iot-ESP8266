@@ -74,12 +74,12 @@ function onSocketMessage(message) {
     if (data["response_type"] == "aimtec_status")
     {
         if("status" in data)
-            document.getElementById('aimtecOnlineElement').innerText = data["status"]   // nastavi text, mozna predelej na barvu
+            document.getElementById('aimtecOnlineElement').innerText = "Aimtec: " + data["status"] ? "Online: " : "Offline: "   // nastavi text, mozna predelej na barvu
     }
 
     if (data["response_type"] == "get_username")
         if("username" in data)
-            document.getElementById('usernameElement').innerText = data["username"]     // Neprihlaseenej -> Guest
+            document.getElementById('usernameElement').innerText = "Uživatel: " + data["username"]     // Neprihlaseenej -> Guest
 
  
 }
