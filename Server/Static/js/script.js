@@ -169,10 +169,10 @@ var endDate = new Date();
 var x_data = new Array(chartCapacity).fill(null)       // vytvori casovou skalu pro vsechny grafy
 for(i = 0; i < chartCapacity; i++)
 {
-    new_min = (startDate.getMinutes() + i) % 60
-    new_hr =  (startDate.getHours() + Math.floor((startDate.getMinutes() + i) / 60)) % 24
+    //new_min = (startDate.getMinutes() + i) % 60
+    //new_hr =  (startDate.getHours() + Math.floor((startDate.getMinutes() + i) / 60)) % 24
 
-    lastIntervalEdge = d.getTime() - d.getTime() % timeframe
+    lastIntervalEdge = endDate.getTime() - endDate.getTime() % timeframe
     var intervalCenter = new Date(lastIntervalEdge + timeframe / 2)
 
     x_data[i] = intervalCenter.getHours().toString().padStart(2, "0") + ":" + intervalCenter.getMinutes().toString().padStart(2, "0")
