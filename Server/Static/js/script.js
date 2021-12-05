@@ -59,13 +59,13 @@ function onSocketMessage(message) {
         
         updateChart()
 
-        nowDate = nowDate.getTime() - nowDate.getSeconds() * 1000
+        nowDate = nowDate.getTime() - nowDate.getTime() % timeframe
 
 
         measureDate = new Date(data.created_on)
-        measureDate = measureDate.getTime() - measureDate.getSeconds() * 1000  
+        measureDate = measureDate.getTime() - measureDate.getTime() % timeframe  
 
-        diff = Math.floor((nowDate - measureDate) / 60000)  // in mins
+        diff = Math.floor((nowDate - measureDate) / timeframe)  // in mins
         var t_index = chartCapacity - diff - 1
         t_index = Math.min(Math.max(t_index, 0), chartCapacity - 1)
 
@@ -78,7 +78,7 @@ function onSocketMessage(message) {
         //});
 
         charts[data.team_name].data.datasets[0].data[t_index] = data.temperature_min
-        charts[data.team_name].data.datasets[1].data[t_index] = data.temperature_max + 0.5
+        charts[data.team_name].data.datasets[1].data[t_index] = data.temperature_max
         charts[data.team_name].update(null);
     }
 
@@ -245,7 +245,7 @@ function updateChart() {
 
     //minutes_offline = Math.floor(Math.abs(lastSeenDate.getTime() - Date.now()) / 60000)
 
-    console.log("Shifting chart")
+    //console.log("Shifting chart")
 
 
 
