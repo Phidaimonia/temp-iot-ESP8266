@@ -8,7 +8,7 @@ CLIENT_ID = "RED_team_" + str(random.randint(10000000, 999999999999))
 
 
 def on_connect_MQTT(client, userdata, flags, rc):
-    client.subscribe(cfg["mqtt"]["listen_topic"])
+    client.subscribe(cfg["mqtt"]["room_name"] + "/" + cfg["mqtt"]["listen_topic"])
 
 
 def on_message_MQTT(client, userdata, msg):
