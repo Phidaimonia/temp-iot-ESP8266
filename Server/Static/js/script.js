@@ -133,7 +133,8 @@ function updateChart() {
     for (i = 1; i < len; i++) {
         redChart.data.labels[i-1] = redChart.data.labels[i]
     }
-    redChart.data.labels[len-1] = d.getHours() + ":" + d.getMinutes()
+    redChart.data.labels[len-1] = d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0")
+    
 
     redChart.data.datasets.forEach((dataset) => {
         let len = dataset.data.length;
