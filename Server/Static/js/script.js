@@ -79,6 +79,10 @@ function onSocketMessage(message) {
             charts[data.team_name].update(null);
         } else
         {
+            currentIntervalMin = Math.max(currentIntervalMax, data.temperature)
+            currentIntervalMin = Math.min(currentIntervalMin, data.temperature)
+            charts[data.team_name].data.datasets[0].data[chartCapacity-1] = currentIntervalMin
+            charts[data.team_name].data.datasets[1].data[chartCapacity-1] = currentIntervalMax
             // real time temperature
         }
     }
@@ -154,8 +158,8 @@ var chartCapacity = 80  // v bodech
 var timeframe = 3600000   // interval mezi body v ms
 var lastIntervalEdge = null;
 
-var currentIntervalMax = 999999
-var currentIntervalMin = -999999
+var currentIntervalMax = none
+var currentIntervalMin = none
 
 var visible_chunk = chartCapacity * timeframe
 var connected_to_server = false
