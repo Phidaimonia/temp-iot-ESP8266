@@ -118,7 +118,7 @@ function getUsername() {
 
 //window.addEventListener('load', onLoad, false);
 
-var chartCapacity = 320  // v minutach
+var chartCapacity = 80  // v minutach
 
 
 
@@ -148,7 +148,7 @@ team_names.forEach((tm_name) => {                               // vytvori chart
     borderColor: tm_name,
     borderWidth: 4}]
 },
-    options: {
+    options: { 
         responsive: true,
         elements:{
             line:{
@@ -157,8 +157,6 @@ team_names.forEach((tm_name) => {                               // vytvori chart
         }
 
     }});
-
-    console.log(charts[tm_name])
 });
 
 ws = new WebSocket("wss://" + window.location.host + '/data')   
