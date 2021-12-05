@@ -152,67 +152,74 @@ function getUsername() {
 
 
 //window.addEventListener('load', onLoad, false);
-
-var chartCapacity = 80  // v bodech
-var timeframe = 120000   // interval mezi body v ms
-var lastIntervalEdge = null;
-
 const team_names = ["red", "black", "green", "blue", "pink"]
-charts = {}
-
-
-var visible_chunk = chartCapacity * timeframe
-var connected_to_server = false
 
 
 
-var startDate = new Date(Date.now() - visible_chunk )
-var endDate = new Date();
-
-var x_data = new Array(chartCapacity).fill(null)       // vytvori casovou skalu pro vsechny grafy
-for(i = 0; i < chartCapacity; i++)
+void createCharts(chartWidth, tf)
 {
-    //new_min = (startDate.getMinutes() + i) % 60
-    //new_hr =  (startDate.getHours() + Math.floor((startDate.getMinutes() + i) / 60)) % 24
+    var chartCapacity = chartWidth  // v bodech
+    var timeframe = tf   // interval mezi body v ms
+    
+    
+    var visible_chunk = chartCapacity * timeframe
+    var connected_to_server = false
 
-    intervalStartDate = startDate.getTime() + i * timeframe
-    tmpIntervalEdge = intervalStartDate - intervalStartDate % timeframe
-    var intervalCenter = new Date(tmpIntervalEdge + timeframe / 2)
+    charts = {}
+    var lastIntervalEdge = null;
 
-    x_data[i] = intervalCenter.getHours().toString().padStart(2, "0") + ":" + intervalCenter.getMinutes().toString().padStart(2, "0")
+    var startDate = new Date(Date.now() - visible_chunk )
+    var endDate = new Date();
 
+    var x_data = new Array(chartCapacity).fill(null)       // vytvori casovou skalu pro vsechny grafy
+    for(i = 0; i < chartCapacity; i++)
+    {
+        //new_min = (startDate.getMinutes() + i) % 60
+        //new_hr =  (startDate.getHours() + Math.floor((startDate.getMinutes() + i) / 60)) % 24
+
+        intervalStartDate = startDate.getTime() + i * timeframe
+        tmpIntervalEdge = intervalStartDate - intervalStartDate % timeframe
+        var intervalCenter = new Date(tmpIntervalEdge + timeframe / 2)
+
+        x_data[i] = intervalCenter.getHours().toString().padStart(2, "0") + ":" + intervalCenter.getMinutes().toString().padStart(2, "0")
+                                        
+    }
+
+    team_names.forEach((tm_name) => {                               // vytvori chart objekty
+        var canv = document.getElementById("canvas_" + tm_name)
+
+        charts[tm_name] = new Chart(canv,{
+        type: 'line',
+        data: {labels: x_data,
+                datasets: [
+                    {label: "Min temp",
+                data: new Array(chartCapacity).fill(null),
+                backgroundColor: 'transparent',
+                borderColor: 'white',
+                borderWidth: 4}, 
+                    {label: "Max temp",
+                data: new Array(chartCapacity).fill(null),
+                backgroundColor: 'transparent',
+                borderColor: 'pink',
+                borderWidth: 4}] },
+        options: { 
+            responsive: true,
+            elements:
+            {
+                line:{ tension: 0.5, }, 
+            }, 
+            scales: 
+            {
+                x: { type: 'timeseries', }
+            }
+
+        }});
+    });
 }
 
-team_names.forEach((tm_name) => {                               // vytvori chart objekty
-    var canv = document.getElementById("canvas_" + tm_name)
 
-    charts[tm_name] = new Chart(canv,{
-    type: 'line',
-    data: {labels: x_data,
-            datasets: [
-                {label: "Min temp",
-            data: new Array(chartCapacity).fill(null),
-            backgroundColor: 'transparent',
-            borderColor: 'pink',
-            borderWidth: 4}, 
-                {label: "Max temp",
-            data: new Array(chartCapacity).fill(null),
-            backgroundColor: 'transparent',
-            borderColor: 'pink',
-            borderWidth: 4}] },
-    options: { 
-        responsive: true,
-        elements:
-        {
-            line:{ tension: 0.5, }, 
-        }, 
-        scales: 
-        {
-            x: { type: 'timeseries', }
-        }
+createCharts(80, 120000)
 
-    }});
-});
 
 ws = new WebSocket("wss://" + window.location.host + '/data')   
 ws.onopen = onSocketOpen
