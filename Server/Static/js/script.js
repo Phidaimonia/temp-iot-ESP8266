@@ -139,18 +139,19 @@ function getUsername() {
 
 //window.addEventListener('load', onLoad, false);
 
-var chartCapacity = 80  // v minutach
+var chartCapacity = 80  // v bodech
 var timeframe = 60000   // interval mezi body v ms
-var lastChartUpdateMin = 0
 
+var visible_chunk = chartCapacity * timeframe
+var lastChartUpdateMin = 0
 var connected_to_server = false
 
 
 const team_names = ["red", "black", "green", "blue", "pink"]
 charts = {}
 
+var startDate = new Date(Date.now() - visible_chunk )
 var endDate = new Date();
-var startDate = new Date((Date.now() - chartCapacity * 60 * 1000 ))
 
 var x_data = new Array(chartCapacity).fill(null)       // vytvori casovou skalu pro vsechny grafy
 for(i = 0; i < chartCapacity; i++)
@@ -167,7 +168,13 @@ team_names.forEach((tm_name) => {                               // vytvori chart
     charts[tm_name] = new Chart(canv,{
     type: 'line',
     data: {labels: x_data,
-            datasets: [{label: "Team " + tm_name,
+            datasets: [
+                {label: "Min temp",
+            data: new Array(chartCapacity).fill(null),
+            backgroundColor: 'transparent',
+            borderColor: tm_name,
+            borderWidth: 4}, 
+                {label: "Max temp",
             data: new Array(chartCapacity).fill(null),
             backgroundColor: 'transparent',
             borderColor: tm_name,
@@ -176,7 +183,7 @@ team_names.forEach((tm_name) => {                               // vytvori chart
         responsive: true,
         elements:
         {
-            line:{ ension: 0.5, }, 
+            line:{ tension: 0.5, }, 
         }, 
         scales: 
         {
