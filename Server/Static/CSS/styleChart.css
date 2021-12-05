@@ -4,6 +4,13 @@
 -ms-box-sizing: border-box;
 box-sizing: border-box;
 }
+*{
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+    color: rgb(12, 15, 12);
+    background-color: rgb(223, 213, 213);  
+  }
 .header {
     min-height: 50vh; 
     width: 100%;
