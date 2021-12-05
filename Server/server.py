@@ -118,7 +118,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         elif requestData["request_type"] == "sensor_status":                            # last online time
             for t_team in sensor_status:
                 response = {"response_type":"sensor_status", "team_name":t_team, "last_seen":sensor_status[t_team]}
-                app_log.debug(sensor_status[t_team])
+                a#pp_log.debug(sensor_status[t_team])
         
                 self.try_send_message(json.dumps(response))
 
