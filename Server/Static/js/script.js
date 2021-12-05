@@ -161,7 +161,6 @@ function updateChart() {
         redChart.data.labels[i-1] = redChart.data.labels[i]
     }
     redChart.data.labels[chartCapacity-1] = d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0")
-    redChart.data.labels[chartCapacity-1] = null
 
     redChart.data.datasets.forEach((dataset) => {
         for (i = 1; i < chartCapacity; i++) {
