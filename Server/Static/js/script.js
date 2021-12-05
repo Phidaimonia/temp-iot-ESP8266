@@ -81,6 +81,10 @@ function onSocketMessage(message) {
         } else
         {
             updateChart()
+            for(i = 0; i < 2; i++)
+                if(charts[data.team_name].data.datasets[i].data[chartCapacity-1] == null)
+                    charts[data.team_name].data.datasets[i].data[chartCapacity-1] = data.temperature
+
             charts[data.team_name].data.datasets[0].data[chartCapacity-1] = Math.min(charts[data.team_name].data.datasets[0].data[chartCapacity-1], data.temperature)
             charts[data.team_name].data.datasets[1].data[chartCapacity-1] = Math.max(charts[data.team_name].data.datasets[1].data[chartCapacity-1], data.temperature)
          }
