@@ -65,19 +65,36 @@ nav{
 
 #logout{
     width: 50px;
-    border: 5px solid blue;
+    border: 5px solid ;
     padding: 10px;
     margin: 0px;
     text-align: center;
     font-family: sans-serif;
+    flex: 1;
+    text-align: center;
+    list-style: none;
+    display: inline-block;
+    padding: 8px 12px;
     
     position: absolute;
     top: 0px;
     right: 0px;
-    background: brown;
+    background: rgba(4, 9, 30, 0.7);
 }
+#logout a::after{
+    content: '';
+    width: 0%;
+    height: 2px;
+    background: #f44336;
+    display: block;
+    margin: auto;
+    transition: 0.5s;
+    }
+    #logout a:hover:after{
+        width: 100%;
+      }
 #logout a {
-    color: white;
+    color: #fff;
     text-decoration: none;
     font-size: 13px;
 
