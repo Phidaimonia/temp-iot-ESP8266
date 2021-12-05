@@ -213,8 +213,8 @@ function updateChart() {
 
     if(connected_to_server)
     {
-        requestAimtecStatus();
-        requestSensorStatus();
+        //requestAimtecStatus();
+        //requestSensorStatus();
     }
 
     ///////////////////////////////
