@@ -35,7 +35,7 @@ function onSocketMessage(message) {
             return
         }
         
-        if(!(data.team_name in team_names))
+        if(!team_names.contains(data.team_name))
         {
             console.log("Team: " + data.team_name + " is not on the team list")
             console.log(team_names)
