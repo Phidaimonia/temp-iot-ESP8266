@@ -32,6 +32,11 @@ class UserHandler(tornado.web.RequestHandler):
 
         return database.getUser(int(user_id.decode("utf-8")))
 
+class LogoutHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.clear_cookie("session")
+        self.render("Static/index.html")
+
 class RootHandler(tornado.web.RequestHandler):
     async def get(self):
         self.render("Static/index.html")
@@ -239,6 +244,7 @@ class WebApp(TornadoApplication):
             (r'/js/(.*)', tornado.web.StaticFileHandler, {'path': './Static/js'}),
             (r'/images/(.*)', tornado.web.StaticFileHandler, {'path': './Static/images'}),
             (r'/login/(.*)', tornado.web.StaticFileHandler, {'path': './login'}),
+            (r'/logout', LogoutHandler),
             (r"/receive_image", ReceiveImageHandler),
             (r"/recognize", RecognizeImageHandler),
             (r'/data', WSHandler),
