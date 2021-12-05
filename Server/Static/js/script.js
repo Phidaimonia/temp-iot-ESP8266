@@ -150,7 +150,7 @@ function getUsername() {
 //window.addEventListener('load', onLoad, false);
 
 var chartCapacity = 80  // v bodech
-var timeframe = 600000   // interval mezi body v ms
+var timeframe = 3600000   // interval mezi body v ms
 var lastIntervalEdge = null;
 
 var currentIntervalMax = 999999
@@ -172,8 +172,9 @@ for(i = 0; i < chartCapacity; i++)
     //new_min = (startDate.getMinutes() + i) % 60
     //new_hr =  (startDate.getHours() + Math.floor((startDate.getMinutes() + i) / 60)) % 24
 
-    lastIntervalEdge = endDate.getTime() - endDate.getTime() % timeframe
-    var intervalCenter = new Date(lastIntervalEdge + timeframe / 2)
+    intervalStartDate = startDate.getTime() + i * timeframe
+    tmpIntervalEdge = intervalStartDate - intervalStartDate % timeframe
+    var intervalCenter = new Date(tmpIntervalEdge + timeframe / 2)
 
     x_data[i] = intervalCenter.getHours().toString().padStart(2, "0") + ":" + intervalCenter.getMinutes().toString().padStart(2, "0")
 
