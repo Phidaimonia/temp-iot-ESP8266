@@ -59,6 +59,7 @@ function onSocketMessage(message) {
             nowDate = new Date()
             
             updateChart()
+            
 
             nowDate = nowDate.getTime() - nowDate.getTime() % timeframe
 
@@ -79,7 +80,8 @@ function onSocketMessage(message) {
             charts[data.team_name].update(null);
         } else
         {
-            currentIntervalMin = Math.max(currentIntervalMax, data.temperature)
+            updateChart()
+            currentIntervalMax = Math.max(currentIntervalMax, data.temperature)
             currentIntervalMin = Math.min(currentIntervalMin, data.temperature)
             charts[data.team_name].data.datasets[0].data[chartCapacity-1] = currentIntervalMin
             charts[data.team_name].data.datasets[1].data[chartCapacity-1] = currentIntervalMax
@@ -249,8 +251,8 @@ function updateChart() {
 
     var intervalCenter = new Date(lastIntervalEdge + timeframe / 2)
 
-    currentIntervalMax = -999999
-    currentIntervalMin = 999999
+    currentIntervalMax = none
+    currentIntervalMin = none
 
     ///////////////////////////////
     for (i = 1; i < chartCapacity; i++) 
