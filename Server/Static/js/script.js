@@ -46,7 +46,7 @@ function onSocketMessage(message) {
         nowDate = new Date()
         nowDate = nowDate.getTime() - nowDate.getSeconds() * 1000
 
-        measureDate = new Date(data.created_on) + 30000  
+        measureDate = new Date(data.created_on)
         measureDate = measureDate.getTime() - measureDate.getSeconds() * 1000 + 30000 // posuneme o 30s dopredu
 
         diff = Math.floor((nowDate - measureDate) / 60000)  // in mins
