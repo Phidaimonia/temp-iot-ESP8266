@@ -44,15 +44,15 @@ nav{
     width: 50px;
     border: 5px solid blue;
     padding: 10px;
-    margin: 20px;
+    margin: 0px;
     text-align: left;
     font-family: sans-serif;
     color: white;
     text-decoration: none;
     font-size: 13px;
-    position: relative;
-    top: 8px;
-    right: 16px;
+    position: absolute;
+    top: 0px;
+    right: 0px;
     background: brown;
 }
 #statusAimtec a{
