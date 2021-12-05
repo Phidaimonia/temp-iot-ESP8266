@@ -48,10 +48,12 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         app_log.debug("Init WS")
 
     def open(self):
-        if not self.current_user:
-            self.close()
-            return
         self.set_nodelay(True)
+        if db_connected:
+            if not self.current_user:
+                app_log.error("Not current user...")
+                self.close()
+                return
         app_log.debug("WebSocket connection opened")
 
     def try_send_message(self, content):

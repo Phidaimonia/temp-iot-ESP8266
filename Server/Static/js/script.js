@@ -19,16 +19,18 @@ function onSocketMessage(message) {
     team = data.team_name; 
 
     nowDate = new Date()
-    nowDate = nowDate.getTime() - nowDate.getSeconds * 1000
+    nowDate = nowDate.getTime() - nowDate.getSeconds() * 1000
     measureDate = new Date(data.created_on);
-    measureDate = measureDate.getTime() - measureDate.getSeconds * 1000
+    measureDate = measureDate.getTime() - measureDate.getSeconds() * 1000
+
 
     diff = Math.floor((nowDate - measureDate) / 60000)  // in mins
+    //console.log("Diff " + diff)
 
     var t_index = chartCapacity - diff - 1
     t_index = Math.min(Math.max(t_index, 0), chartCapacity - 1)
 
-    console.log("Saving index " + t_index)
+    //console.log("Saving index " + t_index)
 
     
 
@@ -64,10 +66,8 @@ function requestSensorStatus() {
 
 function onLoad() {
 	console.log("Ahoj world")
-    //document.getElementById('dict').innerText = loadJsonHandler()
 
-    ws = new WebSocket("wss://" + window.location.host + '/data')
-    //ws = new WebSocket('wss://sulis48.zcu.cz/data')     
+    ws = new WebSocket("wss://" + window.location.host + '/data')   
     ws.onopen = onSocketOpen
     ws.onmessage = onSocketMessage
     ws.onclose = onSocketClose
