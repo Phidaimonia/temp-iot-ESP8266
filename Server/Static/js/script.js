@@ -81,10 +81,10 @@ function onSocketMessage(message) {
         } else
         {
             updateChart()
-            currentIntervalMax = Math.max(currentIntervalMax, data.temperature)
-            currentIntervalMin = Math.min(currentIntervalMin, data.temperature)
-            charts[data.team_name].data.datasets[0].data[chartCapacity-1] = currentIntervalMin
-            charts[data.team_name].data.datasets[1].data[chartCapacity-1] = currentIntervalMax
+            charts[data.team_name].data.datasets[0].data[chartCapacity-1] = Math.max(charts[data.team_name].data.datasets[0].data[chartCapacity-1], data.temperature)
+            charts[data.team_name].data.datasets[0].data[chartCapacity-1] = Math.min(charts[data.team_name].data.datasets[0].data[chartCapacity-1], data.temperature)
+            //charts[data.team_name].data.datasets[0].data[chartCapacity-1] = currentIntervalMin
+            //charts[data.team_name].data.datasets[1].data[chartCapacity-1] = currentIntervalMax
             // real time temperature
         }
     }
@@ -160,8 +160,6 @@ var chartCapacity = 80  // v bodech
 var timeframe = 120000   // interval mezi body v ms
 var lastIntervalEdge = null;
 
-var currentIntervalMax = null
-var currentIntervalMin = null
 
 var visible_chunk = chartCapacity * timeframe
 var connected_to_server = false
@@ -197,12 +195,12 @@ team_names.forEach((tm_name) => {                               // vytvori chart
                 {label: "Min temp",
             data: new Array(chartCapacity).fill(null),
             backgroundColor: 'transparent',
-            borderColor: tm_name,
+            borderColor: 'pink',
             borderWidth: 4}, 
                 {label: "Max temp",
             data: new Array(chartCapacity).fill(null),
             backgroundColor: 'transparent',
-            borderColor: tm_name,
+            borderColor: 'pink',
             borderWidth: 4}] },
     options: { 
         responsive: true,
@@ -250,9 +248,6 @@ function updateChart() {
     lastIntervalEdge = d.getTime() - d.getTime() % timeframe
 
     var intervalCenter = new Date(lastIntervalEdge + timeframe / 2)
-
-    currentIntervalMax = null
-    currentIntervalMin = null
 
     ///////////////////////////////
     for (i = 1; i < chartCapacity; i++) 
