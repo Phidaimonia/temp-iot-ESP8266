@@ -153,6 +153,20 @@ function getUsername() {
     ws.send(JSON.stringify(params))
 }
 
+function getShortDate(t)
+{
+    res = ""
+    if (timeframe >= 3600000)
+        res = t.getDay().toString().padStart(2, "0") + "-"
+    if (timeframe <= 86400000)
+        res = t.getHours().toString().padStart(2, "0")
+    if (timeframe < 3600000)
+        res = t.getMinutes().toString().padStart(2, "0")
+        
+    return res
+
+}
+
 
 
 //window.addEventListener('load', onLoad, false);
@@ -177,7 +191,6 @@ function createCharts(chartWidth, tf)
             if(charts[key] != null)
                 charts[key].destroy()
         }
-    //charts = {}
 
     lastIntervalEdge = null;
 
@@ -191,7 +204,7 @@ function createCharts(chartWidth, tf)
         tmpIntervalEdge = intervalStartDate - intervalStartDate % timeframe
         var intervalCenter = new Date(tmpIntervalEdge + timeframe / 2)
 
-        x_data[i] = intervalCenter.getHours().toString().padStart(2, "0") + ":" + intervalCenter.getMinutes().toString().padStart(2, "0")
+        x_data[i] = getShortDate(intervalCenter)
                                         
     }
 
@@ -254,7 +267,7 @@ function updateChart() {
     for (i = 1; i < chartCapacity; i++) 
         charts[team_names[0]].data.labels[i-1] = charts[team_names[0]].data.labels[i]
         
-    charts[team_names[0]].data.labels[chartCapacity-1] = intervalCenter.getHours().toString().padStart(2, "0") + ":" + intervalCenter.getMinutes().toString().padStart(2, "0")
+    charts[team_names[0]].data.labels[chartCapacity-1] = getShortDate(intervalCenter)
 
     team_names.forEach((tm_name) => 
     {
