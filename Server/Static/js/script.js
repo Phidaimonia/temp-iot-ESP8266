@@ -163,8 +163,16 @@ team_names.forEach((tm_name) => {                               // vytvori chart
         }, 
         scales: 
         {
-            x: { type: 'timeseries', }, 
-            time: { minUnit: 'minute', }
+            type: 'time',
+                time: 
+                {
+                    unit: 'minute',
+                    displayFormats: {
+                        day:  'MMM DD',
+                        hour: 'DD hh', 
+                        minute:  'hh mm'
+                    }
+                }
         }
 
     }});
