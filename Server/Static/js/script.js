@@ -20,6 +20,12 @@ function onSocketMessage(message) {
         return
     }
 
+    if ("error" in data)
+    {
+        console.log("Error: " + data.error)
+        return
+    }
+
     if (data["response_type"] == "temperature_data")
     {
         nowDate = new Date()
