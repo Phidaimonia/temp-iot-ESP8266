@@ -14,14 +14,21 @@ function onSocketMessage(message) {
     }
 
     console.log(data)
-    d = new Date()
     
-    t = new Date(data.created_on);
     temp = data.temperature;
     team = data.team_name; 
 
-    var t_index = chartCapacity + t.getMinutes() - d.getMinutes() - 1
+    nowDate = new Date()
+    nowDate = nowDate.getTime() - nowDate.getSeconds * 1000
+    measureDate = new Date(data.created_on);
+    measureDate = measureDate.getTime() - measureDate.getSeconds * 1000
+
+    diff = Math.floor((nowDate - measureDate) / 60000)  // in mins
+
+    var t_index = chartCapacity - diff - 1
     t_index = Math.min(Math.max(t_index, 0), chartCapacity - 1)
+
+    console.log("Saving index " + t_index)
 
     
 
