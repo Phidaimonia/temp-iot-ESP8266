@@ -53,7 +53,7 @@ function onSocketMessage(message) {
         measureDate = new Date(data.created_on)
         measureDate = measureDate.getTime() - measureDate.getSeconds() * 1000  
 
-        diff = Math.floor((nowDate - measureDate) / timeframe)  // in mins
+        diff = Math.floor((nowDate - measureDate) / 60000)  // in mins
         var t_index = chartCapacity - diff - 1
         t_index = Math.min(Math.max(t_index, 0), chartCapacity - 1)
 
@@ -74,12 +74,12 @@ function onSocketMessage(message) {
     if (data["response_type"] == "aimtec_status")
     {
         if("status" in data)
-            document.getElementById('aimtecOnlineElement').innerText = "Aimtec: " + data["status"] ? "Online: " : "Offline: "   // nastavi text, mozna predelej na barvu
+            document.getElementById('aimtecOnlineElement').innerText = data["status"]   // nastavi text, mozna predelej na barvu
     }
 
     if (data["response_type"] == "get_username")
         if("username" in data)
-            document.getElementById('usernameElement').innerText = "Uživatel: " + data["username"]     // Neprihlaseenej -> Guest
+            document.getElementById('usernameElement').innerText = data["username"]     // Neprihlaseenej -> Guest
 
  
 }
@@ -132,16 +132,16 @@ const team_names = ["red", "black", "green", "blue", "pink"]
 charts = {}
 
 var endDate = new Date();
-var startDate = new Date(Date.now() - chartCapacity * timeframe )
+var startDate = new Date((Date.now() - chartCapacity * 60 * 1000 ))
 
-var x_data = new Array(chartCapacity).fill(endDate)       // vytvori casovou skalu pro vsechny grafy
+var x_data = new Array(chartCapacity).fill(null)       // vytvori casovou skalu pro vsechny grafy
 for(i = 0; i < chartCapacity; i++)
 {
-    //new_min = (startDate.getMinutes() + i) % 60
-    //new_hr =  (startDate.getHours() + Math.floor((startDate.getMinutes() + i) / 60)) % 24
-    //x_data[i] = new_hr.toString().padStart(2, "0") + ":" + new_min.toString().padStart(2, "0")
+    new_min = (startDate.getMinutes() + i) % 60
+    new_hr =  (startDate.getHours() + Math.floor((startDate.getMinutes() + i) / 60)) % 24
+    x_data[i] = new_hr.toString().padStart(2, "0") + ":" + new_min.toString().padStart(2, "0")
 
-    x_data[i] = new Date(endDate.getTime() + (i-chartCapacity) * timeframe )  //.toISOString().slice(8, 16)
+    x_data[i] = 
 }
 
 team_names.forEach((tm_name) => {                               // vytvori chart objekty
@@ -159,23 +159,11 @@ team_names.forEach((tm_name) => {                               // vytvori chart
         responsive: true,
         elements:
         {
-            line:{ tension: 0.5, }, 
+            line:{ ension: 0.5, }, 
         }, 
         scales: 
         {
-            type: 'timeseries',
-            time: 
-            {
-                unit: 'minute',
-                minUnit: 'minute',
-                tooltipFormat: "hh mm", 
-                round: 'minute',
-                displayFormats: {
-                    day:  'MMM DD',
-                    hour: 'DD hh', 
-                    minute:  'hh mm'
-                }
-            }
+            x: { type: 'timeseries', }
         }
 
     }});
@@ -198,10 +186,7 @@ function updateChart() {
     for (i = 1; i < chartCapacity; i++) 
         charts[team_names[0]].data.labels[i-1] = charts[team_names[0]].data.labels[i]
         
-    //charts[team_names[0]].data.labels[chartCapacity-1] = d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0")
-    charts[team_names[0]].data.labels[chartCapacity-1] = new Date(charts[team_names[0]].data.labels[chartCapacity-2].getTime() + timeframe)
-    
-
+    charts[team_names[0]].data.labels[chartCapacity-1] = d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0")
 
     team_names.forEach((tm_name) => 
     {
