@@ -79,14 +79,14 @@ function onSocketMessage(message) {
     {
         if("status" in data)
         {
-            document.getElementById('aimtecOnlineElement').innerText = "Aimtec status: " + data["status"] ? "Online" : "Offline"   // nastavi text, mozna predelej na barvu
+            document.getElementById('aimtecOnlineElement').innerText = data["status"] ? "Online" : "Offline"   // nastavi text, mozna predelej na barvu
             document.getElementById('aimtecOnlineElement').style.color = data["status"] ? "green" : "red"
         }
     }
 
     if (data["response_type"] == "get_username")
         if("username" in data)
-            document.getElementById('usernameElement').innerText = "Username: " + data["username"]     // Neprihlaseenej -> Guest
+            document.getElementById('usernameElement').innerText = data["username"]     // Neprihlaseenej -> Guest
 
  
 }
