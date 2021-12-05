@@ -73,7 +73,7 @@ function onSocketMessage(message) {
             console.log(data.lastSeen)
             lastSeenDate = new Date(data.lastSeen);
             document.getElementById(data.team_name + 'Status').innerText = lastSeenDate;
-            //document.getElementById('aimtecOnlineElement').style.color = data["status"] ? "green" : "red"
+            //document.getElementById(data.team_name + 'Status').style.color = data["status"] ? "green" : "red"
         }
     }
 
