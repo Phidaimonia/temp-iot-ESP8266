@@ -30,10 +30,9 @@ class UserHandler(tornado.web.RequestHandler):
 
         return database.getUser(int(user_id.decode("utf-8")))
 
-class RootHandler(UserHandler):
+class RootHandler(tornado.web.RequestHandler):
     async def get(self):
-        # get username by cookie
-        self.write(temp.generate(myvalue="dQw4w9WgXcQ"))        # using templates
+        self.write("Static/index.html")
 
 
 class WSHandler(tornado.websocket.WebSocketHandler):
@@ -226,6 +225,8 @@ class WebApp(TornadoApplication):
 
         self.tornado_handlers = [
             (r'/', RootHandler),
+            (r'/CSS/(.*)', tornado.web.StaticFileHandler, {'path': './Static/CSS'}),
+            (r'/js/(.*)', tornado.web.StaticFileHandler, {'path': './Static/js'}),
             (r'/login/(.*)', tornado.web.StaticFileHandler, {'path': './login'}),
             (r"/receive_image", ReceiveImageHandler),
             (r"/recognize", RecognizeImageHandler),
