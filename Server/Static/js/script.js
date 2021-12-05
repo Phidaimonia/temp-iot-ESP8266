@@ -51,7 +51,7 @@ function onSocketMessage(message) {
 
 
         measureDate = new Date(data.created_on)
-        measureDate = measureDate.getTime() - measureDate.getSeconds() * 1000 + 30000 // posuneme o 30s dopredu
+        measureDate = measureDate.getTime() - measureDate.getSeconds() * 1000  
 
         diff = Math.floor((nowDate - measureDate) / 60000)  // in mins
         var t_index = chartCapacity - diff - 1
