@@ -141,7 +141,7 @@ for(i = 0; i < chartCapacity; i++)
     //new_hr =  (startDate.getHours() + Math.floor((startDate.getMinutes() + i) / 60)) % 24
     //x_data[i] = new_hr.toString().padStart(2, "0") + ":" + new_min.toString().padStart(2, "0")
 
-    x_data[i] = new Date(endDate.getTime() + (i-chartCapacity) * timeframe )
+    x_data[i] = endDate.getTime() + (i-chartCapacity) * timeframe
 }
 
 team_names.forEach((tm_name) => {                               // vytvori chart objekty
@@ -159,23 +159,23 @@ team_names.forEach((tm_name) => {                               // vytvori chart
         responsive: true,
         elements:
         {
-            line:{ ension: 0.5, }, 
+            line:{ tension: 0.5, }, 
         }, 
         scales: 
         {
             type: 'time',
-                time: 
-                {
-                    unit: 'minute',
-                    minUnit: 'minute',
-                    tooltipFormat: "hh mm", 
-                    round: 'minute',
-                    displayFormats: {
-                        day:  'MMM DD',
-                        hour: 'DD hh', 
-                        minute:  'hh mm'
-                    }
+            time: 
+            {
+                unit: 'minute',
+                minUnit: 'minute',
+                tooltipFormat: "hh mm", 
+                round: 'minute',
+                displayFormats: {
+                    day:  'MMM DD',
+                    hour: 'DD hh', 
+                    minute:  'hh mm'
                 }
+            }
         }
 
     }});
