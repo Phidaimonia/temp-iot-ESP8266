@@ -158,18 +158,18 @@ const team_names = ["red", "black", "green", "blue", "pink"]
 
 function createCharts(chartWidth, tf)
 {
-    var chartCapacity = chartWidth  // v bodech
-    var timeframe = tf   // interval mezi body v ms
+    chartCapacity = chartWidth  // v bodech
+    timeframe = tf   // interval mezi body v ms
     
     
-    var visible_chunk = chartCapacity * timeframe
-    var connected_to_server = false
+    visible_chunk = chartCapacity * timeframe
+    connected_to_server = false
 
     charts = {}
-    var lastIntervalEdge = null;
+    lastIntervalEdge = null;
 
-    var startDate = new Date(Date.now() - visible_chunk )
-    var endDate = new Date();
+    startDate = new Date(Date.now() - visible_chunk )
+    endDate = new Date();
 
     var x_data = new Array(chartCapacity).fill(null)       // vytvori casovou skalu pro vsechny grafy
     for(i = 0; i < chartCapacity; i++)
