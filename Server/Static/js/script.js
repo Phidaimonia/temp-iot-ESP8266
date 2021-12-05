@@ -72,8 +72,10 @@ function onSocketMessage(message) {
         {
             console.log(data)
             lastSeenDate = new Date(data.last_seen);
-            document.getElementById(data.team_name + 'Status').innerText = lastSeenDate;
-            //document.getElementById(data.team_name + 'Status').style.color = data["status"] ? "green" : "red"
+            minutes_offline = Math.abs(lastSeenDate.getTime() - Date.now()) / 60000
+            
+            document.getElementById(data.team_name + 'Status').innerText = minutes_offline < 5 ? "Online" : "Last seen " + minutes_offline + " minutes ago"
+            document.getElementById(data.team_name + 'Status').style.color = minutes_offline < 5 ? "green" : "red"
         }
     }
 
