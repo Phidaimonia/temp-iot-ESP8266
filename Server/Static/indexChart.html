@@ -11,8 +11,7 @@
     </head>
 
     <body>
-        
-        <nav class="logout" id="logout">
+        <nav class="logout" id="logout" style="position: fixed;">
             <div class="closed" id="closed" style="right:-300px">
             <i class="fa fa-times" onclick="hideMenu()"></i>
             <a href="https://sulis48.zcu/logout">Log out</a>
@@ -21,13 +20,33 @@
         </nav>
         
         <section class="wholehead">
+            <nav id="status-box">
+                <div class="nav-links" id="navLinks">
+                    <ul>
+                        <li><a>Aimtec: <innertext id="aimtecOnlineElement">Loading...</innertext></a></li>
+                    </ul>
+                    <ul>
+                        <li><a>Sensors status: </a></li>
+                        <li><a>Red: </a></li>
+                        <li><a>Black: </a></li>
+                        <li><a>Blue status: </a></li>
+                        <li><a>Green status: </a></li>
+                        <li><a>Pink status: </a></li>
+                    </ul>
+                    <ul>
+                        <li><button id="months">M1</a></li>
+                        <li><button id="hours">H1</a></li>
+                        <li><button id="minutes">D1</a></li>
+                    </ul>
+                </div>
+            </nav>
             
             <div class="conainer">
             <section class= "header">
             <h1>Průběh hodnot jednotlivých senzorů</h1>
             
             <nav id="StatusAimtec">
-                <a>Aimtec Status: <innertext id="aimtecOnlineElement">Loading...</innertext></a>
+                <a>Aimtec Status: </a>
                 <a>User: <innertext id="usernameElement">Loading...</innertext> </a>
             </nav>
             </section>
