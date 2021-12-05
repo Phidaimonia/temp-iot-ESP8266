@@ -168,6 +168,8 @@ team_names.forEach((tm_name) => {                               // vytvori chart
                 {
                     unit: 'minute',
                     minUnit: 'minute',
+                    tooltipFormat: "hh mm", 
+                    round: 'minute',
                     displayFormats: {
                         day:  'MMM DD',
                         hour: 'DD hh', 
