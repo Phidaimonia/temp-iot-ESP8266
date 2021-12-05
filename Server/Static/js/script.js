@@ -29,7 +29,7 @@ function onSocketMessage(message) {
         return
     }
 
-    console.log(data)
+    //console.log(data)
 
     if ("error" in data)
     {
@@ -69,12 +69,16 @@ function onSocketMessage(message) {
         var t_index = chartCapacity - diff - 1
         t_index = Math.min(Math.max(t_index, 0), chartCapacity - 1)
 
-        charts[data.team_name].data.datasets.forEach((dataset) => {
-            dataset.data[t_index] = data.temperature;
-            //temperature_avg: 19
-            //temperature_max: 19
+        //charts[data.team_name].data.datasets.forEach((dataset) => {
+            //dataset.data[t_index] = data.temperature;
             //temperature_min: 19
-        });
+            //temperature_max: 19
+            //temperature_avg: 19
+
+        //});
+
+        charts[data.team_name].data.datasets[0].Date[t_index] = data.temperature_min
+        charts[data.team_name].data.datasets[1].Date[t_index] = data.temperature_max
         charts[data.team_name].update(null);
     }
 
@@ -241,7 +245,7 @@ function updateChart() {
 
     minutes_offline = Math.floor(Math.abs(lastSeenDate.getTime() - Date.now()) / 60000)
 
-
+    console.log("Shifting chart")
 
 
 
