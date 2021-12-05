@@ -13,35 +13,62 @@ function onSocketMessage(message) {
         return
     }
 
-    console.log(data)
-    //console.log(endDate.toString())  // local
-    
-    temp = data.temperature;
-    team = data.team_name; 
-
-    nowDate = new Date()
-    nowDate = nowDate.getTime() - nowDate.getSeconds() * 1000
-    measureDate = new Date(data.created_on);
- 
-    measureDate = measureDate.getTime() - measureDate.getSeconds() * 1000
-
-
-    diff = Math.floor((nowDate - measureDate) / 60000)  // in mins
-    //console.log("Diff " + diff)
-
-    var t_index = chartCapacity - diff - 1
-    t_index = Math.min(Math.max(t_index, 0), chartCapacity - 1)
-
-    //console.log("Saving index " + t_index)
-
-    
-
-    if(team=="red") { 
-        redChart.data.datasets.forEach((dataset) => {
-            dataset.data[t_index] = temp;
-        });
-        redChart.update();
+    if (!("response_type" in data))
+    {
+        console.log(data)
+        console.log("Bad response from the server")
+        return
     }
+
+    if ("error" in data)
+    {
+        console.log("Error: " + data.error)
+        return
+    }
+
+    if (data["response_type"] == "temperature_data")
+    {
+        nowDate = new Date()
+        nowDate = nowDate.getTime() - nowDate.getSeconds() * 1000
+        measureDate = new Date(data.created_on);
+    
+        measureDate = measureDate.getTime() - measureDate.getSeconds() * 1000
+
+
+        diff = Math.floor((nowDate - measureDate) / 60000)  // in mins
+        //console.log("Diff " + diff)
+
+        var t_index = chartCapacity - diff - 1
+        t_index = Math.min(Math.max(t_index, 0), chartCapacity - 1)
+
+        //console.log("Saving index " + t_index)    
+
+        if(data.team_name=="red") { 
+            redChart.data.datasets.forEach((dataset) => {
+                dataset.data[t_index] = data.temperature;
+            });
+            redChart.update();
+        }
+    }
+
+    if (data["response_type"] == "sensor_status")
+    {
+        if("team_name" in data && "last_seen" in data)
+        {
+            //
+        }
+    }
+
+    if (data["response_type"] == "aimtec_status")
+    {
+        if("status" in data)
+            document.getElementById('aimtecOnlineElement').innerText = data["status"]   // nastavi text, mozna predelej na barvu
+    }
+
+    if (data["response_type"] == "get_username")
+        if("username" in data)
+            document.getElementById('usernameElement').innerText = data["username"]     // Neprihlaseenej -> Guest
+
  
 }
 
@@ -53,8 +80,7 @@ function requestData() {
     var params = {
         "request_type": "temperature_data",
         "dt_from": startDate.toISOString().slice(0, 19) + ".000000",  // in UTC
-        "dt_to": endDate.toISOString().slice(0, 19) + ".000000", 
-        "cookie": "4jgk6s9d3dj57j4kgs3"
+        "dt_to": endDate.toISOString().slice(0, 19) + ".000000"
     }
     ws.send(JSON.stringify(params))
 }
@@ -66,35 +92,28 @@ function requestSensorStatus() {
     ws.send(JSON.stringify(params))
 }
 
-function onLoad() {
-	console.log("Ahoj world")
-
-    ws = new WebSocket("wss://" + window.location.host + '/data')   
-    ws.onopen = onSocketOpen
-    ws.onmessage = onSocketMessage
-    ws.onclose = onSocketClose
-}
-
-
-function loadJsonHandler() {
-    if (window.XMLHttpRequest) {
-        xmlhttp = new XMLHttpRequest();
+function requestAimtecStatus() {
+    var params = {
+        "request_type": "aimtec_status"
     }
-    xmlhttp.open('GET', '/json/', false);
-    xmlhttp.send(null);
-
-    return  xmlhttp.responseText;
+    ws.send(JSON.stringify(params))
 }
+
+function getUsername() {
+    var params = {
+        "request_type": "get_username"
+    }
+    ws.send(JSON.stringify(params))
+}
+
+
 
 //window.addEventListener('load', onLoad, false);
 
-var chartCapacity = 720  // v minutach
+var chartCapacity = 320  // v minutach
 
 var endDate = new Date();
 var startDate = new Date((Date.now() - chartCapacity * 60 * 1000 ))
-
-//console.log(endDate.toISOString().slice(0, 19) + ".000000")
-
 
 
 var x_data = new Array(chartCapacity).fill(null)
@@ -106,7 +125,6 @@ for(i = 0; i < chartCapacity; i++)
     new_hr =  (startDate.getHours() + Math.floor((startDate.getMinutes() + i) / 60)) % 24
     x_data[i] = new_hr.toString().padStart(2, "0") + ":" + new_min.toString().padStart(2, "0")
 }
-
 
 
 var redctx = document.getElementById('canvasRed')
@@ -129,7 +147,11 @@ var redChart = new Chart(redctx,{
 
     }});
 
-onLoad()
+
+ws = new WebSocket("wss://" + window.location.host + '/data')   
+ws.onopen = onSocketOpen
+ws.onmessage = onSocketMessage
+ws.onclose = onSocketClose
 
 
 function updateChart() {
@@ -139,7 +161,6 @@ function updateChart() {
         redChart.data.labels[i-1] = redChart.data.labels[i]
     }
     redChart.data.labels[chartCapacity-1] = d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0")
-    redChart.data.labels[chartCapacity-1] = null
 
     redChart.data.datasets.forEach((dataset) => {
         for (i = 1; i < chartCapacity; i++) {
