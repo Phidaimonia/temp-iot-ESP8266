@@ -13,7 +13,7 @@
     <body>
         
         <nav class="logout" id="logout">
-            <div>
+            <div class="closed" id="closed" style="right:-300px">
             <i class="fa fa-times" onclick="hideMenu()"></i>
             <a href="https://sulis48.zcu/logout">Log out</a>
             </div>
@@ -56,7 +56,7 @@
         </section>
         <script>
             //otvira a zavira menu
-            var logout = document.getElementById("logout");
+            var logout = document.getElementById("closed");
             function showMenu(){
                 logout.style.right ="0";
             }
