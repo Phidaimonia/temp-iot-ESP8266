@@ -21,7 +21,7 @@ function onSocketMessage(message) {
 
     nowDate = new Date()
     nowDate = nowDate.getTime() - nowDate.getSeconds() * 1000
-    measureDate = new Date(data.created_on, UTC);
+    measureDate = new Date(data.created_on);
  
     measureDate = measureDate.getTime() - measureDate.getSeconds() * 1000
 
