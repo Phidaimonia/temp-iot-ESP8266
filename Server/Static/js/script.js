@@ -29,10 +29,18 @@ function onSocketMessage(message) {
     if (data.response_type == "temperature_data")
     {
         if(!("team_name" in data))
+        {
+            console.log("Wrong data format: ")
+            console.log(data)
             return
+        }
         
         if(!(data.team_name in team_names))
+        {
+            console.log("Team: " + data.team_name + " is not on the team list")
+            console.log(data)
             return
+        }
 
         //&& data.team_name in team_names
         console.log(data.team_name)
@@ -127,8 +135,8 @@ var startDate = new Date((Date.now() - chartCapacity * 60 * 1000 ))
 team_names.forEach((tm_name) => {
     var canv = document.getElementById("canvas_" + tm_name)
 
-    x_data = new Array(chartCapacity).fill(null)
-    y_data = new Array(chartCapacity).fill(null)
+    var x_data = new Array(chartCapacity).fill(null)
+    //var y_data = new Array(chartCapacity).fill(null)
 
     for(i = 0; i < chartCapacity; i++)
     {
@@ -141,7 +149,7 @@ team_names.forEach((tm_name) => {
     type: 'line',
     data: {labels: x_data,
     datasets: [{label: "Team " + tm_name,
-    data: y_data,
+    data: new Array(chartCapacity).fill(null),
     backgroundColor: 'transparent',
     borderColor: tm_name,
     borderWidth: 4}]
