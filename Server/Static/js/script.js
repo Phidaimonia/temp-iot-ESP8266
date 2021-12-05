@@ -14,13 +14,15 @@ function onSocketMessage(message) {
     }
 
     console.log(data)
+    //console.log(endDate.toString())  // local
     
     temp = data.temperature;
     team = data.team_name; 
 
     nowDate = new Date()
     nowDate = nowDate.getTime() - nowDate.getSeconds() * 1000
-    measureDate = new Date(data.created_on);
+    measureDate = new Date(data.created_on, UTC);
+ 
     measureDate = measureDate.getTime() - measureDate.getSeconds() * 1000
 
 

@@ -95,6 +95,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
                     data = database.read_messages(dt_from, dt_to, team_list)        # returns json
                     for measurement in data:
+                        measurement = pytz.utc.localize(db.fuzzy_ISO_to_datetime(measurement)).isoformat()
                         self.try_send_message(measurement)
                 else:
                     app_log.error("Bad request parameters " + message)
