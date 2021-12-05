@@ -168,9 +168,14 @@ function createCharts(chartWidth, tf)
     
     visible_chunk = chartCapacity * timeframe
 
-    charts.forEach(c => {
+    charts.forEach((c) => {
         c.destroy()
     });
+
+    //charts[data.team_name].data.datasets.forEach((dataset) => {
+                //dataset.data[t_index] = data.temperature;
+            //});
+
     charts = {}
 
     lastIntervalEdge = null;
