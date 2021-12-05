@@ -188,6 +188,7 @@ d = new Date();
 setTimeout(startUpdateTimer, (60 - d.getSeconds()) * 1000);  // time to until new minute begins
 
 function startUpdateTimer(){
-    setInterval(updateChart, 60000);        // kazdou minutu prida novy bod
+    d = new Date();
+    setInterval(updateChart, Math.max(1, 60 - d.getSeconds() - 1) * 1000);        // kazdou minutu prida novy bod
     updateChart();
 }
