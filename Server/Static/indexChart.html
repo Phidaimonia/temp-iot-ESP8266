@@ -33,9 +33,9 @@
                         <ul><li><a>Green status: <innertext id="greenStatus">Offline</innertext></a></li></ul>
                         <ul><li><a>Pink status: <innertext id="pinkStatus">Offline</innertext></a></li></ul>
                     <ul>
-                        <li><button id="months">M1</a></li>
-                        <li><button id="hours">H1</a></li>
-                        <li><button id="minutes">D1</a></li>
+                        <li><button onclick="createCharts(80, 60000)" id="minuteTF">M1</a></li>
+                        <li><button onclick="createCharts(80, 3600000)" id="hourTF">H1</a></li>
+                        <li><button onclick="createCharts(80, 86400000)" id="dailyTF">D1</a></li>
                     </ul>
                 </div>
             </nav>
