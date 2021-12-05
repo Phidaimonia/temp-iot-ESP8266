@@ -128,7 +128,8 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             usrName = self.get_current_user()
             if usrName is None:
                 usrName = "Guest"
-            response = {"response_type":"get_username", "username":usrName}                   # aimtec
+            response = {"response_type":"get_username", "username":usrName}    
+            app_log.error(response)              
             self.try_send_message(json.dumps(response))
   
         else:
