@@ -157,7 +157,7 @@ function getUsername() {
 
 //window.addEventListener('load', onLoad, false);
 const team_names = ["red", "black", "green", "blue", "pink"]
-
+connected_to_server = false
 
 
 function createCharts(chartWidth, tf)
@@ -165,11 +165,13 @@ function createCharts(chartWidth, tf)
     chartCapacity = chartWidth  // v bodech
     timeframe = tf   // interval mezi body v ms
     
-    
     visible_chunk = chartCapacity * timeframe
-    connected_to_server = false
 
+    charts.forEach(c => {
+        c.destroy()
+    });
     charts = {}
+    
     lastIntervalEdge = null;
 
     startDate = new Date(Date.now() - visible_chunk )
