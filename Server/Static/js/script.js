@@ -3,6 +3,7 @@ function onSocketOpen() {
     console.log("WS Open");
     requestData();  // hned po pripojeni pozada o data
     requestAimtecStatus();
+    requestSensorStatus();
     getUsername();
 }
 
@@ -69,9 +70,11 @@ function onSocketMessage(message) {
 
     if (data["response_type"] == "sensor_status")
     {
-        if("team_name" in data && "last_seen" in data)
+        if("last_seen" in data)
         {
-            //
+            lastSeenDate = new Date(data.lastSeen);
+            document.getElementById(data.team_name + 'Status').innerText = data.lastSeen;
+            //document.getElementById('aimtecOnlineElement').style.color = data["status"] ? "green" : "red"
         }
     }
 
