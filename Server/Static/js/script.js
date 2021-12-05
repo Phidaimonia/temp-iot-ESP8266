@@ -219,6 +219,8 @@ function createCharts(chartWidth, tf)
 
         }});
     });
+    if(connected_to_server)
+        requestData()
 }
 
 
