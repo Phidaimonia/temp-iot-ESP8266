@@ -1,7 +1,7 @@
 
 function onSocketOpen() {
     console.log("WS Open");
-    //requestData();
+    requestData();
 }
 
 function onSocketMessage(message) {
@@ -88,7 +88,7 @@ function loadJsonHandler() {
 
 //window.addEventListener('load', onLoad, false);
 
-var chartCapacity = 130  // v minutach
+var chartCapacity = 720  // v minutach
 
 var endDate = new Date();
 var startDate = new Date((Date.now() - chartCapacity * 60 * 1000 ))
