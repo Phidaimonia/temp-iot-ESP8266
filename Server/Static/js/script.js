@@ -141,7 +141,6 @@ for(i = 0; i < chartCapacity; i++)
     new_hr =  (startDate.getHours() + Math.floor((startDate.getMinutes() + i) / 60)) % 24
     x_data[i] = new_hr.toString().padStart(2, "0") + ":" + new_min.toString().padStart(2, "0")
 
-    x_data[i] = 
 }
 
 team_names.forEach((tm_name) => {                               // vytvori chart objekty
