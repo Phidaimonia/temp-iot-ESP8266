@@ -82,6 +82,9 @@ function onSocketMessage(message) {
             
             document.getElementById(data.team_name + 'Status').innerText = minutes_offline <= 5 ? "Online" : "Last seen " + minutes_offline + " minutes ago"
             document.getElementById(data.team_name + 'Status').style.color = minutes_offline <= 5 ? "green" : "red"
+            if (data.last_seen == null)
+                document.getElementById(data.team_name + 'Status').innerText = "Offline"
+            
         }
     }
 
