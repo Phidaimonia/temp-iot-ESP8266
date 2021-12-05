@@ -163,11 +163,14 @@ team_names.forEach((tm_name) => {                               // vytvori chart
         }, 
         scales: 
         {
-            x: { type: 'timeseries', }
+            x: { type: 'timeseries', }, 
+            time: { minUnit: 'minute', }
         }
 
     }});
 });
+
+time.minUnit
 
 ws = new WebSocket("wss://" + window.location.host + '/data')   
 ws.onopen = onSocketOpen
