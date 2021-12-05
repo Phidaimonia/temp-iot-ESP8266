@@ -6,13 +6,20 @@
         <meta http-equiv="X-UA-Compatible" content="ie=edge">   
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
         <link rel="stylesheet" type="text/css" href="CSS/styleChart.css">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
         <title>Visual sensors measurements</title>
     </head>
 
     <body>
-        <nav id="logout">
+        
+        <nav class="logout" id="logout">
+            <div>
+            <i class="fa fa-times" onclick="hideMenu()"></i>
             <a href="https://sulis48.zcu/logout">Log out</a>
+            </div>
+            <i class="fa fa-bars" onclick="showMenu()"></i>
         </nav>
+        
         <section class="wholehead">
             
             <div class="conainer">
@@ -47,6 +54,16 @@
         <script type="text/javascript" scr="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.6.1/chart.min.js"></script> 
         <script src="js/script.js"></script>    
         </section>
+        <script>
+            //otvira a zavira menu
+            var logout = document.getElementById("logout");
+            function showMenu(){
+                logout.style.right ="0";
+            }
+            function hideMenu(){
+                logout.style.right ="-300px";
+            }
+        </script>
     </body>
 
     
