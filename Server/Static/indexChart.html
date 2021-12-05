@@ -19,23 +19,15 @@
             <i class="fa fa-bars" onclick="showMenu()"></i>
         </nav>
         
-        <section class="wholehead">              
+        <section class="wholehead">
             <nav id="status-box" style="position: fixed; right: 0px; top: 0; z-index: 2; border: 5px solid rgb(0, 0, 0); background-color: rgb(47, 45, 45);">
                 <div class="nav-links" id="navLinks">
                     <ul><li><h3 id="usernameElement">Username: </h3></li></ul>
-                    <div class="nav-links" id="navLinks" style="border: black; border-width: 4px;">
-                        <ul>
-                            <li><a style="font-size: 25px; color: gold;">Aimtec: </a><a style="font-size: 25px;"><innertext id="aimtecOnlineElement">Loading...</innertext></a></li>
-                        </ul>
-    
-                        <ul style="text-align: center;"><li><a style="color: rgb(222, 135, 176); font-size: 25px;">Sensors status: </a></li></ul>
-                            <ul><li><a style="color:red">Red: </a><a><innertext id="redStatus">Offline</innertext></a></li></ul>
-                            <ul><li><a style="color:black">Black: </a><a><innertext id="blackStatus">Offline</innertext></a></li></ul>
-                            <ul><li><a style="color:blue">Blue status: </a><a><innertext id="blueStatus">Offline</innertext></a></li></ul>
-                            <ul><li><a style="color:green">Green status: </a><a><innertext id="greenStatus">Offline</innertext></a></li></ul>
-                            <ul><li><a style="color:pink">Pink status: </a><a><innertext id="pinkStatus">Offline</innertext></a></li></ul>
+                    <ul><li><a>Aimtec: <innertext id="aimtecOnlineElement">Loading...</innertext></a></li></ul>
+
                     <ul>
                         <li><button onclick="createCharts(80, 60000)" id="minuteTF">M1</a></li>
+                        <li><button onclick="createCharts(80, 600000)" id="minuteTF">M10</a></li>
                         <li><button onclick="createCharts(80, 3600000)" id="hourTF">H1</a></li>
                         <li><button onclick="createCharts(80, 86400000)" id="dailyTF">D1</a></li>
                     </ul>
@@ -44,7 +36,7 @@
             
             <div class="conainer">
             <section class= "header">
-            <h1>Teams temperature measurements</h1>
+            <h1>Průběh hodnot jednotlivých senzorů</h1>
             </section>
 
      
