@@ -168,7 +168,6 @@ function createCharts(chartWidth, tf)
     
     visible_chunk = chartCapacity * timeframe
 
-    if
     charts.forEach(c => {
         c.destroy()
     });
