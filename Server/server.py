@@ -2,21 +2,23 @@ import tornado
 import tornado.httpserver
 import tornado.websocket
 import tornado.ioloop
+import tornado.web
 from tornado.ioloop import IOLoop
 from tornado.web import Application as TornadoApplication
-import tornado.web
-from urllib.request import urlopen
-import datetime as dt, time
-import pytz
 import tornado.template as T
+
+import api, db
+from db import DB
+
+from urllib.request import urlopen
+import datetime as dt, time, pytz
+
 import json
 import paho.mqtt.client as mqtt
 import random
-import api
-import db
-from db import DB
-import tornado.log
-import logging
+import logging, tornado.log
+
+
 
 test_mode = False
 
@@ -265,6 +267,7 @@ if __name__ == '__main__':
     tornado.log.enable_pretty_logging()
     app_log = logging.getLogger("tornado.application")
     app_log.setLevel(logging.DEBUG)
+
     mqtt_client_id = "observer" + str(random.randint(10000000, 999999999999))
     mqtt_room_name = cfg["mqtt"]["room_name"]
 
