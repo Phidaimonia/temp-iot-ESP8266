@@ -46,7 +46,7 @@ function onSocketMessage(message) {
         nowDate = new Date()
         if(lastChartUpdateMin != nowDate.getMinutes())
             updateChart()
-            
+
         nowDate = nowDate.getTime() - nowDate.getSeconds() * 1000
 
 
@@ -173,10 +173,10 @@ ws.onclose = onSocketClose
 function updateChart() {
     var d = new Date();
 
-    if(lastChartUpdateMin == nowDate.getMinutes())
+    if(lastChartUpdateMin == d.getMinutes())
         return
 
-    lastChartUpdateMin = nowDate.getMinutes()
+    lastChartUpdateMin = d.getMinutes()
 
     for (i = 1; i < chartCapacity; i++) 
         charts[team_names[0]].data.labels[i-1] = charts[team_names[0]].data.labels[i]
