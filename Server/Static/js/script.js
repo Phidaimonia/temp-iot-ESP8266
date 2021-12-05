@@ -81,12 +81,9 @@ function onSocketMessage(message) {
         } else
         {
             updateChart()
-            charts[data.team_name].data.datasets[0].data[chartCapacity-1] = Math.max(charts[data.team_name].data.datasets[0].data[chartCapacity-1], data.temperature)
             charts[data.team_name].data.datasets[0].data[chartCapacity-1] = Math.min(charts[data.team_name].data.datasets[0].data[chartCapacity-1], data.temperature)
-            //charts[data.team_name].data.datasets[0].data[chartCapacity-1] = currentIntervalMin
-            //charts[data.team_name].data.datasets[1].data[chartCapacity-1] = currentIntervalMax
-            // real time temperature
-        }
+            charts[data.team_name].data.datasets[1].data[chartCapacity-1] = Math.max(charts[data.team_name].data.datasets[1].data[chartCapacity-1], data.temperature)
+         }
     }
 
     if (data["response_type"] == "sensor_status")
@@ -160,13 +157,14 @@ var chartCapacity = 80  // v bodech
 var timeframe = 120000   // interval mezi body v ms
 var lastIntervalEdge = null;
 
+const team_names = ["red", "black", "green", "blue", "pink"]
+charts = {}
+
 
 var visible_chunk = chartCapacity * timeframe
 var connected_to_server = false
 
 
-const team_names = ["red", "black", "green", "blue", "pink"]
-charts = {}
 
 var startDate = new Date(Date.now() - visible_chunk )
 var endDate = new Date();
