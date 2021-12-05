@@ -2,6 +2,8 @@
 function onSocketOpen() {
     console.log("WS Open");
     requestData();  // hned po pripojeni pozada o data
+    requestAimtecStatus();
+    getUsername();
 }
 
 function onSocketMessage(message) {
