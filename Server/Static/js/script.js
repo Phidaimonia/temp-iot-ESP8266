@@ -128,7 +128,7 @@ charts = {}
 var endDate = new Date();
 var startDate = new Date((Date.now() - chartCapacity * 60 * 1000 ))
 
-var x_data = new Array(chartCapacity).fill(null)       // vytvori casovou skalu
+var x_data = new Array(chartCapacity).fill(null)       // vytvori casovou skalu pro vsechny grafy
 for(i = 0; i < chartCapacity; i++)
 {
     new_min = (startDate.getMinutes() + i) % 60
@@ -168,13 +168,13 @@ ws.onclose = onSocketClose
 function updateChart() {
     var d = new Date();
 
+    for (i = 1; i < chartCapacity; i++) 
+        charts[team_names[0]].data.labels[i-1] = charts[team_names[0]].data.labels[i]
+        
+    charts[team_names[0]].data.labels[chartCapacity-1] = d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0")
+
     team_names.forEach((tm_name) => 
     {
-        for (i = 1; i < chartCapacity; i++) 
-        charts[tm_name].data.labels[i-1] = charts[tm_name].data.labels[i]
-        
-        charts[tm_name].data.labels[chartCapacity-1] = d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0")
-
         charts[tm_name].data.datasets.forEach((dataset) => {
             for (i = 1; i < chartCapacity; i++) {
                 dataset.data[i-1] = dataset.data[i]
