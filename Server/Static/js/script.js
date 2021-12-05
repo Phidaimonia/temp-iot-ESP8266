@@ -60,19 +60,11 @@ function requestData() {
 
 function requestSensorStatus() {
     var params = {
-        "request_type_test": "sensor_status"
+        "request_type": "sensor_status"
     }
     ws.send(JSON.stringify(params))
 }
 
-function onLoad() {
-	console.log("Sript starts here")
-
-    ws = new WebSocket("wss://" + window.location.host + '/data')   
-    ws.onopen = onSocketOpen
-    ws.onmessage = onSocketMessage
-    ws.onclose = onSocketClose
-}
 
 
 //window.addEventListener('load', onLoad, false);
@@ -85,7 +77,6 @@ var startDate = new Date((Date.now() - chartCapacity * 60 * 1000 ))
 //console.log(endDate.toISOString().slice(0, 19) + ".000000")
 
 
-
 var x_data = new Array(chartCapacity).fill(null)
 var y_data = new Array(chartCapacity).fill(null)
 
@@ -95,7 +86,6 @@ for(i = 0; i < chartCapacity; i++)
     new_hr =  (startDate.getHours() + Math.floor((startDate.getMinutes() + i) / 60)) % 24
     x_data[i] = new_hr.toString().padStart(2, "0") + ":" + new_min.toString().padStart(2, "0")
 }
-
 
 
 var redctx = document.getElementById('canvasRed')
@@ -118,7 +108,11 @@ var redChart = new Chart(redctx,{
 
     }});
 
-onLoad()
+
+ws = new WebSocket("wss://" + window.location.host + '/data')   
+ws.onopen = onSocketOpen
+ws.onmessage = onSocketMessage
+ws.onclose = onSocketClose
 
 
 function updateChart() {
