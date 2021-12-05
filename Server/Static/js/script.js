@@ -26,7 +26,7 @@ function onSocketMessage(message) {
         return
     }
 
-    if (data["response_type"] == "temperature_data" && data["team_name"] in team_names)
+    if (data.response_type == "temperature_data" && data.team_name in team_names)
     {
         nowDate = new Date()
         nowDate = nowDate.getTime() - nowDate.getSeconds() * 1000
@@ -46,7 +46,7 @@ function onSocketMessage(message) {
             charts[data["team_name"]].data.datasets.forEach((dataset) => {
                 dataset.data[t_index] = data.temperature;
             });
-            charts[data["team_name"]].update();
+            charts[data["team_name"]].update(null);
     }
 
     if (data["response_type"] == "sensor_status")
@@ -163,18 +163,20 @@ ws.onclose = onSocketClose
 function updateChart() {
     var d = new Date();
 
-    for (i = 1; i < chartCapacity; i++) {
-        redChart.data.labels[i-1] = redChart.data.labels[i]
-    }
-    redChart.data.labels[chartCapacity-1] = d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0")
+    team_names.forEach((tm_name) => 
+    {
+        for (i = 1; i < chartCapacity; i++) 
+        charts[tm_name].data.labels[i-1] = charts[tm_name].data.labels[i]
+        
+        charts[tm_name].data.labels[chartCapacity-1] = d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0")
 
-    redChart.data.datasets.forEach((dataset) => {
-        for (i = 1; i < chartCapacity; i++) {
-            dataset.data[i-1] = dataset.data[i]
-        }
-        dataset.data[chartCapacity-1] = null
+        charts[tm_name].data.datasets.forEach((dataset) => {
+            for (i = 1; i < chartCapacity; i++) {
+                dataset.data[i-1] = dataset.data[i]
+            }
+            dataset.data[chartCapacity-1] = null
     });
-        redChart.update(null);
+    charts[tm_name].update(null);});
   }
 
 d = new Date();
