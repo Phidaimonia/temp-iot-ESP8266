@@ -134,16 +134,14 @@ onLoad()
 
 function updateChart() {
     var d = new Date();
-    //console.log("Update chart")
 
-    //redChart.data.labels.push(d.getHours() + ":" + d.getMinutes());
     let len = redChart.data.labels.length;
 
     for (i = 1; i < len; i++) {
         redChart.data.labels[i-1] = redChart.data.labels[i]
     }
     redChart.data.labels[len-1] = d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0")
-    
+    redChart.data.labels[len-1] = null
 
     redChart.data.datasets.forEach((dataset) => {
         let len = dataset.data.length;
@@ -163,9 +161,3 @@ function startUpdateTimer(){
     setInterval(updateChart, 60000);        // kazdou minutu prida novy bod
     updateChart();
 }
-
-    
-
-
-   // onmessage
-   
