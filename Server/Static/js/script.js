@@ -171,7 +171,11 @@ for(i = 0; i < chartCapacity; i++)
 {
     new_min = (startDate.getMinutes() + i) % 60
     new_hr =  (startDate.getHours() + Math.floor((startDate.getMinutes() + i) / 60)) % 24
-    x_data[i] = new_hr.toString().padStart(2, "0") + ":" + new_min.toString().padStart(2, "0")
+
+    lastIntervalEdge = d.getTime() - d.getTime() % timeframe
+    var intervalCenter = new Date(lastIntervalEdge + timeframe / 2)
+
+    x_data[i] = intervalCenter.getHours().toString().padStart(2, "0") + ":" + intervalCenter.getMinutes().toString().padStart(2, "0")
 
 }
 
@@ -241,33 +245,6 @@ function updateChart() {
 
     currentIntervalMax = -999999
     currentIntervalMin = 999999
-
-
-    //minutes_offline = Math.floor(Math.abs(lastSeenDate.getTime() - Date.now()) / 60000)
-
-    //console.log("Shifting chart")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     ///////////////////////////////
     for (i = 1; i < chartCapacity; i++) 
