@@ -13,13 +13,14 @@ function onSocketMessage(message) {
         return
     }
 
-    if ("response_type" in data)
+    if (!("response_type" in data))
     {
+        console.log(data)
         console.log("Bad response from the server")
         return
     }
 
-    console.log(data)
+    //console.log(data)
     //console.log(endDate.toString())  // local
     
     temp = data.temperature;
