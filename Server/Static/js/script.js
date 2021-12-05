@@ -157,9 +157,9 @@ function getUsername() {
 
 //window.addEventListener('load', onLoad, false);
 const team_names = ["red", "black", "green", "blue", "pink"]
-connected_to_server = false
-charts = {}
-timeframe = 0
+var connected_to_server = false
+var charts = {}
+var timeframe = 0
 
 
 function createCharts(chartWidth, tf)
@@ -171,14 +171,10 @@ function createCharts(chartWidth, tf)
     
     visible_chunk = chartCapacity * timeframe
 
-    //team_names.forEach((tm_name) => {  
-    //    if (tm_name != null)                          
-    //    charts[tm_name].destroy()
-    //});
-
     for (const key of Object.keys(charts))
     {
-        charts[key].destroy()
+        if(charts[key] != null)
+            charts[key].destroy()
     }
     charts = {}
 
@@ -190,9 +186,6 @@ function createCharts(chartWidth, tf)
     var x_data = new Array(chartCapacity).fill(null)       // vytvori casovou skalu pro vsechny grafy
     for(i = 0; i < chartCapacity; i++)
     {
-        //new_min = (startDate.getMinutes() + i) % 60
-        //new_hr =  (startDate.getHours() + Math.floor((startDate.getMinutes() + i) / 60)) % 24
-
         intervalStartDate = startDate.getTime() + i * timeframe
         tmpIntervalEdge = intervalStartDate - intervalStartDate % timeframe
         var intervalCenter = new Date(tmpIntervalEdge + timeframe / 2)
