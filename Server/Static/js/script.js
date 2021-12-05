@@ -156,7 +156,7 @@ const team_names = ["red", "black", "green", "blue", "pink"]
 
 
 
-void createCharts(chartWidth, tf)
+function createCharts(chartWidth, tf)
 {
     var chartCapacity = chartWidth  // v bodech
     var timeframe = tf   // interval mezi body v ms
@@ -227,7 +227,7 @@ ws.onmessage = onSocketMessage
 ws.onclose = onSocketClose
 
 
-function updateCharts() {
+function updateChart() {
     var d = new Date();
 
     if(connected_to_server)
