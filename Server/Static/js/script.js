@@ -55,8 +55,9 @@ function onSocketMessage(message) {
         }
    
         nowDate = new Date()
-        if(lastChartUpdateMin != nowDate.getMinutes())
-            updateChart()
+        //if(lastChartUpdateMin != nowDate.getMinutes())
+        
+        updateChart()
 
         nowDate = nowDate.getTime() - nowDate.getSeconds() * 1000
 
@@ -70,6 +71,9 @@ function onSocketMessage(message) {
 
         charts[data.team_name].data.datasets.forEach((dataset) => {
             dataset.data[t_index] = data.temperature;
+            //temperature_avg: 19
+            //temperature_max: 19
+            //temperature_min: 19
         });
         charts[data.team_name].update(null);
     }
