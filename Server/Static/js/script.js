@@ -53,7 +53,7 @@ function onSocketMessage(message) {
         measureDate = new Date(data.created_on)
         measureDate = measureDate.getTime() - measureDate.getSeconds() * 1000  
 
-        diff = Math.floor((nowDate - measureDate) / 60000)  // in mins
+        diff = Math.floor((nowDate - measureDate) / timeframe)  // in mins
         var t_index = chartCapacity - diff - 1
         t_index = Math.min(Math.max(t_index, 0), chartCapacity - 1)
 
@@ -123,6 +123,7 @@ function getUsername() {
 //window.addEventListener('load', onLoad, false);
 
 var chartCapacity = 80  // v minutach
+var timeframe = 60000   // interval mezi body v ms
 var lastChartUpdateMin = 0
 
 
@@ -131,14 +132,16 @@ const team_names = ["red", "black", "green", "blue", "pink"]
 charts = {}
 
 var endDate = new Date();
-var startDate = new Date((Date.now() - chartCapacity * 60 * 1000 ))
+var startDate = new Date(Date.now() - chartCapacity * timeframe )
 
-var x_data = new Array(chartCapacity).fill(null)       // vytvori casovou skalu pro vsechny grafy
+var x_data = new Array(chartCapacity).fill(endDate)       // vytvori casovou skalu pro vsechny grafy
 for(i = 0; i < chartCapacity; i++)
 {
-    new_min = (startDate.getMinutes() + i) % 60
-    new_hr =  (startDate.getHours() + Math.floor((startDate.getMinutes() + i) / 60)) % 24
-    x_data[i] = new_hr.toString().padStart(2, "0") + ":" + new_min.toString().padStart(2, "0")
+    //new_min = (startDate.getMinutes() + i) % 60
+    //new_hr =  (startDate.getHours() + Math.floor((startDate.getMinutes() + i) / 60)) % 24
+    //x_data[i] = new_hr.toString().padStart(2, "0") + ":" + new_min.toString().padStart(2, "0")
+
+    x_data[i] = new Date(endDate.now() + (i-chartCapacity) * timeframe )
 }
 
 team_names.forEach((tm_name) => {                               // vytvori chart objekty
@@ -147,18 +150,20 @@ team_names.forEach((tm_name) => {                               // vytvori chart
     charts[tm_name] = new Chart(canv,{
     type: 'line',
     data: {labels: x_data,
-    datasets: [{label: "Team " + tm_name,
-    data: new Array(chartCapacity).fill(null),
-    backgroundColor: 'transparent',
-    borderColor: tm_name,
-    borderWidth: 4}]
-},
+            datasets: [{label: "Team " + tm_name,
+            data: new Array(chartCapacity).fill(null),
+            backgroundColor: 'transparent',
+            borderColor: tm_name,
+            borderWidth: 4}] },
     options: { 
         responsive: true,
-        elements:{
-            line:{
-            tension: 0.5,
-            }
+        elements:
+        {
+            line:{ ension: 0.5, }, 
+        }, 
+        scales: 
+        {
+            x: { type: 'timeseries', }
         }
 
     }});
@@ -181,7 +186,10 @@ function updateChart() {
     for (i = 1; i < chartCapacity; i++) 
         charts[team_names[0]].data.labels[i-1] = charts[team_names[0]].data.labels[i]
         
-    charts[team_names[0]].data.labels[chartCapacity-1] = d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0")
+    //charts[team_names[0]].data.labels[chartCapacity-1] = d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0")
+    charts[team_names[0]].data.labels[chartCapacity-1] = new Date(charts[team_names[0]].data.labels[chartCapacity-2].getTime() + timeframe)
+    
+
 
     team_names.forEach((tm_name) => 
     {
