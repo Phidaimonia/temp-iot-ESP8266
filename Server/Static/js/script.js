@@ -29,8 +29,6 @@ function onSocketMessage(message) {
         return
     }
 
-    console.log(data)
-
     if (data.response_type == "temperature_data")
     {
         if(!("team_name" in data))
@@ -73,7 +71,7 @@ function onSocketMessage(message) {
         if("last_seen" in data)
         {
             lastSeenDate = new Date(data.lastSeen);
-            document.getElementById(data.team_name + 'Status').innerText = data.lastSeen;
+            document.getElementById(data.team_name + 'Status').innerText = lastSeenDate;
             //document.getElementById('aimtecOnlineElement').style.color = data["status"] ? "green" : "red"
         }
     }
