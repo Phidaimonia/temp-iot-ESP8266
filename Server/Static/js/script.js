@@ -110,7 +110,7 @@ var startDate = new Date((Date.now() - chartCapacity * 60 * 1000 ))
 
 
 var x_data = new Array(chartCapacity).fill(null)
-var y_data = new Array(chartCapacity).fill(null)
+var y_data = new Array(chartCapacity).fill(10)
 
 for(i = 0; i < chartCapacity; i++)
 {
