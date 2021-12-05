@@ -52,7 +52,8 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         self.set_nodelay(True)
         if db_connected:
             if not self.current_user:
-                app_log.error("Not current user...")
+                self.try_send_message("Not logged in, good bye")
+                app_log.error("Not logged in, closing WS")
                 self.close()
                 return
         app_log.debug("WebSocket connection opened")
