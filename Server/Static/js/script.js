@@ -1,7 +1,7 @@
 
 function onSocketOpen() {
     console.log("WS Open");
-    requestData();
+    requestData();  // hned po pripojeni pozada o data
 }
 
 function onSocketMessage(message) {
@@ -26,7 +26,7 @@ function onSocketMessage(message) {
         return
     }
 
-    if (data["response_type"] == "temperature_data")
+    if (data["response_type"] == "temperature_data" && data["team_name"] in team_names)
     {
         nowDate = new Date()
         nowDate = nowDate.getTime() - nowDate.getSeconds() * 1000
@@ -43,12 +43,10 @@ function onSocketMessage(message) {
 
         //console.log("Saving index " + t_index)    
 
-        if(data.team_name=="red") { 
-            redChart.data.datasets.forEach((dataset) => {
+            charts[data["team_name"]].data.datasets.forEach((dataset) => {
                 dataset.data[t_index] = data.temperature;
             });
-            redChart.update();
-        }
+            charts[data["team_name"]].update();
     }
 
     if (data["response_type"] == "sensor_status")
@@ -126,26 +124,35 @@ for(i = 0; i < chartCapacity; i++)
     x_data[i] = new_hr.toString().padStart(2, "0") + ":" + new_min.toString().padStart(2, "0")
 }
 
+team_names = ["red", "black", "green", "blue", "pink"]
+charts = {}
 
-var redctx = document.getElementById('canvasRed')
-var redChart = new Chart(redctx,{
+for (tm_name in team_names)
+{
+    var canv = document.getElementById("canvas_" + tm_name)
+    var chart = new Chart(canv,{
     type: 'line',
     data: {labels: x_data,
-    datasets: [{label: 'Team Red',
+    datasets: [{label: "Team " + tm_name,
     data: y_data,
     backgroundColor: 'transparent',
-    borderColor: 'red',
+    borderColor: tm_name,
     borderWidth: 4}]
 },
     options: {
         responsive: true,
         elements:{
             line:{
-            tension: 0,
+            tension: 0.5,
             }
         }
 
     }});
+
+    charts[tm_name] = chart
+
+
+}
 
 
 ws = new WebSocket("wss://" + window.location.host + '/data')   
