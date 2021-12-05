@@ -124,14 +124,11 @@ nav{
         .text-box h1{
           font-size: 16px;
        }
-       .logout a{
-        display: block;
-        }
-        .logout{
+         .closed{
           position: absolute;
           background: #f44336;
-          height: 100vh;
-          width: 180px;
+          height: fit-content;
+          width: 100px;
           top: 0;
           right: -300px;
           text-align: left;
@@ -146,7 +143,7 @@ nav{
             font-size: 16px;
             cursor: pointer;
           }
-          .logout{
+          .closed{
             padding: 30px;
       
           }
