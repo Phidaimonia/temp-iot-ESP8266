@@ -196,7 +196,8 @@ def on_message_MQTT(client, userdata, msg):
         if db_connected:
             app_log.debug(database.write_message(msg_str))                # save to db
 
-        sensor_status[data["team_name"]] = time.gmtime()          # last online = now
+        sensor_status[data["team_name"]] = pytz.utc.localize(time.gmtime()).isoformat()          # last online = now
+        app_log.debug(sensor_status[data["team_name"]])
         app.send_ws_message(final_msg)                            # push to frontend
 
         if not test_mode:
