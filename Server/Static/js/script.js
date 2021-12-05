@@ -70,7 +70,7 @@ function onSocketMessage(message) {
     {
         if("last_seen" in data)
         {
-            console.log(data.lastSeen)
+            console.log(data)
             lastSeenDate = new Date(data.lastSeen);
             document.getElementById(data.team_name + 'Status').innerText = lastSeenDate;
             //document.getElementById(data.team_name + 'Status').style.color = data["status"] ? "green" : "red"
