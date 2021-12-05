@@ -53,33 +53,34 @@ function onSocketMessage(message) {
             console.log(team_names)
             return
         }
-   
-        nowDate = new Date()
-        //if(lastChartUpdateMin != nowDate.getMinutes())
         
-        updateChart()
+        if("temperature_min" in data)  // data contains max and min temperatures -> from DB
+        {
+            nowDate = new Date()
+            
+            updateChart()
 
-        nowDate = nowDate.getTime() - nowDate.getTime() % timeframe
+            nowDate = nowDate.getTime() - nowDate.getTime() % timeframe
 
 
-        measureDate = new Date(data.created_on)
-        measureDate = measureDate.getTime() - measureDate.getTime() % timeframe  
+            measureDate = new Date(data.created_on)
+            measureDate = measureDate.getTime() - measureDate.getTime() % timeframe  
 
-        diff = Math.floor((nowDate - measureDate) / timeframe)  // in mins
-        var t_index = chartCapacity - diff - 1
-        t_index = Math.min(Math.max(t_index, 0), chartCapacity - 1)
+            diff = Math.floor((nowDate - measureDate) / timeframe)  // in mins
+            var t_index = chartCapacity - diff - 1
+            t_index = Math.min(Math.max(t_index, 0), chartCapacity - 1)
 
-        //charts[data.team_name].data.datasets.forEach((dataset) => {
-            //dataset.data[t_index] = data.temperature;
-            //temperature_min: 19
-            //temperature_max: 19
-            //temperature_avg: 19
+            //charts[data.team_name].data.datasets.forEach((dataset) => {
+                //dataset.data[t_index] = data.temperature;
+            //});
 
-        //});
-
-        charts[data.team_name].data.datasets[0].data[t_index] = data.temperature_min
-        charts[data.team_name].data.datasets[1].data[t_index] = data.temperature_max
-        charts[data.team_name].update(null);
+            charts[data.team_name].data.datasets[0].data[t_index] = data.temperature_min
+            charts[data.team_name].data.datasets[1].data[t_index] = data.temperature_max
+            charts[data.team_name].update(null);
+        } else
+        {
+            // real time temperature
+        }
     }
 
     if (data["response_type"] == "sensor_status")
