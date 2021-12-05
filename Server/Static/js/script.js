@@ -20,35 +20,49 @@ function onSocketMessage(message) {
         return
     }
 
-    //console.log(data)
-    //console.log(endDate.toString())  // local
+    if (data["response_type"] == "temperature_data")
+    {
+        nowDate = new Date()
+        nowDate = nowDate.getTime() - nowDate.getSeconds() * 1000
+        measureDate = new Date(data.created_on);
     
-    temp = data.temperature;
-    team = data.team_name; 
-
-    nowDate = new Date()
-    nowDate = nowDate.getTime() - nowDate.getSeconds() * 1000
-    measureDate = new Date(data.created_on);
- 
-    measureDate = measureDate.getTime() - measureDate.getSeconds() * 1000
+        measureDate = measureDate.getTime() - measureDate.getSeconds() * 1000
 
 
-    diff = Math.floor((nowDate - measureDate) / 60000)  // in mins
-    //console.log("Diff " + diff)
+        diff = Math.floor((nowDate - measureDate) / 60000)  // in mins
+        //console.log("Diff " + diff)
 
-    var t_index = chartCapacity - diff - 1
-    t_index = Math.min(Math.max(t_index, 0), chartCapacity - 1)
+        var t_index = chartCapacity - diff - 1
+        t_index = Math.min(Math.max(t_index, 0), chartCapacity - 1)
 
-    //console.log("Saving index " + t_index)
+        //console.log("Saving index " + t_index)    
 
-    
-
-    if(team=="red") { 
-        redChart.data.datasets.forEach((dataset) => {
-            dataset.data[t_index] = temp;
-        });
-        redChart.update();
+        if(data.team_name=="red") { 
+            redChart.data.datasets.forEach((dataset) => {
+                dataset.data[t_index] = data.temperature;
+            });
+            redChart.update();
+        }
     }
+
+    if (data["response_type"] == "sensor_status")
+    {
+        if("team_name" in data && "last_seen" in data)
+        {
+            //
+        }
+    }
+
+    if (data["response_type"] == "aimtec_status")
+    {
+        if("status" in data)
+            document.getElementById('aimtecOnlineElement').innerText = data["status"]   // nastavi text, mozna predelej na barvu
+    }
+
+    if (data["response_type"] == "get_username")
+        if("username" in data)
+            document.getElementById('usernameElement').innerText = data["username"]     // Neprihlaseenej -> Guest
+
  
 }
 
