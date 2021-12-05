@@ -119,7 +119,7 @@ function requestData() {
         "request_type": "temperature_data",
         "dt_from": startDate.toISOString().slice(0, 19) + ".000000",  // in UTC
         "dt_to": endDate.toISOString().slice(0, 19) + ".000000", 
-        "interval": 1
+        "interval": Math.max(1, Math.floor(timeframe / 60000))
     }
     ws.send(JSON.stringify(params))
 }
@@ -150,7 +150,7 @@ function getUsername() {
 //window.addEventListener('load', onLoad, false);
 
 var chartCapacity = 80  // v bodech
-var timeframe = 60000   // interval mezi body v ms
+var timeframe = 600000   // interval mezi body v ms
 var lastIntervalEdge = null;
 
 var currentIntervalMax = 999999
