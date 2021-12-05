@@ -127,8 +127,7 @@ for(i = 0; i < chartCapacity; i++)
 team_names = ["red", "black", "green", "blue", "pink"]
 charts = {}
 
-for (tm_name in team_names)
-{
+team_names.forEach((tm_name) => {
     var canv = document.getElementById("canvas_" + tm_name)
     console.log(tm_name + " canv: " + canv)
     var chart = new Chart(canv,{
@@ -152,9 +151,7 @@ for (tm_name in team_names)
 
     charts[tm_name] = chart
     console.log(chart)
-
-
-}
+});
 
 
 ws = new WebSocket("wss://" + window.location.host + '/data')   
