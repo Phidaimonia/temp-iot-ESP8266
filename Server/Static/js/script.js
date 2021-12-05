@@ -135,21 +135,17 @@ onLoad()
 function updateChart() {
     var d = new Date();
 
-    let len = redChart.data.labels.length;
-
-    for (i = 1; i < len; i++) {
+    for (i = 1; i < chartCapacity; i++) {
         redChart.data.labels[i-1] = redChart.data.labels[i]
     }
-    redChart.data.labels[len-1] = d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0")
-    redChart.data.labels[len-1] = null
+    redChart.data.labels[chartCapacity-1] = d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0")
+    redChart.data.labels[chartCapacity-1] = null
 
     redChart.data.datasets.forEach((dataset) => {
-        let len = dataset.data.length;
-        for (i = 1; i < len; i++) {
+        for (i = 1; i < chartCapacity; i++) {
             dataset.data[i-1] = dataset.data[i]
         }
-        dataset.data[len-1] = null
-        //dataset.data.push(null);
+        dataset.data[chartCapacity-1] = null
     });
         redChart.update(null);
   }
