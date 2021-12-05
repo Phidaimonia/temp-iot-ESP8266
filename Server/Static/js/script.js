@@ -1,10 +1,16 @@
 
 function onSocketOpen() {
     console.log("WS Open");
+    connected_to_server = true;
     requestData();  // hned po pripojeni pozada o data
     requestAimtecStatus();
     requestSensorStatus();
     getUsername();
+}
+
+function onSocketClose() {
+    console.log("WS Close");
+    connected_to_server = false;
 }
 
 function onSocketMessage(message) {
@@ -72,10 +78,10 @@ function onSocketMessage(message) {
         {
             console.log(data)
             lastSeenDate = new Date(data.last_seen);
-            minutes_offline = Math.abs(lastSeenDate.getTime() - Date.now()) / 60000
+            minutes_offline = Math.floor(Math.abs(lastSeenDate.getTime() - Date.now()) / 60000)
             
-            document.getElementById(data.team_name + 'Status').innerText = minutes_offline < 5 ? "Online" : "Last seen " + minutes_offline + " minutes ago"
-            document.getElementById(data.team_name + 'Status').style.color = minutes_offline < 5 ? "green" : "red"
+            document.getElementById(data.team_name + 'Status').innerText = minutes_offline <= 5 ? "Online" : "Last seen " + minutes_offline + " minutes ago"
+            document.getElementById(data.team_name + 'Status').style.color = minutes_offline <= 5 ? "green" : "red"
         }
     }
 
@@ -95,9 +101,6 @@ function onSocketMessage(message) {
  
 }
 
-function onSocketClose() {
-    console.log("WS Close")
-}
 
 function requestData() {
     var params = {
@@ -137,6 +140,7 @@ var chartCapacity = 80  // v minutach
 var timeframe = 60000   // interval mezi body v ms
 var lastChartUpdateMin = 0
 
+var connected_to_server = false
 
 
 const team_names = ["red", "black", "green", "blue", "pink"]
@@ -187,6 +191,12 @@ ws.onclose = onSocketClose
 
 function updateChart() {
     var d = new Date();
+
+    if(connected_to_server)
+    {
+        requestAimtecStatus();
+        requestSensorStatus();
+    }
 
     if(lastChartUpdateMin == d.getMinutes())
         return
