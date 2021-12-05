@@ -38,7 +38,7 @@ function onSocketMessage(message) {
         if(!(data.team_name in team_names))
         {
             console.log("Team: " + data.team_name + " is not on the team list")
-            console.log(data)
+            console.log(team_names)
             return
         }
 
@@ -131,6 +131,7 @@ charts = {}
 var endDate = new Date();
 var startDate = new Date((Date.now() - chartCapacity * 60 * 1000 ))
 
+console.log(team_names)
 
 team_names.forEach((tm_name) => {
     var canv = document.getElementById("canvas_" + tm_name)
@@ -167,6 +168,7 @@ team_names.forEach((tm_name) => {
     console.log(charts[tm_name])
 });
 
+console.log(team_names)
 
 ws = new WebSocket("wss://" + window.location.host + '/data')   
 ws.onopen = onSocketOpen
