@@ -147,6 +147,44 @@ class DB:
             break
         return None
 
+    def read_min_max_messages(self, dt_from, dt_to, teams, interval):
+        SELECT = """SELECT S.team, time_bucket(%(interval)s, D.time) AT TIME ZONE 'UTC' AS okno,
+                min(D.temperature), max(D.temperature), avg(temperature)
+                FROM sensor_data D LEFT JOIN sensors S ON D.sensor_id = S.id
+                WHERE S.team = %(team)s AND D.time >= %(from)s AND D.time <= %(to)s
+                GROUP BY okno, S.team
+                ORDER BY okno;"""
+
+        dts = (dt_from, dt_to)
+
+        for dt in dts: # naive dt to UTC
+            if dt.tzinfo is None or dt.tzinfo.utcoffset(dt) is None:
+                dt = pytz.utc.localize(dt)
+
+        result = []
+
+        for team in teams:
+                
+            data = {"from": dt_from, "to": dt_to, "team": team, "interval": interval}
+
+            for i in range(3): #tries to reconnect 2 times
+                try:
+                    self.cursor.execute(SELECT, data)
+                    self.conn.commit()
+                    self.log("D: Successfully retrieved data")
+                    measurements = self.cursor.fetchall()
+                    result.extend([{'team_name': team, 'created_on': created_on.isoformat(), 'temperature_min': minimum, 'temperature_max': maximum, 'temperature_avg': average} for team, created_on, minimum, maximum, average in measurements])
+                except psycopg2.OperationalError as err:
+                    self.log("E: Problem with reading from the DB, might have had lost the connection to the DB. \n   Trying to reconnect. Attempts left:" + str(2-i))
+                    self.__connect()
+                    time.sleep(5)
+                    continue
+                except psycopg2.ProgrammingError as err:
+                    self.log(str(err))
+                    self.log(self.cursor.query)
+                break
+        return result
+
     def read_messages(self, dt_from, dt_to, teams):
         """
         Fetches measurements in between dt_from and dt_to by teams in teams from the DB and returns them.
@@ -193,16 +231,17 @@ class DB:
         return None
 
 if __name__ == '__main__':
-    #db = DB()
+    db = DB()
     # for d in range(1, 15):
     #    for h in range (24):
     #        message = json.dumps({'team_name': 'pink', 'created_on': '2020-03-{0:02d}T{1:02d}:26:05.336974'.format(d, h), 'temperature': 25.72})
     #        db.write_message(message)
 
-    #data = db.read_messages(pytz.utc.localize(datetime.datetime(2020, 3, 10)), pytz.utc.localize(datetime.datetime(2020, 3, 12)), ['red', 'pink'])
-    #for m in data:
-    #    print(m)
+    data = db.read_min_max_messages(pytz.utc.localize(datetime.datetime(2021, 12, 5, 15)), pytz.utc.localize(datetime.datetime(2021, 12, 5, 16)), ['red', 'pink'], datetime.timedelta(minutes=10))
+    for m in data:
+        print(m)
+        print("")
 
-    t = "2021-12-2T23:7:3.397000"
-    print(t)
-    print(aimtecTimeFormat(t))
+    #t = "2021-12-2T23:7:3.397000"
+    #print(t)
+    #print(aimtecTimeFormat(t))
