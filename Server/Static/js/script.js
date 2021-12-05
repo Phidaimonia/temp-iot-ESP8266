@@ -167,6 +167,7 @@ team_names.forEach((tm_name) => {                               // vytvori chart
                 time: 
                 {
                     unit: 'minute',
+                    minUnit: 'minute',
                     displayFormats: {
                         day:  'MMM DD',
                         hour: 'DD hh', 
