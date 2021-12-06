@@ -17,15 +17,39 @@ import json
 import paho.mqtt.client as mqtt
 import random
 import logging, tornado.log
+from threading import Timer
 
 
 
 test_mode = False
-aimtec_connected = False
-db_connected = False
 
-from threading import Timer
+
 from recognize_handler import RecognizeImageHandler
+
+def superviseConnection():
+    print("Timer tick")
+
+    if(not db_connected):
+        try:
+            database = DB()
+            if database is not None:
+                if database.connected == True:
+                    db_connected = True
+                    
+        except Exception as err:
+            app_log.error("Database reconnection error: {}".format(err))
+
+    if(not aimtec_connected):
+        try:
+            aimtec = api.Api(cfg["aimtec"]["user"], cfg["aimtec"]["passwd"])
+            if aimtec is not None:
+                if aimtec.connected:
+                    aimtec_connected = True
+        except Exception as err:
+            app_log.error("Aimtec reconnection error: {}".format(err))
+
+    Timer(cfg["reconnect_timeout"], superviseConnection).start()
+
 
 
 class UserHandler(tornado.web.RequestHandler):
@@ -281,32 +305,6 @@ class WebApp(TornadoApplication):
 
 
 
-def superviseConnection():
-    print("Timer tick")
-
-    if(not db_connected):
-        try:
-            database = DB()
-            if database is not None:
-                if database.connected == True:
-                    db_connected = True
-                    
-        except Exception as err:
-            app_log.error("Database reconnection error: {}".format(err))
-
-    if(not aimtec_connected):
-        try:
-            aimtec = api.Api(cfg["aimtec"]["user"], cfg["aimtec"]["passwd"])
-            if aimtec is not None:
-                if aimtec.connected:
-                    aimtec_connected = True
-        except Exception as err:
-            app_log.error("Aimtec reconnection error: {}".format(err))
-
-    Timer(cfg["reconnect_timeout"], superviseConnection).start()
-
-
-
 if __name__ == '__main__':
     
     config = open("config.json", "r")   # load parameters
@@ -392,7 +390,7 @@ if __name__ == '__main__':
         ssl_options = None
 
     #Timer(cfg["reconnect_timeout"], superviseConnection).start()   # start reconnection timer
-    superviseConnection()
+    #superviseConnection()
 
     http_server = tornado.httpserver.HTTPServer(app, ssl_options=ssl_options)    # ssl_options=ssl_options
     if test_mode == True:
