@@ -53,6 +53,7 @@ class DB:
 
     def __del__(self):
         try:
+            self.connected = False
             self.cursor.close()
             self.conn.close()
         except:
@@ -127,10 +128,12 @@ class DB:
                 return 1
             except psycopg2.OperationalError as err:
                 self.log("E: Lost connection to DB. Trying to reconnect. Attempts left:" + str(2-i))
+                self.connected = False
                 self.__connect()
                 time.sleep(5)
                 continue
             except psycopg2.IntegrityError as err:
+                self.connected = False
                 self.log("E: Unable to save the meassage: {0}.".format(msg))
                 self.log("   " + str(err))
                 break
@@ -161,6 +164,7 @@ class DB:
                 return User(user_id, username, role)
             except psycopg2.OperationalError as err:
                 self.log("E: Problem with reading from the DB, might have had lost the connection to the DB. \n   Trying to reconnect. Attempts left:" + str(2-i))
+                self.connected = False
                 self.__connect()
                 time.sleep(5)
                 continue
@@ -204,10 +208,12 @@ class DB:
                     result.extend([{'team_name': team, 'created_on': created_on.isoformat(), 'temperature_min': minimum, 'temperature_max': maximum, 'temperature_avg': average} for team, created_on, minimum, maximum, average in measurements])
                 except psycopg2.OperationalError as err:
                     self.log("E: Problem with reading from the DB, might have had lost the connection to the DB. \n   Trying to reconnect. Attempts left:" + str(2-i))
+                    self.connected = False
                     self.__connect()
                     time.sleep(5)
                     continue
                 except psycopg2.ProgrammingError as err:
+                    self.connected = False
                     self.log(str(err))
                     self.log(self.cursor.query)
                 break
@@ -260,6 +266,7 @@ class DB:
                 return [{'team_name': team, 'created_on': created_on.isoformat(), 'temperature': temp} for team, created_on, temp in measurements]
             except psycopg2.OperationalError as err:
                 self.log("E: Problem with reading from the DB, might have had lost the connection to the DB. \n   Trying to reconnect. Attempts left:" + str(2-i))
+                self.connected = False
                 self.__connect()
                 time.sleep(5)
                 continue
