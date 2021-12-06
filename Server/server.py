@@ -363,8 +363,6 @@ if __name__ == '__main__':
     else:
         app_log.debug("Connected to DB")
 
-    Timer(cfg["reconnect_timeout"], superviseConnection).start()   # start reconnection timer
-
 
     client = mqtt.Client(mqtt_client_id)
     client.username_pw_set(cfg["mqtt"]["user"], cfg["mqtt"]["passwd"])
@@ -390,6 +388,9 @@ if __name__ == '__main__':
     }
     if test_mode:
         ssl_options = None
+
+    #Timer(cfg["reconnect_timeout"], superviseConnection).start()   # start reconnection timer
+    superviseConnection()
 
     http_server = tornado.httpserver.HTTPServer(app, ssl_options=ssl_options)    # ssl_options=ssl_options
     if test_mode == True:
