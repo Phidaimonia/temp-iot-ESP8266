@@ -22,34 +22,11 @@ from threading import Timer
 
 
 test_mode = False
+aimtec_connected = False
+db_connected = False
 
 
 from recognize_handler import RecognizeImageHandler
-
-def superviseConnection():
-    print("Timer tick")
-
-    if(not db_connected):
-        try:
-            database = DB()
-            if database is not None:
-                if database.connected == True:
-                    db_connected = True
-                    
-        except Exception as err:
-            app_log.error("Database reconnection error: {}".format(err))
-
-    if(not aimtec_connected):
-        try:
-            aimtec = api.Api(cfg["aimtec"]["user"], cfg["aimtec"]["passwd"])
-            if aimtec is not None:
-                if aimtec.connected:
-                    aimtec_connected = True
-        except Exception as err:
-            app_log.error("Aimtec reconnection error: {}".format(err))
-
-    Timer(cfg["reconnect_timeout"], superviseConnection).start()
-
 
 
 class UserHandler(tornado.web.RequestHandler):
@@ -302,6 +279,32 @@ class WebApp(TornadoApplication):
                     app_log.error(str(err))
 
 
+
+
+
+def superviseConnection():
+    print("Timer tick")
+
+    if(not db_connected):
+        try:
+            database = DB()
+            if database is not None:
+                if database.connected == True:
+                    db_connected = True
+                    
+        except Exception as err:
+            app_log.error("Database reconnection error: {}".format(err))
+
+    if(not aimtec_connected):
+        try:
+            aimtec = api.Api(cfg["aimtec"]["user"], cfg["aimtec"]["passwd"])
+            if aimtec is not None:
+                if aimtec.connected:
+                    aimtec_connected = True
+        except Exception as err:
+            app_log.error("Aimtec reconnection error: {}".format(err))
+
+    Timer(cfg["reconnect_timeout"], superviseConnection).start()
 
 
 
