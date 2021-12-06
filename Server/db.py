@@ -61,10 +61,12 @@ class DB:
             self.log("D: Closed connection with the database.")
 
     def __connect(self):
-        try:
+        try:    
             self.conn = psycopg2.connect(self.cfg["CONNECTION"])
         except psycopg2.OperationalError as err:
             self.log("E: Unable to connect to the database.")
+            self.connected = False
+            self.cursor = None
             return
         self.log("D: Successfully connected to the database.")
         self.cursor = self.conn.cursor()
@@ -86,6 +88,16 @@ class DB:
         """
         INSERT = """INSERT INTO sensor_data (time, sensor_id, temperature) VALUES
                                     (%s, (SELECT id from sensors WHERE team=%s), %s);"""
+
+        for trial in range(3):
+            if not self.connected:
+                self.__connect()
+                time.sleep(5)
+        
+        if not self.connected:
+            return 0
+
+
         try:
             measurement = json.loads(msg)
  
@@ -130,6 +142,14 @@ class DB:
                         users as u
                         WHERE u.id = %s OR u.username = %s"""
 
+        for trial in range(3):
+            if not self.connected:
+                self.__connect()
+                time.sleep(5)
+        
+        if not self.connected:
+            return 0
+
         for i in range(3): #tries to reconnect 2 times
             try:
                 self.cursor.execute(SELECT, [user_id, username])
@@ -154,6 +174,14 @@ class DB:
                 WHERE S.team = %(team)s AND D.time >= %(from)s AND D.time <= %(to)s
                 GROUP BY okno, S.team
                 ORDER BY okno;"""
+
+        for trial in range(3):
+            if not self.connected:
+                self.__connect()
+                time.sleep(5)
+        
+        if not self.connected:
+            return 0
 
         dts = (dt_from, dt_to)
 
@@ -208,6 +236,14 @@ class DB:
                     WHERE S.team IN %(teams)s AND D.time >= %(from)s AND D.time <= %(to)s
                     ORDER BY D.time;"""
         dts = (dt_from, dt_to)
+
+        for trial in range(3):
+            if not self.connected:
+                self.__connect()
+                time.sleep(5)
+        
+        if not self.connected:
+            return 0
 
         for dt in dts: # naive dt to UTC
             if dt.tzinfo is None or dt.tzinfo.utcoffset(dt) is None:

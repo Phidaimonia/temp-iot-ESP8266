@@ -17,9 +17,6 @@ import json
 import paho.mqtt.client as mqtt
 import random
 import logging, tornado.log
-from threading import Timer
-
-
 
 test_mode = False
 
@@ -27,37 +24,10 @@ test_mode = False
 from recognize_handler import RecognizeImageHandler
 
 
-
-def superviseConnection():
-    print("Timer tick")
-    
-    if(not db_connected):
-        try:
-            database = DB()
-            if database is not None:
-                if database.connected == True:
-                    db_connected = True
-                    
-        except Exception as err:
-            app_log.error("Database reconnection error: {}".format(err))
-
-    if(not aimtec_connected):
-        try:
-            aimtec = api.Api(cfg["aimtec"]["user"], cfg["aimtec"]["passwd"])
-            if aimtec is not None:
-                if aimtec.connected:
-                    aimtec_connected = True
-        except Exception as err:
-            app_log.error("Aimtec reconnection error: {}".format(err))
-
-    Timer(cfg["reconnect_timeout"], superviseConnection).start()
-
-
-
 class UserHandler(tornado.web.RequestHandler):
     def get_current_user(self):
         user_id = self.get_secure_cookie("session")
-        if user_id is None or not db_connected: return None
+        if user_id is None: return None  # or not db_connected: return None
 
         return database.getUser(int(user_id.decode("utf-8")))
 
@@ -74,7 +44,7 @@ class RootHandler(tornado.web.RequestHandler):
 class WSHandler(tornado.websocket.WebSocketHandler):
     def get_current_user(self):
         user_id = self.get_secure_cookie("session")
-        if user_id is None or not db_connected: return None
+        if user_id is None: return None  # or not db_connected: return None
 
         return database.getUser(int(user_id.decode("utf-8")))
 
@@ -84,12 +54,12 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
     def open(self):
         self.set_nodelay(True)
-        if db_connected:
-            if not self.current_user:
-                self.try_send_message("Not logged in, good bye")
-                app_log.error("Not logged in, closing WS")
-                self.close()
-                return
+        #if db_connected:
+        if not self.current_user:
+            self.try_send_message("Not logged in, good bye")
+            app_log.error("Not logged in, closing WS")
+            self.close()
+            return
         app_log.debug("WebSocket connection opened")
 
     def try_send_message(self, content):
@@ -119,28 +89,28 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             
 
         if requestData["request_type"] == "temperature_data":                           # get temperatures from->to
-            if db_connected:
-                if ("dt_from" in requestData) and ("dt_to" in requestData) and ("interval" in requestData):
+            if ("dt_from" in requestData) and ("dt_to" in requestData) and ("interval" in requestData):
                 
-                    try:
-                        dt_from = pytz.utc.localize(dt.datetime.fromisoformat(requestData["dt_from"]))              # all time operations in UTC
-                        dt_to = pytz.utc.localize(dt.datetime.fromisoformat(requestData["dt_to"]))
-                    except Exception as err:
-                        app_log.error("Bad time format " + message)
-                        app_log.error(str(err))
-                        self.try_send_message({"error" : "Bad request"})
-                        return
-
-                    data = database.read_min_max_messages(dt_from, dt_to, team_list, dt.timedelta(minutes=requestData["interval"]))        # returns json
-                    for measurement in data:
-                        measurement["created_on"] = pytz.utc.localize(db.fuzzy_ISO_to_datetime(measurement["created_on"])).isoformat()
-                        measurement["response_type"] = "temperature_data"
-                        self.try_send_message(measurement)
-                else:
-                    app_log.error("Bad request parameters " + message)
-                    self.try_send_message({"error" : "Bad request parameters"})
+                try:
+                    dt_from = pytz.utc.localize(dt.datetime.fromisoformat(requestData["dt_from"]))              # all time operations in UTC
+                    dt_to = pytz.utc.localize(dt.datetime.fromisoformat(requestData["dt_to"]))
+                except Exception as err:
+                    app_log.error("Bad time format " + message)
+                    app_log.error(str(err))
+                    self.try_send_message({"error" : "Bad request"})
                     return
+
+                data = database.read_min_max_messages(dt_from, dt_to, team_list, dt.timedelta(minutes=requestData["interval"]))        # returns json
+                for measurement in data:
+                    measurement["created_on"] = pytz.utc.localize(db.fuzzy_ISO_to_datetime(measurement["created_on"])).isoformat()
+                    measurement["response_type"] = "temperature_data"
+                    self.try_send_message(measurement)
             else:
+                app_log.error("Bad request parameters " + message)
+                self.try_send_message({"error" : "Bad request parameters"})
+                return
+
+            if db_connected:
                 self.try_send_message({"error" : "DB not connected"})
 
 
@@ -224,8 +194,8 @@ def on_message_MQTT(client, userdata, msg):
         final_msg = json.dumps(data)
         
         #print("Final datapoint: " + final_msg)
-        if db_connected:
-            app_log.debug(database.write_message(msg_str))                # save to db
+        #if db_connected:
+        app_log.debug(database.write_message(msg_str))                # save to db
 
         sensor_status[data["team_name"]] = pytz.utc.localize(dt.datetime.utcnow()).isoformat()         # last online = now
          
@@ -391,8 +361,6 @@ if __name__ == '__main__':
     if test_mode:
         ssl_options = None
 
-    #Timer(cfg["reconnect_timeout"], superviseConnection).start()   # start reconnection timer
-    #superviseConnection()
 
     http_server = tornado.httpserver.HTTPServer(app, ssl_options=ssl_options)    # ssl_options=ssl_options
     if test_mode == True:
@@ -404,8 +372,6 @@ if __name__ == '__main__':
     iol = IOLoop.current()
     print('Webserver: Initialized...')
     iol.start()
-
-    print("After loop")
 
 
 
