@@ -17,6 +17,7 @@ import json
 import paho.mqtt.client as mqtt
 import random
 import logging, tornado.log
+from threading import Timer
 
 
 
@@ -24,6 +25,32 @@ test_mode = False
 
 
 from recognize_handler import RecognizeImageHandler
+
+def superviseConnection():
+    print("Timer tick")
+
+    if(not db_connected):
+        try:
+            database = DB()
+            if database is not None:
+                if database.connected == True:
+                    db_connected = True
+                    
+        except Exception as err:
+            app_log.error("Database reconnection error: {}".format(err))
+
+    if(not aimtec_connected):
+        try:
+            aimtec = api.Api(cfg["aimtec"]["user"], cfg["aimtec"]["passwd"])
+            if aimtec is not None:
+                if aimtec.connected:
+                    aimtec_connected = True
+        except Exception as err:
+            app_log.error("Aimtec reconnection error: {}".format(err))
+
+    Timer(cfg["reconnect_timeout"], superviseConnection).start()
+
+
 
 class UserHandler(tornado.web.RequestHandler):
     def get_current_user(self):
@@ -335,6 +362,8 @@ if __name__ == '__main__':
         app_log.error("Can't connect to DB, continuing...")
     else:
         app_log.debug("Connected to DB")
+
+    Timer(cfg["reconnect_timeout"], superviseConnection).start()   # start reconnection timer
 
 
     client = mqtt.Client(mqtt_client_id)
