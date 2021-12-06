@@ -26,9 +26,11 @@ test_mode = False
 
 from recognize_handler import RecognizeImageHandler
 
+
+
 def superviseConnection():
     print("Timer tick")
-
+    
     if(not db_connected):
         try:
             database = DB()
@@ -402,6 +404,8 @@ if __name__ == '__main__':
     iol = IOLoop.current()
     print('Webserver: Initialized...')
     iol.start()
+
+    print("After loop")
 
 
 
