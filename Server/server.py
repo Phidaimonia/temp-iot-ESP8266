@@ -150,6 +150,11 @@ class StaticUserHandler(UserHandler, tornado.web.StaticFileHandler):
     def prepare(self):
         pass
 
+class LoginHandler(UserHandler, tornado.web.StaticFileHandler):
+    def prepare(self):
+        if self.current_user():
+            self.redirect("https://sulis48.zcu.cz/indexChart.html")
+
 def on_connect_MQTT(client, userdata, flags, rc):
     app_log.debug("Connected with result code "+str(rc))
 
@@ -245,11 +250,12 @@ class WebApp(TornadoApplication):
         self.database = database
 
         self.tornado_handlers = [
-            (r'/(index\.html)?', RootHandler),
+            (r'/', RootHandler),
+            (r'/index\.html', RootHandler),
             (r'/CSS/(.*)', tornado.web.StaticFileHandler, {'path': './Static/CSS'}),
             (r'/js/(.*)', tornado.web.StaticFileHandler, {'path': './Static/js'}),
             (r'/images/(.*)', tornado.web.StaticFileHandler, {'path': './Static/images'}),
-            (r'/login/(.*)', tornado.web.StaticFileHandler, {'path': './login'}),
+            (r'/login/(.*)', LoginHandler, {'path': './login'}),
             (r'/(indexContact\.html)', tornado.web.StaticFileHandler, {'path': './Static'}),
             (r'/logout', LogoutHandler),
             (r"/receive_image", ReceiveImageHandler),
