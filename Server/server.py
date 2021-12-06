@@ -110,8 +110,8 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 self.try_send_message({"error" : "Bad request parameters"})
                 return
 
-            if db_connected:
-                self.try_send_message({"error" : "DB not connected"})
+            #if db_connected:
+            #    self.try_send_message({"error" : "DB not connected"})
 
 
         elif requestData["request_type"] == "sensor_status":                            # last online time

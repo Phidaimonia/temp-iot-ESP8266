@@ -258,25 +258,14 @@ ws.onclose = onSocketClose
 function updateChart() {
     var d = new Date();
 
-    if(connected_to_server)
-    {
-        //requestAimtecStatus();
-        //requestSensorStatus();
-    }
-
-    ///////////////////////////////
-
-
-
-
-
-
-
-
-
-
     if(d.getTime() < lastIntervalEdge + timeframe)
         return
+
+    if(connected_to_server)
+    {
+        requestAimtecStatus();
+        requestSensorStatus();
+    }
 
     lastIntervalEdge = d.getTime() - d.getTime() % timeframe
 
