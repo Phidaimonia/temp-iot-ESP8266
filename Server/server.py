@@ -17,7 +17,6 @@ import json
 import paho.mqtt.client as mqtt
 import random
 import logging, tornado.log
-from threading import Timer
 
 
 
@@ -25,7 +24,7 @@ test_mode = False
 aimtec_connected = False
 db_connected = False
 
-
+from threading import Timer
 from recognize_handler import RecognizeImageHandler
 
 
