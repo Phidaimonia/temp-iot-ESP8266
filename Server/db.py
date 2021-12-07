@@ -78,10 +78,9 @@ class DB:
         INSERT = """INSERT INTO sensor_data (time, sensor_id, temperature) VALUES
                                     (%s, (SELECT id from sensors WHERE team=%s), %s);"""
 
-        for trial in range(3):
-            if not self.connected:
-                self.__connect()
-                time.sleep(5)
+        if not self.connected:
+            self.__connect()
+            #time.sleep(5)
         
         if not self.connected:
             return 0
@@ -133,10 +132,9 @@ class DB:
                         users as u
                         WHERE u.id = %s OR u.username = %s"""
 
-        for trial in range(3):
-            if not self.connected:
-                self.__connect()
-                time.sleep(5)
+        if not self.connected:
+            self.__connect()
+            #time.sleep(5)
         
         if not self.connected:
             return 0
@@ -167,10 +165,9 @@ class DB:
                 GROUP BY okno, S.team
                 ORDER BY okno;"""
 
-        for trial in range(3):
-            if not self.connected:
-                self.__connect()
-                time.sleep(5)
+        if not self.connected:
+            self.__connect()
+            #time.sleep(5)
         
         if not self.connected:
             return 0
@@ -231,10 +228,9 @@ class DB:
                     ORDER BY D.time;"""
         dts = (dt_from, dt_to)
 
-        for trial in range(3):
-            if not self.connected:
-                self.__connect()
-                time.sleep(5)
+        if not self.connected:
+            self.__connect()
+            #time.sleep(5)
         
         if not self.connected:
             return 0
