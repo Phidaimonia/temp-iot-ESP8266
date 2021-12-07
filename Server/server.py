@@ -132,8 +132,9 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         elif requestData["request_type"] == "get_username":                            
             usr = self.get_current_user()
             if usr is None:
-                usr = "Guest"
-            response = {"response_type":"get_username", "username":usr.username}              
+                response = {"response_type":"get_username", "username":"Guest"} 
+            else: 
+                response = {"response_type":"get_username", "username":usr.username}              
             self.try_send_message(json.dumps(response))
   
         else:
