@@ -3,21 +3,9 @@ import json
 import datetime
 import time
 import pytz
+import utils
 
 from user import User
-
-
-def fuzzy_ISO_to_datetime(weakISO):
-    t = None
-    try:
-        t = datetime.datetime.fromisoformat(weakISO)
-    except Exception:
-        pass
-
-    if t is None:
-        t = datetime.datetime.strptime(weakISO, "%Y-%m-%dT%H:%M:%S.%f")
-
-    return t
 
 
 class DB:
@@ -102,7 +90,7 @@ class DB:
         try:
             measurement = json.loads(msg)
  
-            measurement_time = pytz.utc.localize(fuzzy_ISO_to_datetime(measurement["created_on"])) # expecting UTC time
+            measurement_time = utils.fuzzy_ISO_to_datetime(measurement["created_on"], localize=True) # expecting UTC time
             team = measurement["team_name"]
             temperature = measurement["temperature"]
             data = (measurement_time, team, temperature)
@@ -273,7 +261,7 @@ class DB:
             break
         return None
 
-if __name__ == '__main__':
+if __name__ == '__main__':       # tests
     db = DB()
     # for d in range(1, 15):
     #    for h in range (24):
@@ -287,4 +275,3 @@ if __name__ == '__main__':
 
     #t = "2021-12-2T23:7:3.397000"
     #print(t)
-    #print(aimtecTimeFormat(t))
