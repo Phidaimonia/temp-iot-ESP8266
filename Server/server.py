@@ -275,7 +275,7 @@ class WebApp(TornadoApplication):
             "debug": True,
             "autoreload": True,
             "cookie_secret": cookie_secret,
-            "login_url": "https://sulis48.zcu.cz/login/faceid.html"
+            "login_url": "/login/faceid.html"
         }
         TornadoApplication.__init__(self, self.tornado_handlers, **self.tornado_settings)
 
