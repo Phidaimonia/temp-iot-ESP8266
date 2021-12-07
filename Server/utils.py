@@ -27,7 +27,7 @@ def fix_isoformat(weakISO, localize=True):                                    # 
 
 
 def aimtec_isoformat(tm):                                
-    return fuzzy_ISO_to_datetime(tm, localize=True).isoformat(timespec='milliseconds')
+    return fuzzy_ISO_to_datetime(tm).isoformat(timespec='milliseconds')
             
             
             
