@@ -18,7 +18,7 @@ import paho.mqtt.client as mqtt
 import random
 import logging, tornado.log
 
-test_mode = False
+test_mode = False  # disables SSL
 
 
 from recognize_handler import RecognizeImageHandler
@@ -155,22 +155,25 @@ class LoginHandler(UserHandler, tornado.web.StaticFileHandler):
         if self.current_user:
             self.redirect("https://sulis48.zcu.cz/indexChart.html")
 
+
 def on_connect_MQTT(client, userdata, flags, rc):
     app_log.debug("Connected with result code "+str(rc))
-
     client.subscribe(cfg["mqtt"]["room_name"] + "/" + cfg["mqtt"]["listen_topic"])
 
 
 def on_message_MQTT(client, userdata, msg):
     msg_str = msg.payload.decode('utf-8')
-
-    app_log.debug(msg.topic+" "+msg_str)
+    app_log.debug("MQTT: " + msg.topic + " " + msg_str)
     
     try:
         data = json.loads(msg_str)
     except:
-        app_log.debug("E: Error when parsing message")
+        app_log.error("E: Error when parsing message")
         return
+
+    if not len(data) == 3: 
+         app_log.debug("E: Error when parsing message")
+         return
 
     if ("team_name" in data) and ("created_on" in data) and ("temperature" in data):                    # valid json
         if not data["team_name"] == msg.topic.replace(mqtt_room_name + "/", ""):                        # topic == team
@@ -182,9 +185,11 @@ def on_message_MQTT(client, userdata, msg):
             return
 
         try:
-            temp = float(data["temperature"])                                                           # temperature is float
+            data["team_name"]   = str(data["team_name"]) 
+            data["created_on"] = str(data["created_on"])
+            data["temperature"] = float(data["temperature"])                                                          # temperature should be float
         except Exception as err:   
-            app_log.error("E: Can't parse temperature {}".format(data["temperature"]))
+            app_log.error("E: Error when parsing message")
             app_log.error(str(err))
             return
 

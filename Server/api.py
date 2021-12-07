@@ -8,21 +8,17 @@ from openapi_client.model.sensors import Sensors
 import json, datetime
 
 
-def fuzzy_ISO_to_datetime(weakISO):
+
+def fixISO(tm):                                    # "13:5:9"  ->  "13:05:09"
     t = None
     try:
-        t = datetime.datetime.fromisoformat(weakISO)
+        t = datetime.datetime.fromisoformat(tm)
     except Exception:
         pass
 
     if t is None:
-        t = datetime.datetime.strptime(weakISO, "%Y-%m-%dT%H:%M:%S.%f")
+        t = datetime.datetime.strptime(tm, "%Y-%m-%dT%H:%M:%S.%f")
 
-    return t
-
-
-def fixISO(tm):
-    t = fuzzy_ISO_to_datetime(tm)
     return "%04d-%02d-%02dT%02d:%02d:%09.6f" % (t.year, t.month, t.day, t.hour, t.minute, t.second)
 
 
