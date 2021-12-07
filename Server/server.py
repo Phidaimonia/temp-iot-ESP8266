@@ -157,7 +157,7 @@ class StaticUserHandler(UserHandler, tornado.web.StaticFileHandler):
 class LoginHandler(UserHandler, tornado.web.StaticFileHandler):
     def prepare(self):
         if self.current_user:
-            self.redirect("https://sulis48.zcu.cz/indexChart.html")
+            self.redirect("/indexChart.html")
 
 
 def on_connect_MQTT(client, userdata, flags, rc):
