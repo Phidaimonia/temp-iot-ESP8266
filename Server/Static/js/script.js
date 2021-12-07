@@ -61,13 +61,13 @@ function onSocketMessage(message) {
             updateChart()
             
 
-            nowDate = nowDate.getTime() - nowDate.getTime() % timeframe
+            nowDate = nowDate.getTime() - nowDate.getTime() % (timeframe * 60000)
 
 
             measureDate = new Date(data.created_on)
-            measureDate = measureDate.getTime() - measureDate.getTime() % timeframe  
+            measureDate = measureDate.getTime() - measureDate.getTime() % (timeframe * 60000)
 
-            diff = Math.floor((nowDate - measureDate) / timeframe)  // in mins
+            diff = Math.floor((nowDate - measureDate) / (timeframe * 60000))  // in mins
             var t_index = chartCapacity - diff - 1
             t_index = Math.min(Math.max(t_index, 0), chartCapacity - 1)
 
@@ -127,41 +127,36 @@ function requestData() {
         "request_type": "temperature_data",
         "dt_from": startDate.toISOString().slice(0, 19) + ".000000",  // in UTC
         "dt_to": endDate.toISOString().slice(0, 19) + ".000000", 
-        "interval": Math.max(1, Math.floor(timeframe / 60000))
+        "interval": Math.max(1, timeframe)
     }
     ws.send(JSON.stringify(params))
 }
 
 function requestSensorStatus() {
-    var params = {
-        "request_type": "sensor_status"
-    }
+    var params = { "request_type": "sensor_status"  }
     ws.send(JSON.stringify(params))
 }
 
 function requestAimtecStatus() {
-    var params = {
-        "request_type": "aimtec_status"
-    }
+    var params = { "request_type": "aimtec_status" }
     ws.send(JSON.stringify(params))
 }
 
 function getUsername() {
-    var params = {
-        "request_type": "get_username"
-    }
+    var params = { "request_type": "get_username" }
     ws.send(JSON.stringify(params))
 }
 
 function getShortDate(t)
 {
     res = ""
-    if (timeframe >= 3600000)
-        res = t.getDay().toString().padStart(2, "0") + "-"
-    if (timeframe <= 86400000)
+    if (timeframe >= 60)                                                  // 1h a delsi
+        res = t.getDate().toString().padStart(2, "0") + "-"
+    if (timeframe <= 1440)                                                // den a kratsi
         res = res + t.getHours().toString().padStart(2, "0")
-    if (timeframe < 3600000)
+    if (timeframe < 60)                                                   // kratsi nez 1h
         res = res + ":" + t.getMinutes().toString().padStart(2, "0")
+    else res = res + ":00"
         
     return res
 
@@ -178,12 +173,13 @@ timeframe = 0
 
 function createCharts(chartWidth, tf)
 {
-    if(timeframe == tf)
+    if(timeframe == tf)   // timeframe se nezmenil
         return
+
     chartCapacity = chartWidth  // v bodech
     timeframe = tf   // interval mezi body v ms
     
-    visible_chunk = chartCapacity * timeframe
+    visible_chunk = chartCapacity * timeframe * 60000   
 
     if(charts != null)
         for (const key of Object.keys(charts))
@@ -194,24 +190,21 @@ function createCharts(chartWidth, tf)
 
     lastIntervalEdge = null;
 
-    startDate = new Date(Date.now() - visible_chunk )
+    startDate = new Date(Date.now() - visible_chunk )      
     endDate = new Date();
 
     var x_data = new Array(chartCapacity).fill(null)       // vytvori casovou skalu pro vsechny grafy
     for(i = 0; i < chartCapacity; i++)
     {
-        //new_min = (startDate.getMinutes() + i) % 60
-        //new_hr =  (startDate.getHours() + Math.floor((startDate.getMinutes() + i) / 60)) % 24
+        intervalStartDate = startDate.getTime() + i * timeframe * 60000
+        tmpIntervalEdge = intervalStartDate - intervalStartDate % (timeframe * 60000)
+        var intervalCenter = new Date(tmpIntervalEdge + timeframe * 60000 / 2)
 
-        intervalStartDate = startDate.getTime() + i * timeframe
-        tmpIntervalEdge = intervalStartDate - intervalStartDate % timeframe
-        var intervalCenter = new Date(tmpIntervalEdge + timeframe / 2)
-
-        x_data[i] = getShortDate(intervalCenter)
+        x_data[i] = getShortDate(intervalCenter)      // bereme stred intervalu jako label 
                                         
     }
 
-    team_names.forEach((tm_name) => {                               // vytvori chart objekty
+    team_names.forEach((tm_name) => {                               // vytvori chart objekty pro kazdy tym
         var canv = document.getElementById("canvas_" + tm_name)
 
         charts[tm_name] = new Chart(canv,{
@@ -242,7 +235,7 @@ function createCharts(chartWidth, tf)
         }});
     });
     if(connected_to_server)
-        requestData()
+        requestData()               //  startDate  az  endDate           
 }
 
 
@@ -258,7 +251,7 @@ ws.onclose = onSocketClose
 function updateChart() {
     var d = new Date();
 
-    if(d.getTime() < lastIntervalEdge + timeframe)
+    if(d.getTime() < lastIntervalEdge + timeframe * 60000)          // update az po uplynuti jednoho ticku
         return
 
     if(connected_to_server)
@@ -267,15 +260,15 @@ function updateChart() {
         requestSensorStatus();
     }
 
-    lastIntervalEdge = d.getTime() - d.getTime() % timeframe
+    lastIntervalEdge = d.getTime() - d.getTime() % (timeframe * 60000)
 
-    var intervalCenter = new Date(lastIntervalEdge + timeframe / 2)
+    var intervalCenter = new Date(lastIntervalEdge + timeframe * 60000 / 2)
 
     ///////////////////////////////
     for (i = 1; i < chartCapacity; i++) 
-        charts[team_names[0]].data.labels[i-1] = charts[team_names[0]].data.labels[i]
+        charts[team_names[0]].data.labels[i-1] = charts[team_names[0]].data.labels[i]       // posuneme labels doleva
         
-    charts[team_names[0]].data.labels[chartCapacity-1] = getShortDate(intervalCenter)
+    charts[team_names[0]].data.labels[chartCapacity-1] = getShortDate(intervalCenter)       // pridame novy interval
 
     team_names.forEach((tm_name) => 
     {
@@ -283,7 +276,7 @@ function updateChart() {
             for (i = 1; i < chartCapacity; i++) {
                 dataset.data[i-1] = dataset.data[i]
             }
-            dataset.data[chartCapacity-1] = null
+            dataset.data[chartCapacity-1] = null                                            // posuneme i data
     });
     charts[tm_name].update(null);});
   }
@@ -294,6 +287,6 @@ setTimeout(startUpdateTimer, (60 - d.getSeconds()) * 1000);  // time to until ne
 function startUpdateTimer(){
     d = new Date();
     lastChartUpdateMin = d.getMinutes()
-    setInterval(updateChart, Math.max(1, 60 - d.getSeconds() - 1) * 1000);        // kazdou minutu prida novy bod
+    setInterval(updateChart, Math.max(1, 60 - d.getSeconds() - 1) * 1000);        // na zacatku kazdy minuty prida novy bod
     updateChart();
 }
