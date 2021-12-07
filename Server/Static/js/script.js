@@ -29,8 +29,6 @@ function onSocketMessage(message) {
         return
     }
 
-    //console.log(data)
-
     if ("error" in data)
     {
         console.log("Error: " + data.error)
@@ -45,7 +43,6 @@ function onSocketMessage(message) {
             console.log(data)
             return
         }
-        
 
         if(!team_names.find(item => { return item === data.team_name } ))
         {
@@ -55,14 +52,11 @@ function onSocketMessage(message) {
         }
         
         if("temperature_min" in data)  // data contains max and min temperatures -> from DB
-        {
-            nowDate = new Date()
-            
+        {            
             updateChart()
             
-
+            nowDate = new Date()
             nowDate = nowDate.getTime() - nowDate.getTime() % (timeframe * 60000)
-
 
             measureDate = new Date(data.created_on)
             measureDate = measureDate.getTime() - measureDate.getTime() % (timeframe * 60000)
@@ -71,11 +65,7 @@ function onSocketMessage(message) {
             var t_index = chartCapacity - diff - 1
             t_index = Math.min(Math.max(t_index, 0), chartCapacity - 1)
 
-            //charts[data.team_name].data.datasets.forEach((dataset) => {
-                //dataset.data[t_index] = data.temperature;
-            //});
-
-            charts[data.team_name].data.datasets[0].data[t_index] = data.temperature_min
+            charts[data.team_name].data.datasets[0].data[t_index] = data.temperature_min 
             charts[data.team_name].data.datasets[1].data[t_index] = data.temperature_max
             charts[data.team_name].update(null);
         } else
@@ -97,10 +87,15 @@ function onSocketMessage(message) {
             lastSeenDate = new Date(data.last_seen);
             minutes_offline = Math.floor(Math.abs(lastSeenDate.getTime() - Date.now()) / 60000)
             
-            document.getElementById(data.team_name + 'Status').innerText = minutes_offline <= 5 ? "Online" : "Last seen " + minutes_offline + " minutes ago"
-            document.getElementById(data.team_name + 'Status').style.color = minutes_offline <= 5 ? "green" : "red"
-            if (data.last_seen == null)
-                document.getElementById(data.team_name + 'Status').innerText = "Offline"
+            el = document.getElementById(data.team_name + 'Status')
+            if(el != null)
+            {
+                el.innerText = minutes_offline <= 5 ? "Online" : "Last seen " + minutes_offline + " minutes ago"
+                el.style.color = minutes_offline <= 5 ? "green" : "red"
+                if (data.last_seen == null)
+                    el.innerText = "Offline"
+            }
+            
             
         }
     }
@@ -109,8 +104,12 @@ function onSocketMessage(message) {
     {
         if("status" in data)
         {
-            document.getElementById('aimtecOnlineElement').innerText = data["status"] ? "Online" : "Offline"   // nastavi text, mozna predelej na barvu
-            document.getElementById('aimtecOnlineElement').style.color = data["status"] ? "green" : "red"
+            el = document.getElementById('aimtecOnlineElement')
+            if(el != null)
+            {
+                el.innerText = data["status"] ? "Online" : "Offline"   // nastavi text, mozna predelej na barvu
+                el.style.color = data["status"] ? "green" : "red"
+            }
         }
     }
 
