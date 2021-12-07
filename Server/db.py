@@ -90,7 +90,7 @@ class DB:
         try:
             measurement = json.loads(msg)
  
-            measurement_time = utils.fuzzy_ISO_to_datetime(measurement["created_on"], localize=True) # expecting UTC time
+            measurement_time = utils.fuzzy_ISO_to_datetime(measurement["created_on"]) # expecting UTC time
             team = measurement["team_name"]
             temperature = measurement["temperature"]
             data = (measurement_time, team, temperature)

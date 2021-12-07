@@ -21,7 +21,7 @@ import logging, tornado.log
 
 import utils
 
-test_mode = False  # disables SSL
+test_mode = False  # disable SSL
 
 
 from recognize_handler import RecognizeImageHandler
@@ -95,8 +95,8 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             if ("dt_from" in requestData) and ("dt_to" in requestData) and ("interval" in requestData):
                 
                 try:
-                    dt_from = utils.fuzzy_ISO_to_datetime(requestData["dt_from"], localize=True)              # all time operations in UTC
-                    dt_to = utils.fuzzy_ISO_to_datetime(requestData["dt_to"], localize=True)
+                    dt_from = utils.fuzzy_ISO_to_datetime(requestData["dt_from"])              # all time operations in naive UTC
+                    dt_to = utils.fuzzy_ISO_to_datetime(requestData["dt_to"])
                 except Exception as err:
                     app_log.error("Bad time format " + message)
                     app_log.error(str(err))
@@ -105,7 +105,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
                 data = database.read_min_max_messages(dt_from, dt_to, team_list, dt.timedelta(minutes=requestData["interval"]))        # returns json
                 for measurement in data:
-                    measurement["created_on"] = utils.fix_isoformat(measurement["created_on"], localize=True)
+                    measurement["created_on"] = utils.fix_isoformat(measurement["created_on"])
                     measurement["response_type"] = "temperature_data"
                     self.try_send_message(measurement)
             else:
@@ -197,7 +197,7 @@ def on_message_MQTT(client, userdata, msg):
             return
 
         try:
-            data["created_on"] = utils.fix_isoformat(data["created_on"], localize=True)     # correct isoformat
+            data["created_on"] = utils.fix_isoformat(data["created_on"])     # correct isoformat
         except Exception as err:   # ValueError
             app_log.error("E: Can't parse time {}".format(data["created_on"]))
             app_log.error(str(err))

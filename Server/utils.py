@@ -4,7 +4,7 @@ import pytz
 
 
 
-def fuzzy_ISO_to_datetime(weakISO, localize=False):
+def fuzzy_ISO_to_datetime(weakISO, localize=True):
     t = None
     try:
         t = datetime.datetime.fromisoformat(weakISO)            # try normal isoformat
@@ -21,7 +21,7 @@ def fuzzy_ISO_to_datetime(weakISO, localize=False):
 
 
 
-def fix_isoformat(weakISO, localize=False):                                    # "13:5:9"  ->  "13:05:09"
+def fix_isoformat(weakISO, localize=True):                                    # "13:5:9"  ->  "13:05:09"
     return fuzzy_ISO_to_datetime(weakISO, localize).isoformat()
 
 
