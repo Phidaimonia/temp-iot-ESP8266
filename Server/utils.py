@@ -21,16 +21,21 @@ def fuzzy_ISO_to_datetime(weakISO, localize=False):
 
 
 
-def fix_isoformat(weakISO, localize=False):
+def fix_isoformat(weakISO, localize=False):                                    # "13:5:9"  ->  "13:05:09"
     return fuzzy_ISO_to_datetime(weakISO, localize).isoformat()
 
+
+
+def aimtec_isoformat(tm):                                
+    return fuzzy_ISO_to_datetime(tm, localize=True).isoformat(timespec='milliseconds')
             
             
             
             
 
 if __name__ == '__main__':
-    print("")
-    #t = "2021-12-2T23:7:3.397000"
-    #print(t)
-    #print(aimtecTimeFormat(t))
+
+    t = "2021-12-2T23:7:3.397000"
+    print(t)
+
+    print(aimtec_isoformat(t))

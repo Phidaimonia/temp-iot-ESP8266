@@ -5,21 +5,12 @@ from openapi_client.model.alert import Alert
 from openapi_client.model.login import Login
 from openapi_client.model.measurement import Measurement
 from openapi_client.model.sensors import Sensors
-import json, datetime
+import json
+from datetime import datetime, timezone
+import utils
 
 
 
-def fixISO(tm):                                    # "13:5:9"  ->  "13:05:09"
-    t = None
-    try:
-        t = datetime.datetime.fromisoformat(tm)
-    except Exception:
-        pass
-
-    if t is None:
-        t = datetime.datetime.strptime(tm, "%Y-%m-%dT%H:%M:%S.%f")
-
-    return "%04d-%02d-%02dT%02d:%02d:%09.6f" % (t.year, t.month, t.day, t.hour, t.minute, t.second)
 
 
 class Api:
@@ -70,10 +61,10 @@ class Api:
         try:
             measurement_dict = json.loads(msg)
 
-            measurement_dict["created_on"] = fixISO(measurement_dict["created_on"])
+            measurement_dict["created_on"] = utils.aimtec_isoformat(measurement_dict["created_on"])
 
             measurement = Measurement(
-            created_on = measurement_dict["created_on"][0:-3]+"+00:00", # expecting UTC time
+            created_on = measurement_dict["created_on"],            # expecting UTC time
             sensor_uuid = self.sensor.sensor_uuid,
             temperature = measurement_dict["temperature"],
             status = "OK")
@@ -103,9 +94,9 @@ class Api:
         if msg is not None:
             try:
                 measurement_dict = json.loads(msg)
-                measurement_dict["created_on"] = fixISO(measurement_dict["created_on"])
+                measurement_dict["created_on"] = utils.aimtec_isoformat(measurement_dict["created_on"])
 
-                created_on = measurement_dict["created_on"][0:-3]+"+00:00" # expecting UTC time
+                created_on = measurement_dict["created_on"]          # expecting UTC time
                 temperature = measurement_dict["temperature"]
 
             except json.JSONDecodeError as err:
@@ -118,7 +109,7 @@ class Api:
                 return 0
 
         if created_on is None:
-            created_on = datetime.datetime.now(datetime.timezone.utc).isoformat(timespec='milliseconds')
+            created_on = datetime.now(timezone.utc).isoformat(timespec='milliseconds')
             
         if temperature is not None:
             alert = Alert(created_on, sensor_uuid, temperature, high_temperature, low_temperature)
