@@ -82,11 +82,15 @@
         <script>
             //otvira a zavira menu
             var logout = document.getElementById("closed");
+            var statbox = document.getElementById("status-box")
             function showMenu(){
                 logout.style.right ="0";
+                statbox.style.zIndex ="2";
+
             }
             function hideMenu(){
                 logout.style.right ="-300px";
+                statbox.style.zIndex ="-1";
             }
         </script>
     </body>
