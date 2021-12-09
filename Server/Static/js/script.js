@@ -172,6 +172,7 @@ timeframe = 0
 
 function createCharts(chartWidth, tf)
 {
+    try {
     if(timeframe == tf)   // timeframe se nezmenil
         return
 
@@ -201,6 +202,11 @@ function createCharts(chartWidth, tf)
 
         x_data[i] = getShortDate(intervalCenter)      // bereme stred intervalu jako label 
                                         
+    }}
+    catch(error)
+    {
+        console.error("ERR: " + error);
+        return
     }
 
     try {
@@ -235,7 +241,7 @@ function createCharts(chartWidth, tf)
         }});
     });}
     catch (error) {
-        console.error(error);
+        console.error("ERR: " + error);
         return
     }
 
