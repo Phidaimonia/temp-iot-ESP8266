@@ -172,7 +172,6 @@ timeframe = 0
 
 function createCharts(chartWidth, tf)
 {
-    try {
     if(timeframe == tf)   // timeframe se nezmenil
         return
 
@@ -202,15 +201,9 @@ function createCharts(chartWidth, tf)
 
         x_data[i] = getShortDate(intervalCenter)      // bereme stred intervalu jako label 
                                         
-    }}
-    catch(error)
-    {
-        console.error("ERR: " + error);
-        return
     }
 
-    try {
-        team_names.forEach((tm_name) => {                               // vytvori chart objekty pro kazdy tym
+    team_names.forEach((tm_name) => {                               // vytvori chart objekty pro kazdy tym
         var canv = document.getElementById("canvas_" + tm_name)
 
         charts[tm_name] = new Chart(canv,{
@@ -231,7 +224,7 @@ function createCharts(chartWidth, tf)
             responsive: true,
             elements:
             {
-                line:{ tension: 1.0, }, 
+                line:{ tension: 0.2, }, 
             }, 
             scales: 
             {
@@ -239,13 +232,7 @@ function createCharts(chartWidth, tf)
             }
 
         }});
-    });}
-    catch (error) {
-        console.error("ERR: " + error);
-        return
-    }
-
-
+    });
     if(connected_to_server)
         requestData()               //  startDate  az  endDate           
 }
