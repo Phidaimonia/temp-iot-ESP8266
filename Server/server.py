@@ -283,7 +283,7 @@ class WebApp(TornadoApplication):
     def send_ws_message(self, message):
             for client in self.ws_clients:
                 try:
-                    iol.spawn_callback(client.write_message, message)
+                    iol.spawn_callback(client.try_send_message, message)
                 except Exception as err:
                     self.ws_clients.remove(client)
                     app_log.error("E: Can't send WS message")
