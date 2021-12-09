@@ -76,7 +76,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
 
     async def on_message(self, message):
-        app_log.debug(u"You said: " + message)
+        app_log.debug(u"Frontend: " + message)
         
         try:
             requestData = json.loads(message)           # process requests from frontend
@@ -172,11 +172,11 @@ def on_message_MQTT(client, userdata, msg):
     try:
         data = json.loads(msg_str)
     except:
-        app_log.error("E: Error when parsing message")
+        app_log.error("E: Error when parsing message - JSON error")
         return
 
     if not len(data) == 3: 
-         app_log.debug("E: Error when parsing message")
+         app_log.debug("E: Error when parsing message - wrong length")
          return
 
     if ("team_name" in data) and ("created_on" in data) and ("temperature" in data):                    # valid json
@@ -193,7 +193,7 @@ def on_message_MQTT(client, userdata, msg):
             data["created_on"] = str(data["created_on"])
             data["temperature"] = float(data["temperature"])                                                          # temperature should be float
         except Exception as err:   
-            app_log.error("E: Error when parsing message")
+            app_log.error("E: Error when parsing values")
             app_log.error(str(err))
             return
 
@@ -204,15 +204,18 @@ def on_message_MQTT(client, userdata, msg):
             app_log.error(str(err))
             return
 
+        ### Push to frontend
         data["response_type"] = "temperature_data"
         final_msg = json.dumps(data)
         
         #print("Final datapoint: " + final_msg)
-        #if db_connected:
-        app_log.debug(database.write_message(msg_str))                # save to db
+
+        if database.write_message(msg_str):
+            app_log.debug("Saved to DB")               
+        else:
+            app_log.debug("Not saved to DB")
 
         sensor_status[data["team_name"]] = dt.datetime.now(timezone.utc).isoformat()        # last online = now
-         
          
         app.send_ws_message(final_msg)                            # push to frontend
 
