@@ -61,7 +61,7 @@ class DB:
         self.cursor = self.conn.cursor()
         self.connected = True
 
-    async def write_message(self, msg):
+    def write_message(self, msg):
         """
         Saves the measurement in the msg to the database
 
