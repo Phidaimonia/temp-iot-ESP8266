@@ -224,7 +224,7 @@ function createCharts(chartWidth, tf)
             responsive: true,
             elements:
             {
-                line:{ tension: 0.2, }, 
+                line:{ tension: 0.5, }, 
             }, 
             scales: 
             {
