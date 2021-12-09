@@ -148,13 +148,13 @@ nav{
           }
           .closed{
             padding: 30px;
+            border: 5px;
       
           }
           .status-box{
             right: -300;
             transition: 1s;
             background-color: rgb(47, 45, 45);
-            border: 0;
             }
       }
 

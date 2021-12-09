@@ -12,7 +12,7 @@
 
     <body>
         <nav class="logout" id="logout" style="position: fixed;">
-            <div class="closed" id="closed" style="right:-300px">
+            <div class="closed" id="closed"style="right:-300px; border: 5px solid rgb(0, 0, 0);">
             <i class="fa fa-times" onclick="hideMenu()"></i>
             <a href="https://sulis48.zcu.cz/logout">Log out</a>
             </div>
@@ -84,13 +84,18 @@
             var logout = document.getElementById("closed");
             var statbox = document.getElementById("status-box")
             function showMenu(){
-                logout.style.right ="0";
-                statbox.style.right ="150px";
+                statbox.style.right ="unset";
+                statbox.style.left ="0";
+                logout.style.right = "0"
+                
 
             }
             function hideMenu(){
+                
                 logout.style.right ="-300px";
-                statbox.style.right ="-300px";
+                //statbox.style.right ="-300px";
+                //statbox.style.left = "unset"
+                statbox.style.left = "-300px";
             }
         </script>
     </body>
