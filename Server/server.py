@@ -7,7 +7,7 @@ from tornado.ioloop import IOLoop
 from tornado.web import Application as TornadoApplication
 import tornado.template as T
 
-import api, db
+import api
 from db import DB
 
 from urllib.request import urlopen
