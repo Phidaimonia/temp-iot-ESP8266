@@ -82,7 +82,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             requestData = json.loads(message)           # process requests from frontend
         except:
             app_log.error("Bad request " + message)
-            self.try_send_message({"error" : "Bad request"})
+            self.try_send_message({"error" : "Bad request " + message})
             return
 
         if "request_type" not in requestData:
@@ -100,7 +100,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 except Exception as err:
                     app_log.error("Bad time format " + message)
                     app_log.error(str(err))
-                    self.try_send_message({"error" : "Bad request"})
+                    self.try_send_message({"error" : "Bad request " + message})
                     return
 
                 data = database.read_min_max_messages(dt_from, dt_to, team_list, dt.timedelta(minutes=requestData["interval"]))        # returns json
@@ -110,7 +110,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                     self.try_send_message(measurement)
             else:
                 app_log.error("Bad request parameters " + message)
-                self.try_send_message({"error" : "Bad request parameters"})
+                self.try_send_message({"error" : "Bad request parameters " + message})
                 return
 
             #if db_connected:
