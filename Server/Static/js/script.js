@@ -203,7 +203,8 @@ function createCharts(chartWidth, tf)
                                         
     }
 
-    team_names.forEach((tm_name) => {                               // vytvori chart objekty pro kazdy tym
+    try {
+        team_names.forEach((tm_name) => {                               // vytvori chart objekty pro kazdy tym
         var canv = document.getElementById("canvas_" + tm_name)
 
         charts[tm_name] = new Chart(canv,{
@@ -232,7 +233,13 @@ function createCharts(chartWidth, tf)
             }
 
         }});
-    });
+    });}
+    catch (error) {
+        console.error(error);
+        return
+    }
+
+
     if(connected_to_server)
         requestData()               //  startDate  az  endDate           
 }
