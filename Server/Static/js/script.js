@@ -238,7 +238,7 @@ function createCharts(chartWidth, tf)
 }
 
 
-createCharts(80, 120000)
+createCharts(80, 2)
 
 
 ws = new WebSocket("wss://" + window.location.host + '/data')   
