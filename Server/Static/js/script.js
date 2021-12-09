@@ -124,7 +124,7 @@ function onSocketMessage(message) {
 function requestData() {
     var params = {
         "request_type": "temperature_data",
-        "dt_from": startDate.toISOString().slice(0, 19) + ".000000",  // in UTC
+        "dt_from": startDate.toISOString().slice(0, 19) + ".000000",  // zulu to UTC
         "dt_to": endDate.toISOString().slice(0, 19) + ".000000", 
         "interval": Math.max(1, timeframe)
     }
@@ -213,12 +213,12 @@ function createCharts(chartWidth, tf)
                     {label: "Min temp",
                 data: new Array(chartCapacity).fill(null),
                 backgroundColor: 'transparent',
-                borderColor: 'white',
+                borderColor: 'blue',
                 borderWidth: 4}, 
                     {label: "Max temp",
                 data: new Array(chartCapacity).fill(null),
                 backgroundColor: 'transparent',
-                borderColor: 'pink',
+                borderColor: 'red',
                 borderWidth: 4}] },
         options: { 
             responsive: true,
@@ -238,7 +238,7 @@ function createCharts(chartWidth, tf)
 }
 
 
-createCharts(80, 120000)
+createCharts(80, 2)
 
 
 ws = new WebSocket("wss://" + window.location.host + '/data')   

@@ -7,7 +7,7 @@ from tornado.ioloop import IOLoop
 from tornado.web import Application as TornadoApplication
 import tornado.template as T
 
-import api, db
+import api
 from db import DB
 
 from urllib.request import urlopen
@@ -40,7 +40,7 @@ class LogoutHandler(tornado.web.RequestHandler):
         self.render("Static/index.html")
 
 class RootHandler(tornado.web.RequestHandler):
-    async def get(self):
+    def get(self):
         self.render("Static/index.html")
 
 
@@ -57,7 +57,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
     def open(self):
         self.set_nodelay(True)
-        #if db_connected:
+
         if not self.current_user:
             self.try_send_message("Not logged in, good bye")
             app_log.error("Not logged in, closing WS")
@@ -71,18 +71,19 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         except Exception as err:
             app_log.error("E: WS error: Can't send data")
             app_log.error(str(err))
-            app.ws_clients.remove(self)
+            if self in self.application.ws_clients:
+                self.application.ws_clients.remove(self)
             self.close()
 
 
     async def on_message(self, message):
-        app_log.debug(u"You said: " + message)
+        app_log.debug(u"Frontend: " + message)
         
         try:
             requestData = json.loads(message)           # process requests from frontend
         except:
             app_log.error("Bad request " + message)
-            self.try_send_message({"error" : "Bad request"})
+            self.try_send_message({"error" : "Bad request " + message})
             return
 
         if "request_type" not in requestData:
@@ -100,7 +101,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 except Exception as err:
                     app_log.error("Bad time format " + message)
                     app_log.error(str(err))
-                    self.try_send_message({"error" : "Bad request"})
+                    self.try_send_message({"error" : "Bad request " + message})
                     return
 
                 data = database.read_min_max_messages(dt_from, dt_to, team_list, dt.timedelta(minutes=requestData["interval"]))        # returns json
@@ -110,7 +111,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                     self.try_send_message(measurement)
             else:
                 app_log.error("Bad request parameters " + message)
-                self.try_send_message({"error" : "Bad request parameters"})
+                self.try_send_message({"error" : "Bad request parameters " + message})
                 return
 
             #if db_connected:
@@ -120,7 +121,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         elif requestData["request_type"] == "sensor_status":                            # last online time
             for t_team in team_list:
                 response = {"response_type":"sensor_status", "team_name":t_team, "last_seen":sensor_status[t_team]}
-                app_log.debug(response)
+                #app_log.debug("" + response)
         
                 self.try_send_message(json.dumps(response))
 
@@ -143,7 +144,8 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             return
 
     def on_close(self):
-        self.application.ws_clients.remove(self)
+        if self in self.application.ws_clients:
+            self.application.ws_clients.remove(self)
         app_log.debug("WebSocket closed")
 
 
@@ -172,11 +174,11 @@ def on_message_MQTT(client, userdata, msg):
     try:
         data = json.loads(msg_str)
     except:
-        app_log.error("E: Error when parsing message")
+        app_log.error("E: Error when parsing message - JSON error")
         return
 
     if not len(data) == 3: 
-         app_log.debug("E: Error when parsing message")
+         app_log.debug("E: Error when parsing message - wrong length")
          return
 
     if ("team_name" in data) and ("created_on" in data) and ("temperature" in data):                    # valid json
@@ -193,7 +195,7 @@ def on_message_MQTT(client, userdata, msg):
             data["created_on"] = str(data["created_on"])
             data["temperature"] = float(data["temperature"])                                                          # temperature should be float
         except Exception as err:   
-            app_log.error("E: Error when parsing message")
+            app_log.error("E: Error when parsing values")
             app_log.error(str(err))
             return
 
@@ -204,15 +206,18 @@ def on_message_MQTT(client, userdata, msg):
             app_log.error(str(err))
             return
 
+        ### Push to frontend
         data["response_type"] = "temperature_data"
         final_msg = json.dumps(data)
         
         #print("Final datapoint: " + final_msg)
-        #if db_connected:
-        app_log.debug(database.write_message(msg_str))                # save to db
+
+        if database.write_message(msg_str):
+            app_log.debug("Saved to DB")               
+        else:
+            app_log.debug("Not saved to DB")
 
         sensor_status[data["team_name"]] = dt.datetime.now(timezone.utc).isoformat()        # last online = now
-         
          
         app.send_ws_message(final_msg)                            # push to frontend
 

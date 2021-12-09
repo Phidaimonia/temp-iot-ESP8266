@@ -12,7 +12,7 @@
 
     <body>
         <nav class="logout" id="logout" style="position: fixed;">
-            <div class="closed" id="closed" style="right:-300px">
+            <div class="closed" id="closed">
             <i class="fa fa-times" onclick="hideMenu()"></i>
             <a href="https://sulis48.zcu.cz/logout">Log out</a>
             </div>
@@ -20,16 +20,16 @@
         </nav>
         
         <section class="wholehead">
-            <nav id="status-box" style="position: fixed; right: 0px; top: 0; z-index: 2; border: 5px solid rgb(0, 0, 0); background-color: rgb(47, 45, 45);">
+            <nav class="status-box" id="status-box">
                 <div class="nav-links" id="navLinks">
                     <ul><li><h3 id="usernameElement">Username: </h3></li></ul>
                     <ul><li><a>Aimtec: <innertext id="aimtecOnlineElement">Loading...</innertext></a></li></ul>
 
                     <ul>
-                        <li><button onclick="createCharts(80, 60000)" id="minuteTF">M1</a></li>
-                        <li><button onclick="createCharts(80, 600000)" id="minuteTF">M10</a></li>
-                        <li><button onclick="createCharts(80, 3600000)" id="hourTF">H1</a></li>
-                        <li><button onclick="createCharts(80, 86400000)" id="dailyTF">D1</a></li>
+                        <li><button onclick="createCharts(80, 1)" id="minuteTF">M1</a></li>
+                        <li><button onclick="createCharts(80, 10)" id="minuteTF">M10</a></li>
+                        <li><button onclick="createCharts(80, 60)" id="hourTF">H1</a></li>
+                        <li><button onclick="createCharts(80, 1440)" id="dailyTF">D1</a></li>
                     </ul>
                 </div>
             </nav>
@@ -48,31 +48,31 @@
 
             <nav style = "border: 5px solid rgb(0, 0, 0); background-color: rgb(47, 45, 45)" id="StatusRedTeam">
             <h2 style = "border: 5px solid rgb(255, 0, 0)">Team Red</h2>
-            <a>Red: <innertext id="redStatus">Offline</innertext></a>
+            <h2><innertext id="redStatus">Offline</innertext></h2>
             </nav>
             <canvas id="canvas_red"></canvas>
 
             <nav style = "border: 5px solid rgb(0, 0, 0); background-color: rgb(47, 45, 45)" id="StatusBlackTeam">
             <h2 style = "border: 5px solid rgb(0, 0, 0)">Team Black</h2>
-            <a>Black: <innertext id="blackStatus">Offline</innertext></a>
+            <h2><innertext id="blackStatus">Offline</innertext></h2>
             </nav>
             <canvas id="canvas_black"></canvas>
 
             <nav style = "border: 5px solid rgb(0, 0, 0); background-color: rgb(47, 45, 45);" id="StatusBlueTeam">
             <h2 style = "border: 5px solid rgb(25, 0, 255)">Team Blue</h2>
-            <a>Blue status: <innertext id="blueStatus">Offline</innertext></a>
+            <h2><innertext id="blueStatus">Offline</innertext></h2>
             </nav>
             <canvas id="canvas_blue"></canvas>
 
             <nav style = "border: 5px solid rgb(0, 0, 0); background-color: rgb(47, 45, 45)" id="StatusGreenTeam">
             <h2 style = "border: 5px solid rgb(32, 255, 32)">Team Green</h2>
-            <a>Green status: <innertext id="greenStatus">Offline</innertext></a>
+            <h2><innertext id="greenStatus">Offline</innertext></h2>
             </nav>
             <canvas id="canvas_green"></canvas>
 
             <nav style = "border: 5px solid rgb(0, 0, 0); background-color: rgb(47, 45, 45)" id="StatusPinkTeam">
             <h2 style = "border: 5px solid rgb(255, 0, 234)">Team Pink</h2>
-            <a>Pink status: <innertext id="pinkStatus">Offline</innertext></a>
+            <h2><innertext id="pinkStatus">Offline</innertext></h2>
             </nav>
             <canvas id="canvas_pink"></canvas>
         </div>
@@ -82,11 +82,20 @@
         <script>
             //otvira a zavira menu
             var logout = document.getElementById("closed");
+            var statbox = document.getElementById("status-box")
             function showMenu(){
-                logout.style.right ="0";
+                statbox.style.right ="unset";
+                statbox.style.left ="0";
+                logout.style.right = "0"
+                
+
             }
             function hideMenu(){
+                
                 logout.style.right ="-300px";
+                //statbox.style.right ="-300px";
+                //statbox.style.left = "unset"
+                statbox.style.left = "-300px";
             }
         </script>
     </body>
