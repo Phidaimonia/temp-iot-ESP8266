@@ -309,8 +309,6 @@ if __name__ == '__main__':
     mqtt_client_id = "observer" + str(random.randint(10000000, 999999999999))
     mqtt_room_name = cfg["mqtt"]["room_name"]
 
-    team_list = ["red", "blue", "black", "pink", "green"]
-    sensor_status = {name:None for name in team_list}
 
     loader = T.Loader("./Static/")
     temp = loader.load("index.html")
@@ -348,8 +346,11 @@ if __name__ == '__main__':
 
     if not db_connected:
         app_log.error("Can't connect to DB, continuing...")
+        team_list = cfg["default_teams"] #default teams
     else:
         app_log.debug("Connected to DB")
+        team_list = database.get_teams()
+    sensor_status = {name:None for name in team_list}
 
 
     client = mqtt.Client(mqtt_client_id)
