@@ -126,7 +126,7 @@ nav{
          .closed{
           position: absolute;
           background: #f44336;
-          height: fit-content;
+          height: 25px;
           width: 100px;
           top: 0;
           right: -300px;
@@ -145,6 +145,11 @@ nav{
           .closed{
             padding: 30px;
       
+          }
+          #status-box{
+            z-index: -1;
+            position:fixed;
+            top: 25px;
           }
       }
 
