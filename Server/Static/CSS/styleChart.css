@@ -127,8 +127,8 @@ nav{
        }
          .closed{
           position: absolute;
-          background: #f44336;
-          height: 30px;
+          background: rgb(47, 45, 45);
+          height: 145.85;
           width: 100px;
           top: 0;
           right: -300px;
@@ -151,17 +151,12 @@ nav{
       
           }
           .status-box{
-            z-index: -1;
-            top: 100px;
-            padding: 0;
-          margin: 0;  
-          }
+            right: -300;
+            transition: 1s;
+            background-color: rgb(47, 45, 45);
+            border: 0;
+            }
       }
-
-
-
-
-
 
       .nav-links{
         flex: 1;
