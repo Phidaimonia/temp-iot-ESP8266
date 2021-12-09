@@ -26,7 +26,7 @@ class DB:
         self.log = logger
         self.connected = False
         try:
-            config = open("config_db.json", "r")   # load parameters
+            config = open("config.json", "r")   # load parameters
             self.cfg = json.load(config)
             config.close()
         except json.JSONDecodeError as err:
@@ -51,7 +51,7 @@ class DB:
 
     def __connect(self):
         try:    
-            self.conn = psycopg2.connect(self.cfg["CONNECTION"])
+            self.conn = psycopg2.connect(self.cfg["db_connection"])
         except psycopg2.OperationalError as err:
             self.log("E: Unable to connect to the database.")
             self.connected = False
@@ -257,6 +257,34 @@ class DB:
             break
         return None
 
+    def get_teams(self):
+        """
+        Fetches teams from the DB and returns them.
+
+        Returns
+        -------
+        list
+            of teams defined in sesors table
+        """
+        SELECT = """SELECT S.team
+                    FROM sensors S;"""
+
+        for i in range(3): #tries to reconnect 2 times
+            try:
+                self.cursor.execute(SELECT)
+                self.conn.commit()
+                self.log("D: Successfully retrieved data")
+                teams = self.cursor.fetchall()
+                return [team[0] for team in teams]
+            except psycopg2.OperationalError as err:
+                self.log("E: Problem with reading from the DB, might have had lost the connection to the DB. \n   Trying to reconnect. Attempts left:" + str(2-i))
+                self.connected = False
+                self.__connect()
+                time.sleep(5)
+                continue
+            break
+        return None
+
 if __name__ == '__main__':       # tests
     db = DB()
     # for d in range(1, 15):
@@ -264,10 +292,10 @@ if __name__ == '__main__':       # tests
     #        message = json.dumps({'team_name': 'pink', 'created_on': '2020-03-{0:02d}T{1:02d}:26:05.336974'.format(d, h), 'temperature': 25.72})
     #        db.write_message(message)
 
-    data = db.read_min_max_messages(pytz.utc.localize(datetime.datetime(2021, 12, 5, 15)), pytz.utc.localize(datetime.datetime(2021, 12, 5, 16)), ['red', 'pink'], datetime.timedelta(minutes=10))
+    #data = db.read_min_max_messages(pytz.utc.localize(datetime.datetime(2021, 12, 5, 15)), pytz.utc.localize(datetime.datetime(2021, 12, 5, 16)), ['red', 'pink'], datetime.timedelta(minutes=10))
+    data = db.get_teams()
     for m in data:
         print(m)
-        print("")
 
     #t = "2021-12-2T23:7:3.397000"
     #print(t)
