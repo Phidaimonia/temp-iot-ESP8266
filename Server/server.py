@@ -40,7 +40,7 @@ class LogoutHandler(tornado.web.RequestHandler):
         self.render("Static/index.html")
 
 class RootHandler(tornado.web.RequestHandler):
-    async def get(self):
+    def get(self):
         self.render("Static/index.html")
 
 
@@ -57,7 +57,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
     def open(self):
         self.set_nodelay(True)
-        #if db_connected:
+
         if not self.current_user:
             self.try_send_message("Not logged in, good bye")
             app_log.error("Not logged in, closing WS")
