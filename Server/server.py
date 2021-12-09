@@ -71,7 +71,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         except Exception as err:
             app_log.error("E: WS error: Can't send data")
             app_log.error(str(err))
-            self.ws_clients.remove(self)
+            app.ws_clients.remove(self)
             self.close()
 
 
