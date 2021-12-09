@@ -40,7 +40,7 @@ class LogoutHandler(tornado.web.RequestHandler):
         self.render("Static/index.html")
 
 class RootHandler(tornado.web.RequestHandler):
-    async def get(self):
+    def get(self):
         self.render("Static/index.html")
 
 
@@ -57,7 +57,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
     def open(self):
         self.set_nodelay(True)
-        #if db_connected:
+
         if not self.current_user:
             self.try_send_message("Not logged in, good bye")
             app_log.error("Not logged in, closing WS")
@@ -71,7 +71,8 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         except Exception as err:
             app_log.error("E: WS error: Can't send data")
             app_log.error(str(err))
-            app.ws_clients.remove(self)
+            if self in self.application.ws_clients:
+                self.application.ws_clients.remove(self)
             self.close()
 
 
@@ -143,7 +144,8 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             return
 
     def on_close(self):
-        self.application.ws_clients.remove(self)
+        if self in self.application.ws_clients:
+            self.application.ws_clients.remove(self)
         app_log.debug("WebSocket closed")
 
 
