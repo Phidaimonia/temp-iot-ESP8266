@@ -165,7 +165,7 @@ def on_connect_MQTT(client, userdata, flags, rc):
     client.subscribe(cfg["mqtt"]["room_name"] + "/" + cfg["mqtt"]["listen_topic"])
 
 
-async def on_message_MQTT(client, userdata, msg):
+def on_message_MQTT(client, userdata, msg):
     msg_str = msg.payload.decode('utf-8')
     app_log.debug("MQTT: " + msg.topic + " " + msg_str)
     
@@ -210,7 +210,7 @@ async def on_message_MQTT(client, userdata, msg):
         
         #print("Final datapoint: " + final_msg)
 
-        if await database.write_message(msg_str):
+        if database.write_message(msg_str):
             app_log.debug("Saved to DB")               
         else:
             app_log.debug("Not saved to DB")
