@@ -211,7 +211,7 @@ def on_message_MQTT(client, userdata, msg):
         #if db_connected:
         app_log.debug(database.write_message(msg_str))                # save to db
 
-        sensor_status[data["team_name"]] = dt.datetime.now(timezone.utc)        # last online = now
+        sensor_status[data["team_name"]] = dt.datetime.now(timezone.utc).isoformat()        # last online = now
          
          
         app.send_ws_message(final_msg)                            # push to frontend
