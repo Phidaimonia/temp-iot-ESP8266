@@ -5,6 +5,7 @@ import ujson as json
 
 print("Reboot...")
 
+
 def measure_temp():
     try:
         ds.convert_temp()
@@ -25,8 +26,7 @@ def save_data(data):
 def file_exists(fname):
     try:
         with open(fname, 'r') as f:
-            f.close()
-        return True
+            return True
     except Exception:
         return False
 
@@ -55,7 +55,17 @@ client = MQTTClient(CLIENT_ID, cfg["mqtt"]["broker"], cfg["mqtt"]["port"], cfg["
 wlan = network.WLAN(network.STA_IF)
 network.WLAN(network.AP_IF).active(False)
 
-next_stop = time.time() + cfg["update_period"] - (time.time() + cfg["update_period"]) % cfg["update_period"]
+ds = ds18x20.DS18X20(onewire.OneWire(Pin(cfg["ds_pin"])))
+roms = ds.scan()
+
+m_temp = measure_temp()  # first measure to init sensor properly
+
+next_stop = time.time() + cfg["update_period"] - time.time() % cfg["update_period"]
+waitTime = max(next_stop - time.time(), 1)
+
+print("Wait time is {}".format(waitTime))
+machine.lightsleep(waitTime * 1000)
+
 
 while 1:
     startTime = time.ticks_ms()
@@ -95,8 +105,6 @@ while 1:
             print("Exception number: {}".format(err)) 
             connected = False
 
-    ds = ds18x20.DS18X20(onewire.OneWire(Pin(cfg["ds_pin"])))
-    roms = ds.scan()
 
     if (not connected) and justBooted:   
         if file_exists(historyFileName):
@@ -135,7 +143,6 @@ while 1:
             broadcastData({"team_name": cfg["team"], "created_on":getISOTime(), "message": "Sensor is broken..."})
 
     next_stop = min(next_stop + cfg["update_period"], time.time() + cfg["update_period"] - time.time() % cfg["update_period"])
-
     waitTime = max(next_stop - time.time(), 10)
 
     print("Wait time is {}".format(waitTime))
