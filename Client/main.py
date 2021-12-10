@@ -6,10 +6,17 @@ import ujson as json
 print("Reboot...")
 
 
-def measure_temp():
+def measure_temp_median():
     try:
-        ds.convert_temp()
-        return round(ds.read_temp(roms[0]), cfg["temp_precision_places"])
+        x = [0.0, 0.0, 0.0]
+        for i in range(3):
+            ds.convert_temp()
+            x[i] = round(ds.read_temp(roms[0]), cfg["temp_precision_places"])
+
+        min_x = min(min(x[0], x[1]), x[2])
+        max_x = max(max(x[0], x[1]), x[2])
+
+        return x[0] + x[1] + x[2] - min_x - max_x # median
     except:
         return None
 
@@ -58,12 +65,12 @@ network.WLAN(network.AP_IF).active(False)
 ds = ds18x20.DS18X20(onewire.OneWire(Pin(cfg["ds_pin"])))
 roms = ds.scan()
 
-m_temp = measure_temp()  # first measure to init sensor properly
+m_temp = measure_temp_median()  # first measure to init sensor properly
 
 next_stop = time.time() + cfg["update_period"] - time.time() % cfg["update_period"]
 waitTime = max(next_stop - time.time(), 1)
 
-print("Wait time is {}".format(waitTime))
+print("Initial wait time is {}".format(waitTime))
 machine.lightsleep(waitTime * 1000)
 
 
@@ -113,7 +120,7 @@ while 1:
     #if connected and file_exists(historyFileName): 
         #adjustDatetime
 
-    m_temp = measure_temp()
+    m_temp = measure_temp_median()
     dataStr = json.dumps({"team_name": cfg["team"], "created_on":getISOTime(), "temperature": m_temp})
 
     if m_temp is not None:
