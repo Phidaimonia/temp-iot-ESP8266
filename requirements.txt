@@ -1,0 +1,8 @@
+tornado==6.1
+psycopg2==2.9.2
+pytz==2021.3
+urllib3==1.26.7
+imutils==0.5.4
+numpy==1.21.4
+paho_mqtt==1.6.1
+python_dateutil==2.8.2
