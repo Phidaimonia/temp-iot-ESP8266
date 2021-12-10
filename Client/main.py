@@ -12,6 +12,7 @@ def measure_temp_median():
         for i in range(3):
             ds.convert_temp()
             x[i] = round(ds.read_temp(roms[0]), cfg["temp_precision_places"])
+            machine.lightsleep(100)
 
         min_x = min(min(x[0], x[1]), x[2])
         max_x = max(max(x[0], x[1]), x[2])
