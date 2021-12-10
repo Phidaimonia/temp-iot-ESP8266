@@ -22,15 +22,6 @@ def save_data(data):
         print("Can't save data, not enough memory?")
 
 
-def get_last_checkpoint():
-    try:
-        with open(historyFileName, 'r') as f:
-            tm = f.readline()
-            f.close()
-        return int(tm)
-    except Exception as err:
-        return err
-
 def file_exists(fname):
     try:
         with open(fname, 'r') as f:
