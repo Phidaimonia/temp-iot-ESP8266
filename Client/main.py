@@ -68,13 +68,6 @@ roms = ds.scan()
 
 m_temp = measure_temp_median()  # first measure to init sensor properly
 
-next_stop = time.time() + cfg["update_period"] - time.time() % cfg["update_period"]
-waitTime = max(next_stop - time.time(), 1)
-
-print("Initial wait time is {}".format(waitTime))
-machine.lightsleep(waitTime * 1000)
-
-
 while 1:
     startTime = time.ticks_ms()
     connected = False
@@ -124,32 +117,36 @@ while 1:
     m_temp = measure_temp_median()
     dataStr = json.dumps({"team_name": cfg["team"], "created_on":getISOTime(), "temperature": m_temp})
 
-    if m_temp is not None:
-        if connected: 
-                try:
-                    with open(historyFileName, 'r') as dataFile:
-                        print("     Sending saved data...")
-                        validData = True
+    if not justBooted:
+        if m_temp is not None:
+            if connected: 
+                    try:
+                        with open(historyFileName, 'r') as dataFile:
+                            print("     Sending saved data...")
+                            validData = True
 
-                        for line in dataFile:
-                            broadcastData(line.replace("\n", ""))
+                            for line in dataFile:
+                                broadcastData(line.replace("\n", ""))
 
-                        dataFile.close()
-                        os.remove(historyFileName)
-                    broadcastData(dataStr)
-                except OSError as err:
-                    print("No saved data to send...") 
-                    broadcastData(dataStr)
-                except umqtt.MQTTException as err: 
-                    print("Exception number: {}".format(err))
-                    print("Can't send data, saving for later...") 
-                    save_data(dataStr)
-        else: 
-            save_data(dataStr)
-    else:
-        if connected:  
-            broadcastData({"team_name": cfg["team"], "created_on":getISOTime(), "message": "Sensor is broken..."})
+                            dataFile.close()
+                            os.remove(historyFileName)
+                        broadcastData(dataStr)
+                    except OSError as err:
+                        print("No saved data to send...") 
+                        broadcastData(dataStr)
+                    except umqtt.MQTTException as err: 
+                        print("Exception number: {}".format(err))
+                        print("Can't send data, saving for later...") 
+                        save_data(dataStr)
+            else: 
+                save_data(dataStr)
+        else:
+            if connected:  
+                broadcastData({"team_name": cfg["team"], "created_on":getISOTime(), "message": "Sensor is broken..."})
 
+
+    if justBooted:
+        next_stop = time.time() + cfg["update_period"] - time.time() % cfg["update_period"]
     next_stop = min(next_stop + cfg["update_period"], time.time() + cfg["update_period"] - time.time() % cfg["update_period"])
     waitTime = max(next_stop - time.time(), 10)
 
