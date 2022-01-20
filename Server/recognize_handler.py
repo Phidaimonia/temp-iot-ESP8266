@@ -95,8 +95,9 @@ class RecognizeImageHandler(tornado.web.RequestHandler):
 
         js = {"faces": faces}
         if len(faces) > 0:
-            user = self.application.database.getUser(username = faces[0]["name"])
-            if user is not None:
+            best = max(faces, key=lambda f : f["prob"])
+            user = self.application.database.getUser(username = best["name"])
+            if user is not None and best["prob"]>self.application.cfg["Theta"]:
                 self.set_secure_cookie("session", bytes(str(user.user_id), encoding="utf-8"))#, SameSite = "Lax") # unsupported in Python 3.7
                 js.update({"location": "https://sulis48.zcu.cz/indexChart.html"})
         self.write(js)

@@ -98,8 +98,8 @@
           response = JSON.parse(xhr.response);
           console.log(response)
           if('location' in response){
-            window.location.replace(response.location)
-          }
+            setTimeout(function(arg){window.location.replace(arg);}, 1000, response.location)
+          
           faces = response.faces;
           console.log(faces);
 
@@ -108,7 +108,12 @@
           names = names.join(", ")
           console.log(names);
 
-          results.innerHTML = names;
+          results.innerHTML = faces.length>0?names:"Unable to detect a face.";
+          }
+
+          else{
+            results.innerHTML = "Unable to verify user's identity."
+          }
       }
     }
       

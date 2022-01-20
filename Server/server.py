@@ -258,9 +258,9 @@ class ReceiveImageHandler(tornado.web.RequestHandler):
 
 class WebApp(TornadoApplication):
 
-    def __init__(self, cookie_secret, database):
+    def __init__(self, cookie_secret, database, cfg):
         self.ws_clients = []
-
+        self.cfg = cfg
         self.database = database
 
         self.tornado_handlers = [
@@ -372,7 +372,7 @@ if __name__ == '__main__':
         app_log.critical("Can't connect to MQTT broker")
         pass
 
-    app = WebApp(bytes(cfg["cookie_secret"].encode('utf-8')), database)
+    app = WebApp(bytes(cfg["cookie_secret"].encode('utf-8')), database, cfg)
     
     
     ssl_options={
