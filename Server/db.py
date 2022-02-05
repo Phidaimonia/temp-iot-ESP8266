@@ -109,6 +109,7 @@ class DB:
 
         for i in range(3):
             try:
+                self.conn.rollback()
                 self.cursor.execute(INSERT, data)
                 self.conn.commit()
                 #self.log("D: Successfully saved the message: {0}".format(msg))
@@ -141,6 +142,7 @@ class DB:
 
         for i in range(3): #tries to reconnect 2 times
             try:
+                self.conn.rollback()
                 self.cursor.execute(SELECT, [user_id, username])
                 self.conn.commit()
                 self.log("D: Successfully retrieved data")
@@ -186,6 +188,7 @@ class DB:
 
             for i in range(3): #tries to reconnect 2 times
                 try:
+                    self.conn.rollback()
                     self.cursor.execute(SELECT, data)
                     self.conn.commit()
                     self.log("D: Successfully retrieved data")
@@ -243,6 +246,7 @@ class DB:
 
         for i in range(3): #tries to reconnect 2 times
             try:
+                self.conn.rollback()
                 self.cursor.execute(SELECT, data)
                 self.conn.commit()
                 self.log("D: Successfully retrieved data")
@@ -271,6 +275,7 @@ class DB:
 
         for i in range(3): #tries to reconnect 2 times
             try:
+                self.conn.rollback()
                 self.cursor.execute(SELECT)
                 self.conn.commit()
                 self.log("D: Successfully retrieved data")
